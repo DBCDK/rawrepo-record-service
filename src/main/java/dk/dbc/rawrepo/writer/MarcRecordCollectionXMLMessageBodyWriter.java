@@ -22,7 +22,6 @@ import java.util.HashSet;
 @Provider
 @Produces(MediaType.APPLICATION_XML)
 public class MarcRecordCollectionXMLMessageBodyWriter implements MessageBodyWriter<Collection<MarcRecord>> {
-    private static final XLogger LOGGER = XLoggerFactory.getXLogger(MarcRecordCollectionXMLMessageBodyWriter.class);
 
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
