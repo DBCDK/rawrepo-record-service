@@ -2,8 +2,6 @@ package dk.dbc.rawrepo.writer;
 
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.writer.MarcXchangeV1Writer;
-import org.slf4j.ext.XLogger;
-import org.slf4j.ext.XLoggerFactory;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
