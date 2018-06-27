@@ -42,6 +42,11 @@ pipeline {
         }
 
         stage("docker build") {
+            when {
+                expression {
+                    currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                }
+            }
             steps {
                 script {
                     version = env.BRANCH_NAME + '-' + env.BUILD_NUMBER
