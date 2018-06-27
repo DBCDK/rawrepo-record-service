@@ -46,7 +46,7 @@ pipeline {
                 script {
                     version = env.BRANCH_NAME + '-' + env.BUILD_NUMBER
 
-                    def image = docker.build("docker-i.dbc.dk/rawrepo-records-service:${version}")
+                    def image = docker.build("docker-i.dbc.dk/rawrepo-content-service-v2:${version}")
                     image.push()
 
                     if (env.BRANCH_NAME == 'master') {
