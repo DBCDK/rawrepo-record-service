@@ -50,7 +50,17 @@ public class MarcRecordBean {
     private MarcXMerger defaultMerger;
     private MarcXMerger overwriteMerger;
 
-    private RawRepoDAO createDAO(Connection conn) throws RawRepoException {
+    // Constructor used for mocking
+    MarcRecordBean(DataSource globalDataSource) {
+        this.globalDataSource = globalDataSource;
+    }
+
+    // Default constructor - required as there is another constructor
+    public MarcRecordBean() {
+
+    }
+
+    protected RawRepoDAO createDAO(Connection conn) throws RawRepoException {
         try {
             RawRepoDAO.Builder rawRepoBuilder = RawRepoDAO.builder(conn);
             rawRepoBuilder.relationHints(new RelationHintsOpenAgency(openAgency.getService()));

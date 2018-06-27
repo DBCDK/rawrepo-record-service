@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<record xmlns='info:lc/xmlns/marcxchange-v1' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='info:lc/xmlns/marcxchange-v1 http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd'>
+    <leader>00000n    2200000   4500</leader>
+    <datafield ind1='0' ind2='0' tag='001'>
+        <subfield code='a'>90004158</subfield>
+        <subfield code='b'>870970</subfield>
+        <subfield code='c'>20180627094141</subfield>
+        <subfield code='d'>20141209</subfield>
+        <subfield code='f'>a</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='004'>
+        <subfield code='r'>n</subfield>
+        <subfield code='a'>e</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='008'>
+        <subfield code='t'>m</subfield>
+        <subfield code='u'>f</subfield>
+        <subfield code='a'>2014</subfield>
+        <subfield code='b'>dk</subfield>
+        <subfield code='l'>dan</subfield>
+        <subfield code='x'>06</subfield>
+        <subfield code='v'>0</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='009'>
+        <subfield code='a'>r</subfield>
+        <subfield code='g'>xe</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='032'>
+        <subfield code='a'>DBF199746</subfield>
+        <subfield code='x'>SFD199746</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='100'>
+        <subfield code='a'>Freyheit</subfield>
+        <subfield code='h'>Berit</subfield>
+        <subfield code='4'>aut</subfield>
+        <subfield code='4'>dkind</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='245'>
+        <subfield code='a'>Netlydbog - fællesskabspost</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='260'>
+        <subfield code='b'>Københavns Biblioteker</subfield>
+        <subfield code='c'>2014</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='300'>
+        <subfield code='l'>Ca. 27 min.</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='440'>
+        <subfield code='0'></subfield>
+        <subfield code='a'>Biblocast</subfield>
+        <subfield code='V'>1</subfield>
+        <subfield code='v'>#1</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='504'>
+        <subfield code='a'>Podcast til gavn og glæde</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='512'>
+        <subfield code='i'>Alternativ titel</subfield>
+        <subfield code='t'>Den ¤første store krig</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='512'>
+        <subfield code='a'>Downloades i MP3-format</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='600'>
+        <subfield code='&amp;'>710100</subfield>
+        <subfield code='a'>Andersen</subfield>
+        <subfield code='h'>Marianne</subfield>
+        <subfield code='c'>f. 1925</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='652'>
+        <subfield code='m'>81.08</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='666'>
+        <subfield code='f'>den ¤1. verdenskrig</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='666'>
+        <subfield code='f'>litteratur</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='666'>
+        <subfield code='f'>skønlitteratur</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='666'>
+        <subfield code='f'>romaner</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='666'>
+        <subfield code='f'>krigsromaner</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='700'>
+        <subfield code='5'>870979</subfield>
+        <subfield code='6'>68712742</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='700'>
+        <subfield code='5'>870979</subfield>
+        <subfield code='6'>69294685</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='700'>
+        <subfield code='å'>1</subfield>
+        <subfield code='a'>Hegelund</subfield>
+        <subfield code='h'>Karin</subfield>
+        <subfield code='4'>dkind</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='710'>
+        <subfield code='a'>Københavns Biblioteker</subfield>
+        <subfield code='4'>isb</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='745'>
+        <subfield code='a'>Den ¤1. store krig</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='856'>
+        <subfield code='z'>Adgangsmåde: Internet</subfield>
+        <subfield code='u'>https://bibliotek.kk.dk/temaer/bibcast/blog/bibcast-22-golden-days-foerste-store-krig</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='900'>
+        <subfield code='a'>Hegelund</subfield>
+        <subfield code='h'>Karin Skrydstrup</subfield>
+        <subfield code='z'>700/1</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='900'>
+        <subfield code='a'>Skrydstrup Hegelund</subfield>
+        <subfield code='h'>Karin</subfield>
+        <subfield code='z'>700/1</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='900'>
+        <subfield code='a'>Hegelund</subfield>
+        <subfield code='h'>Karin S.</subfield>
+        <subfield code='z'>700/1</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='900'>
+        <subfield code='a'>Hegelund Hansen</subfield>
+        <subfield code='h'>Karin</subfield>
+        <subfield code='x'>se også under det senere navn</subfield>
+        <subfield code='z'>700/1</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='910'>
+        <subfield code='s'>Københavns Kommune</subfield>
+        <subfield code='c'>Kultur- og Fritidsforvaltningen</subfield>
+        <subfield code='c'>Københavns Biblioteker</subfield>
+        <subfield code='z'>710</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='996'>
+        <subfield code='a'>DBC</subfield>
+    </datafield>
+    <datafield ind1='0' ind2='0' tag='d08'>
+        <subfield code='a'>Dette er en note</subfield>
+    </datafield>
+</record>
