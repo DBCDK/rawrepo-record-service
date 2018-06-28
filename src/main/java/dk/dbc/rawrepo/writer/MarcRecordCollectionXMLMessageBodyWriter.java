@@ -2,8 +2,6 @@ package dk.dbc.rawrepo.writer;
 
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.writer.MarcXchangeV1Writer;
-import org.slf4j.ext.XLogger;
-import org.slf4j.ext.XLoggerFactory;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -22,7 +20,6 @@ import java.util.HashSet;
 @Provider
 @Produces(MediaType.APPLICATION_XML)
 public class MarcRecordCollectionXMLMessageBodyWriter implements MessageBodyWriter<Collection<MarcRecord>> {
-    private static final XLogger LOGGER = XLoggerFactory.getXLogger(MarcRecordCollectionXMLMessageBodyWriter.class);
 
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
