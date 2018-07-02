@@ -28,12 +28,12 @@ public class ContentLineService {
     private MarcRecordBean marcRecordBean;
 
     @GET
-    @Path("v2/raw/{agencyid}/{bibliographicrecordid}/line")
+    @Path("v1/record/{agencyid}/{bibliographicrecordid}/content/raw/line")
     @Produces({MediaType.TEXT_PLAIN})
     public String GetRaw(@PathParam("agencyid") int agencyId,
                          @PathParam("bibliographicrecordid") String bibliographicRecordId) {
         try {
-            final MarcRecord record = marcRecordBean.getRawRecord(bibliographicRecordId, agencyId);
+            final MarcRecord record = marcRecordBean.getMarcRecord(bibliographicRecordId, agencyId);
 
             DanMarc2LineFormatWriter writer = new DanMarc2LineFormatWriter();
 
@@ -41,12 +41,12 @@ public class ContentLineService {
         } catch (MarcWriterException e) {
             throw new InternalServerErrorException();
         } finally {
-            LOGGER.info("v2/raw/{agencyid}/{bibliographicrecordid}/line");
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/content/raw/line");
         }
     }
 
     @GET
-    @Path("v2/merged/{agencyid}/{bibliographicrecordid}/line")
+    @Path("v1/record/{agencyid}/{bibliographicrecordid}/content/merged/line")
     @Produces({MediaType.TEXT_PLAIN})
     public String GetMerged(@PathParam("agencyid") int agencyId,
                             @PathParam("bibliographicrecordid") String bibliographicRecordId,
@@ -54,7 +54,7 @@ public class ContentLineService {
                             @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                             @DefaultValue("false") @QueryParam("overwrite-common-agency") boolean overwriteCommonAgency) {
         try {
-            final MarcRecord record = marcRecordBean.getRecordMergedOrExpanded(bibliographicRecordId, agencyId, false, allowDeleted, excludeDBCFields, overwriteCommonAgency);
+            final MarcRecord record = marcRecordBean.getMarcRecordMergedOrExpanded(bibliographicRecordId, agencyId, false, allowDeleted, excludeDBCFields, overwriteCommonAgency);
 
             DanMarc2LineFormatWriter writer = new DanMarc2LineFormatWriter();
 
@@ -62,12 +62,12 @@ public class ContentLineService {
         } catch (MarcWriterException e) {
             throw new InternalServerErrorException();
         } finally {
-            LOGGER.info("v2/raw/{agencyid}/{bibliographicrecordid}/line");
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/content/merged/line");
         }
     }
 
     @GET
-    @Path("v2/expanded/{agencyid}/{bibliographicrecordid}/line")
+    @Path("v1/record/{agencyid}/{bibliographicrecordid}/content/expanded/line")
     @Produces({MediaType.TEXT_PLAIN})
     public String GetExpanded(@PathParam("agencyid") int agencyId,
                               @PathParam("bibliographicrecordid") String bibliographicRecordId,
@@ -75,7 +75,7 @@ public class ContentLineService {
                               @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                               @DefaultValue("false") @QueryParam("overwrite-common-agency") boolean overwriteCommonAgency) {
         try {
-            final MarcRecord record = marcRecordBean.getRecordMergedOrExpanded(bibliographicRecordId, agencyId, true, allowDeleted, excludeDBCFields, overwriteCommonAgency);
+            final MarcRecord record = marcRecordBean.getMarcRecordMergedOrExpanded(bibliographicRecordId, agencyId, true, allowDeleted, excludeDBCFields, overwriteCommonAgency);
 
             DanMarc2LineFormatWriter writer = new DanMarc2LineFormatWriter();
 
@@ -83,12 +83,12 @@ public class ContentLineService {
         } catch (MarcWriterException e) {
             throw new InternalServerErrorException();
         } finally {
-            LOGGER.info("v2/raw/{agencyid}/{bibliographicrecordid}/line");
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/content/expanded/line");
         }
     }
 
     @GET
-    @Path("v2/collection/{agencyid}/{bibliographicrecordid}/line")
+    @Path("v1/record/{agencyid}/{bibliographicrecordid}/content/collection/line")
     @Produces({MediaType.TEXT_PLAIN})
     public String GetCollection(@PathParam("agencyid") int agencyId,
                                 @PathParam("bibliographicrecordid") String bibliographicRecordId,
@@ -96,7 +96,7 @@ public class ContentLineService {
                                 @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                 @DefaultValue("false") @QueryParam("overwrite-common-agency") boolean overwriteCommonAgency) {
         try {
-            final Collection<MarcRecord> collection = marcRecordBean.getRecordCollection(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, overwriteCommonAgency);
+            final Collection<MarcRecord> collection = marcRecordBean.getMarcRecordCollection(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, overwriteCommonAgency);
 
             final DanMarc2LineFormatWriter writer = new DanMarc2LineFormatWriter();
 
@@ -110,7 +110,7 @@ public class ContentLineService {
         } catch (MarcWriterException e) {
             throw new InternalServerErrorException();
         } finally {
-            LOGGER.info("v2/collection/{agencyid}/{bibliographicrecordid}/line");
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/content/collection/line");
         }
     }
 }

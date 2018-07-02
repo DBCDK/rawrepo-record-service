@@ -24,21 +24,21 @@ public class ContentJSONService {
     private MarcRecordBean marcRecordBean;
 
     @GET
-    @Path("v2/raw/{agencyid}/{bibliographicrecordid}/json")
+    @Path("v1/record/{agencyid}/{bibliographicrecordid}/content/raw/json")
     @Produces({MediaType.APPLICATION_JSON})
     public MarcRecord GetRaw(@PathParam("agencyid") int agencyId,
                              @PathParam("bibliographicrecordid") String bibliographicRecordId) {
         try {
-            final MarcRecord record = marcRecordBean.getRawRecord(bibliographicRecordId, agencyId);
+            final MarcRecord record = marcRecordBean.getMarcRecord(bibliographicRecordId, agencyId);
 
             return record;
         } finally {
-            LOGGER.info("v2/raw/{agencyid}/{bibliographicrecordid}/json");
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/content/raw/json");
         }
     }
 
     @GET
-    @Path("v2/merged/{agencyid}/{bibliographicrecordid}/json")
+    @Path("v1/record/{agencyid}/{bibliographicrecordid}/content/merged/json")
     @Produces({MediaType.APPLICATION_JSON})
     public MarcRecord GetMerged(@PathParam("agencyid") int agencyId,
                                 @PathParam("bibliographicrecordid") String bibliographicRecordId,
@@ -46,16 +46,16 @@ public class ContentJSONService {
                                 @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                 @DefaultValue("false") @QueryParam("overwrite-common-agency") boolean overwriteCommonAgency) {
         try {
-            final MarcRecord record = marcRecordBean.getRecordMergedOrExpanded(bibliographicRecordId, agencyId, false, allowDeleted, excludeDBCFields, overwriteCommonAgency);
+            final MarcRecord record = marcRecordBean.getMarcRecordMergedOrExpanded(bibliographicRecordId, agencyId, false, allowDeleted, excludeDBCFields, overwriteCommonAgency);
 
             return record;
         } finally {
-            LOGGER.info("v2/merged/{agencyid}/{bibliographicrecordid}/json");
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/content/merged/json");
         }
     }
 
     @GET
-    @Path("v2/expanded/{agencyid}/{bibliographicrecordid}/json")
+    @Path("v1/record/{agencyid}/{bibliographicrecordid}/content/expanded/json")
     @Produces({MediaType.APPLICATION_JSON})
     public MarcRecord GetExpanded(@PathParam("agencyid") int agencyId,
                                   @PathParam("bibliographicrecordid") String bibliographicRecordId,
@@ -63,16 +63,16 @@ public class ContentJSONService {
                                   @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                   @DefaultValue("false") @QueryParam("overwrite-common-agency") boolean overwriteCommonAgency) {
         try {
-            final MarcRecord record = marcRecordBean.getRecordMergedOrExpanded(bibliographicRecordId, agencyId, true, allowDeleted, excludeDBCFields, overwriteCommonAgency);
+            final MarcRecord record = marcRecordBean.getMarcRecordMergedOrExpanded(bibliographicRecordId, agencyId, true, allowDeleted, excludeDBCFields, overwriteCommonAgency);
 
             return record;
         } finally {
-            LOGGER.info("v2/expanded/{agencyid}/{bibliographicrecordid}/json");
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/content/expanded/json");
         }
     }
 
     @GET
-    @Path("v2/collection/{agencyid}/{bibliographicrecordid}/json")
+    @Path("v1/record/{agencyid}/{bibliographicrecordid}/content/collection/json")
     @Produces({MediaType.APPLICATION_JSON})
     public Collection<MarcRecord> GetCollection(@PathParam("agencyid") int agencyId,
                                                 @PathParam("bibliographicrecordid") String bibliographicRecordId,
@@ -80,11 +80,11 @@ public class ContentJSONService {
                                                 @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                                 @DefaultValue("false") @QueryParam("overwrite-common-agency") boolean overwriteCommonAgency) {
         try {
-            final Collection<MarcRecord> collection = marcRecordBean.getRecordCollection(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, overwriteCommonAgency);
+            final Collection<MarcRecord> collection = marcRecordBean.getMarcRecordCollection(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, overwriteCommonAgency);
 
             return collection;
         } finally {
-            LOGGER.info("v2/collection/{agencyid}/{bibliographicrecordid}/json");
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/content/collection/json");
         }
     }
 }

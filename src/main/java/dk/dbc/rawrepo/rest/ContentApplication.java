@@ -8,6 +8,7 @@ package dk.dbc.rawrepo.rest;
 import dk.dbc.rawrepo.service.ContentJSONService;
 import dk.dbc.rawrepo.service.ContentLineService;
 import dk.dbc.rawrepo.service.ContentXMLService;
+import dk.dbc.rawrepo.service.RecordService;
 import dk.dbc.rawrepo.writer.MarcRecordCollectionXMLMessageBodyWriter;
 import dk.dbc.rawrepo.writer.MarcRecordXMLMessageBodyWriter;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ public class ContentApplication extends Application {
         classes.add(ContentXMLService.class);
         classes.add(ContentLineService.class);
         classes.add(ContentJSONService.class);
+        classes.add(RecordService.class);
 
         classes.add(MarcRecordXMLMessageBodyWriter.class);
         classes.add(MarcRecordCollectionXMLMessageBodyWriter.class);

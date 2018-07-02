@@ -4,6 +4,7 @@ import dk.dbc.marc.binding.Field;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marc.reader.MarcXchangeV1Reader;
+import dk.dbc.marc.writer.MarcXchangeV1Writer;
 import dk.dbc.marcxmerge.FieldRules;
 import dk.dbc.marcxmerge.MarcXChangeMimeType;
 import dk.dbc.marcxmerge.MarcXMerger;
@@ -122,7 +123,7 @@ public class MarcRecordBean {
         }
     }
 
-    private MarcRecord rawRecordToMarcRecord(Record rawRecord) throws MarcReaderException {
+    public MarcRecord rawRecordToMarcRecord(Record rawRecord) throws MarcReaderException {
         final byte[] content = rawRecord.getContent();
         final InputStream inputStream = new ByteArrayInputStream(content);
         final BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
@@ -132,7 +133,90 @@ public class MarcRecordBean {
         return reader.read();
     }
 
-    public MarcRecord getRawRecord(String bibliographicRecordId, int agencyId) throws WebApplicationException {
+    public boolean recordExists(String bibliographicRecordId, int agencyId, boolean maybeDeleted) {
+        try (Connection conn = globalDataSource.getConnection()) {
+            try {
+                final RawRepoDAO dao = createDAO(conn);
+
+                if (maybeDeleted) {
+                    return dao.recordExistsMaybeDeleted(bibliographicRecordId, agencyId);
+                } else {
+                    return dao.recordExists(bibliographicRecordId, agencyId);
+                }
+            } catch (RawRepoException ex) {
+                conn.rollback();
+                LOGGER.error(ex.getMessage(), ex);
+                throw new InternalServerErrorException(ex.getMessage(), ex);
+            }
+        } catch (SQLException ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            throw new InternalServerErrorException(ex.getMessage(), ex);
+        }
+    }
+
+    public Record getRawRecord(String bibliographicRecordId, int agencyId) throws WebApplicationException {
+        try (Connection conn = globalDataSource.getConnection()) {
+            try {
+                final RawRepoDAO dao = createDAO(conn);
+
+                final Record rawRecord = dao.fetchRecord(bibliographicRecordId, agencyId);
+
+                return rawRecord;
+            } catch (RawRepoException ex) {
+                conn.rollback();
+                LOGGER.error(ex.getMessage(), ex);
+                throw new InternalServerErrorException(ex.getMessage(), ex);
+            }
+        } catch (SQLException ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            throw new InternalServerErrorException(ex.getMessage(), ex);
+        }
+    }
+
+    public Record getRawRecordMergedOrExpanded(String bibliographicRecordId, int agencyId,
+                                                    boolean doExpand, boolean allowDeleted, boolean excludeDBCFields,
+                                                    boolean overwriteCommonAgency) throws WebApplicationException {
+        try (Connection conn = globalDataSource.getConnection()) {
+            try {
+                final RawRepoDAO dao = createDAO(conn);
+                Record rawRecord;
+
+                if (doExpand) {
+                    rawRecord = dao.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, getMerger(overwriteCommonAgency), allowDeleted);
+                } else {
+                    rawRecord = dao.fetchMergedRecord(bibliographicRecordId, agencyId, getMerger(overwriteCommonAgency), allowDeleted);
+                }
+
+                if (rawRecord.getContent() == null || rawRecord.getContent().length == 0) {
+                    throw new NotFoundException("Posten '" + bibliographicRecordId + ":" + Integer.toString(agencyId) + "' blev ikke fundet");
+                }
+
+                MarcRecord marcRecord = rawRecordToMarcRecord(rawRecord);
+
+                if (excludeDBCFields) {
+                    marcRecord = removePrivateFields(marcRecord);
+                }
+
+                MarcXchangeV1Writer writer = new MarcXchangeV1Writer();
+
+                rawRecord.setContent(writer.write(marcRecord, Charset.forName("UTF-8")));
+
+                return rawRecord;
+            } catch (RawRepoException ex) {
+                conn.rollback();
+                LOGGER.error(ex.getMessage(), ex);
+                throw new InternalServerErrorException(ex.getMessage(), ex);
+            } catch (MarcReaderException | MarcXMergerException ex) {
+                LOGGER.error(ex.getMessage(), ex);
+                throw new InternalServerErrorException(ex.getMessage(), ex);
+            }
+        } catch (SQLException ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            throw new InternalServerErrorException(ex.getMessage(), ex);
+        }
+    }
+
+    public MarcRecord getMarcRecord(String bibliographicRecordId, int agencyId) throws WebApplicationException {
         try (Connection conn = globalDataSource.getConnection()) {
             try {
                 final RawRepoDAO dao = createDAO(conn);
@@ -160,9 +244,9 @@ public class MarcRecordBean {
         }
     }
 
-    public MarcRecord getRecordMergedOrExpanded(String bibliographicRecordId, int agencyId,
-                                                boolean doExpand, boolean allowDeleted, boolean excludeDBCFields,
-                                                boolean overwriteCommonAgency) throws WebApplicationException {
+    public MarcRecord getMarcRecordMergedOrExpanded(String bibliographicRecordId, int agencyId,
+                                                    boolean doExpand, boolean allowDeleted, boolean excludeDBCFields,
+                                                    boolean overwriteCommonAgency) throws WebApplicationException {
         try (Connection conn = globalDataSource.getConnection()) {
             try {
                 final RawRepoDAO dao = createDAO(conn);
@@ -199,9 +283,9 @@ public class MarcRecordBean {
         }
     }
 
-    public Collection<MarcRecord> getRecordCollection(String bibliographicRecordId, int agencyId,
-                                                      boolean allowDeleted, boolean excludeDBCFields,
-                                                      boolean overwriteCommonAgency) throws WebApplicationException {
+    public Collection<MarcRecord> getMarcRecordCollection(String bibliographicRecordId, int agencyId,
+                                                          boolean allowDeleted, boolean excludeDBCFields,
+                                                          boolean overwriteCommonAgency) throws WebApplicationException {
         Map<String, Record> collection;
         try (Connection conn = globalDataSource.getConnection()) {
             try {
