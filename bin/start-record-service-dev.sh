@@ -5,9 +5,9 @@
 # If no version is specified, a new image will be build tagged as ${USER}
 USER=${USER:-WHAT}    # silencing annoying intellij syntax quibble
 
-package=rawrepo-content-service-v2
+package=rawrepo-record-service
 cid_file="${package}.cid"
-docker_image=docker-i.dbc.dk/rawrepo-content-service-v2
+docker_image=docker-i.dbc.dk/rawrepo-record-service
 version=${USER}
 port=`id -u ${USER}`10
 detached="-d"
