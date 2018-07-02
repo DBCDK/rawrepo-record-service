@@ -83,7 +83,7 @@ pipeline {
             }
             steps {
                 script {
-                    def image = docker.build("docker-io.dbc.dk/rawrepo-content-service-v2:${DOCKER_IMAGE_VERSION}")
+                    def image = docker.build("docker-io.dbc.dk/rawrepo-record-service:${DOCKER_IMAGE_VERSION}")
                     image.push()
                 }
             }

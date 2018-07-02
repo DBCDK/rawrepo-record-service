@@ -20,9 +20,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 @ApplicationPath("/")
-public class ContentApplication extends Application {
+public class RawRepoRecordApplication extends Application {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContentApplication.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RawRepoRecordApplication.class);
 
     @Override
     public Set<Class<?>> getClasses() {
