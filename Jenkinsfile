@@ -24,8 +24,8 @@ void deploy(String deployEnvironment) {
             source bin/activate
             pip3 install --upgrade pip
             pip3 install -U -e \"git+https://github.com/DBCDK/mesos-tools.git#egg=mesos-tools\"
-            marathon-config-producer content-service-v2-${deployEnvironment} --root deploy/marathon --template-keys DOCKER_TAG=${DOCKER_IMAGE_VERSION} -o content-service-v2-${deployEnvironment}.json
-            marathon-deployer -a ${MARATHON_TOKEN} -b https://mcp1.dbc.dk:8443 deploy content-service-v2-${deployEnvironment}.json
+            marathon-config-producer rawrepo-record-service-${deployEnvironment} --root deploy/marathon --template-keys DOCKER_TAG=${DOCKER_IMAGE_VERSION} -o rawrepo-record-service-${deployEnvironment}.json
+            marathon-deployer -a ${MARATHON_TOKEN} -b https://mcp1.dbc.dk:8443 deploy rawrepo-record-service-${deployEnvironment}.json
         '
 	"""
 }
@@ -97,7 +97,7 @@ pipeline {
             }
             steps {
                 script {
-                    lock('meta-rawrepo-content-service-v2-deploy-staging') {
+                    lock('meta-rawrepo-record-deploy-staging') {
                         deploy("basismig")
                         deploy("fbstest")
                     }
@@ -108,10 +108,10 @@ pipeline {
 
     post {
         unstable {
-            notifyOfBuildStatus("build became unstable")
+            notifyOfBuildStatus("Build became unstable")
         }
         failure {
-            notifyOfBuildStatus("build failed")
+            notifyOfBuildStatus("Build failed")
         }
     }
 }
