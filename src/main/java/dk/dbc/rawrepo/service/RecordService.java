@@ -5,6 +5,7 @@ import dk.dbc.jsonb.JSONBException;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.rawrepo.Record;
+import dk.dbc.rawrepo.dto.RecordExistsDTO;
 import dk.dbc.rawrepo.dto.RecordMapper;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -19,12 +20,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
 
 @Stateless
 @Path("api")
 public class RecordService {
-
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(ContentXMLService.class);
 
     @EJB
@@ -102,10 +101,10 @@ public class RecordService {
         try {
             final boolean value = marcRecordBean.recordExists(bibliographicRecordId, agencyId, false);
 
-            HashMap<String, Boolean> resultMap = new HashMap<>();
-            resultMap.put("value", value);
+            RecordExistsDTO dto = new RecordExistsDTO();
+            dto.setValue(value);
 
-            res = jsonbContext.marshall(resultMap);
+            res = jsonbContext.marshall(dto);
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
 
@@ -128,10 +127,10 @@ public class RecordService {
         try {
             final boolean value = marcRecordBean.recordExists(bibliographicRecordId, agencyId, true);
 
-            HashMap<String, Boolean> resultMap = new HashMap<>();
-            resultMap.put("value", value);
+            RecordExistsDTO dto = new RecordExistsDTO();
+            dto.setValue(value);
 
-            res = jsonbContext.marshall(resultMap);
+            res = jsonbContext.marshall(dto);
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
 
