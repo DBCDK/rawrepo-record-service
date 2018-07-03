@@ -39,7 +39,8 @@ public class RecordService {
                               @DefaultValue("raw") @QueryParam("mode") String mode,
                               @DefaultValue("true") @QueryParam("allow-deleted") boolean allowDeleted,
                               @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
-                              @DefaultValue("false") @QueryParam("overwrite-common-agency") boolean overwriteCommonAgency) {
+                              @DefaultValue("false") @QueryParam("overwrite-common-agency") boolean overwriteCommonAgency,
+                              @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields) {
         String res = "";
 
         try {
@@ -48,9 +49,9 @@ public class RecordService {
             if ("raw".equalsIgnoreCase(mode)) {
                 record = marcRecordBean.getRawRecord(bibliographicRecordId, agencyId);
             } else if ("merged".equalsIgnoreCase(mode)) {
-                record = marcRecordBean.getRawRecordMergedOrExpanded(bibliographicRecordId, agencyId, false, allowDeleted, excludeDBCFields, overwriteCommonAgency);
+                record = marcRecordBean.getRawRecordMergedOrExpanded(bibliographicRecordId, agencyId, false, allowDeleted, excludeDBCFields, overwriteCommonAgency, keepAutFields);
             } else if ("expanded".equalsIgnoreCase(mode)) {
-                record = marcRecordBean.getRawRecordMergedOrExpanded(bibliographicRecordId, agencyId, true, allowDeleted, excludeDBCFields, overwriteCommonAgency);
+                record = marcRecordBean.getRawRecordMergedOrExpanded(bibliographicRecordId, agencyId, true, allowDeleted, excludeDBCFields, overwriteCommonAgency, keepAutFields);
             } else {
                 return Response.serverError().build();
             }
