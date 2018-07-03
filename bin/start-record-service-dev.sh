@@ -1,5 +1,5 @@
 #!/bin/bash
-#set -x
+set -x
 # If this script is run by intellij, the docker must be detached since the run window isn't a tty. Therefore the default is -d.
 # Console output can be seen with docker logs -f <container_ID>.
 # If no version is specified, a new image will be build tagged as ${USER}
@@ -50,6 +50,14 @@ then
     docker stop `cat ${HOME}/.ocb-tools/${cid_file}`
 fi
 
+#Find the correct outbound ip-address regardless of host configuration
+if [ "$(uname)" == "Darwin" ]
+then
+    export HOST_IP=$(ip addr show | grep inet | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' | egrep -v '^127.0.0.1' | head -1)
+else
+    export HOST_IP=$( ip -o addr show | grep "inet " | cut -d: -f2- | cut -c2- | egrep -v "^docker|^br" | grep "$(ip route list | grep default | cut -d' ' -f5) " | cut -d' ' -f6 | cut -d/ -f1)
+fi
+
 rr_conn=`egrep rawrepo.jdbc.conn.url ${HOME}/.ocb-tools/testrun.properties | tr -d " " | cut -d"/" -f3-`
 rr_user=`egrep rawrepo.jdbc.conn.user ${HOME}/.ocb-tools/testrun.properties | tr -d " " | cut -d"=" -f2`
 rr_pass=`egrep rawrepo.jdbc.conn.passwd ${HOME}/.ocb-tools/testrun.properties | tr -d " " | cut -d"=" -f2`
@@ -71,4 +79,15 @@ else
     echo "CID : ${container_id}"
     imageName=`docker inspect --format='{{(index .Name)}}' ${container_id} | cut -d"/" -f2`
     echo "NAME: ${imageName}"
+
+    # Remove the recordservice.url line from testrun.properties to avoid multiple entries
+    # For some reason sed doesn't work the same way on Linux and Mac...
+    if [ "$(uname)" == "Darwin" ]
+    then
+        sed -i '' '/recordservice.url/d' ${HOME}/.ocb-tools/testrun.properties
+    else
+        sed -i '/recordservice.url/d' ${HOME}/.ocb-tools/testrun.properties
+    fi
+    RECORDSERVICE_PORT_8080=`docker inspect --format='{{(index (index .NetworkSettings.Ports "8080/tcp") 0).HostPort}}' ${imageName} `
+    echo "recordservice.url = http://${HOST_IP}:${RECORDSERVICE_PORT_8080}" >> ${HOME}/.ocb-tools/testrun.properties
 fi
