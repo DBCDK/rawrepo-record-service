@@ -175,16 +175,16 @@ public class MarcRecordBean {
 
     public Record getRawRecordMergedOrExpanded(String bibliographicRecordId, int agencyId,
                                                     boolean doExpand, boolean allowDeleted, boolean excludeDBCFields,
-                                                    boolean overwriteCommonAgency) throws WebApplicationException {
+                                                    boolean overwriteCommonAgency, boolean keepAutFields) throws WebApplicationException {
         try (Connection conn = globalDataSource.getConnection()) {
             try {
                 final RawRepoDAO dao = createDAO(conn);
                 Record rawRecord;
 
+                rawRecord = dao.fetchMergedRecord(bibliographicRecordId, agencyId, getMerger(overwriteCommonAgency), allowDeleted);
+
                 if (doExpand) {
-                    rawRecord = dao.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, getMerger(overwriteCommonAgency), allowDeleted);
-                } else {
-                    rawRecord = dao.fetchMergedRecord(bibliographicRecordId, agencyId, getMerger(overwriteCommonAgency), allowDeleted);
+                    dao.expandRecord(rawRecord, keepAutFields);
                 }
 
                 if (rawRecord.getContent() == null || rawRecord.getContent().length == 0) {
