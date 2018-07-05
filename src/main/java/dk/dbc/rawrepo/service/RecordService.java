@@ -4,9 +4,11 @@ import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
+import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.Record;
+import dk.dbc.rawrepo.exception.RecordNotFoundException;
+import dk.dbc.rawrepo.dto.RecordDTOMapper;
 import dk.dbc.rawrepo.dto.RecordExistsDTO;
-import dk.dbc.rawrepo.dto.RecordMapper;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -24,49 +26,109 @@ import javax.ws.rs.core.Response;
 @Stateless
 @Path("api")
 public class RecordService {
-    private static final XLogger LOGGER = XLoggerFactory.getXLogger(ContentXMLService.class);
+    private static final XLogger LOGGER = XLoggerFactory.getXLogger(RecordService.class);
 
     @EJB
     private MarcRecordBean marcRecordBean;
 
     private final JSONBContext jsonbContext = new JSONBContext();
 
+    public enum Mode {
+        RAW("raw"),
+        MERGED("merged"),
+        EXPANDED("expanded");
+
+        private String text;
+
+        Mode(String text) {
+            this.text = text;
+        }
+
+        public String getText() {
+            return this.text;
+        }
+
+        public static Mode fromString(String text) {
+            for (Mode b : Mode.values()) {
+                if (b.text.equalsIgnoreCase(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+    }
+
     @GET
     @Path("v1/record/{agencyid}/{bibliographicrecordid}")
     @Produces({MediaType.APPLICATION_JSON})
     public Response getRecord(@PathParam("agencyid") int agencyId,
                               @PathParam("bibliographicrecordid") String bibliographicRecordId,
-                              @DefaultValue("raw") @QueryParam("mode") String mode,
+                              @DefaultValue("raw") @QueryParam("mode") Mode mode,
                               @DefaultValue("true") @QueryParam("allow-deleted") boolean allowDeleted,
                               @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
-                              @DefaultValue("false") @QueryParam("overwrite-common-agency") boolean overwriteCommonAgency,
+                              @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                               @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields) {
         String res = "";
 
         try {
             Record record;
 
-            if ("raw".equalsIgnoreCase(mode)) {
-                record = marcRecordBean.getRawRecord(bibliographicRecordId, agencyId);
-            } else if ("merged".equalsIgnoreCase(mode)) {
-                record = marcRecordBean.getRawRecordMergedOrExpanded(bibliographicRecordId, agencyId, false, allowDeleted, excludeDBCFields, overwriteCommonAgency, keepAutFields);
-            } else if ("expanded".equalsIgnoreCase(mode)) {
-                record = marcRecordBean.getRawRecordMergedOrExpanded(bibliographicRecordId, agencyId, true, allowDeleted, excludeDBCFields, overwriteCommonAgency, keepAutFields);
+            if (Mode.RAW.equals(mode)) {
+                record = marcRecordBean.getRawRepoRecordRaw(bibliographicRecordId, agencyId);
+            } else if (Mode.MERGED.equals(mode)) {
+                record = marcRecordBean.getRawRepoRecordMerged(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency);
+            } else if (Mode.EXPANDED.equals(mode)) {
+                record = marcRecordBean.getRawRepoRecordExpanded(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
             } else {
                 return Response.serverError().build();
             }
+            LOGGER.info(new String(record.getContent()));
+            MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(record.getContent());
 
-            MarcRecord marcRecord = marcRecordBean.rawRecordToMarcRecord(record);
-
-            res = jsonbContext.marshall(RecordMapper.recordToDTO(record, marcRecord));
+            res = jsonbContext.marshall(RecordDTOMapper.recordToDTO(record, marcRecord));
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
-
-        } catch (JSONBException | MarcReaderException ex) {
+        } catch (JSONBException | MarcReaderException | InternalServerException ex) {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
+        } catch (RecordNotFoundException ex) {
+            return Response.status(Response.Status.NOT_FOUND).build();
         } finally {
             LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}");
+        }
+    }
+
+    @GET
+    @Path("v1/record/{agencyid}/{bibliographicrecordid}/content")
+    @Produces({MediaType.APPLICATION_XML})
+    public Response GetContent(@PathParam("agencyid") int agencyId,
+                               @PathParam("bibliographicrecordid") String bibliographicRecordId,
+                               @DefaultValue("true") @QueryParam("allow-deleted") boolean allowDeleted,
+                               @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
+                               @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
+                               @DefaultValue("merged") @QueryParam("mode") Mode mode,
+                               @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields) {
+        String res = "";
+
+        try {
+            MarcRecord record;
+
+            if (Mode.RAW.equals(mode) || Mode.MERGED.equals(mode)) {
+                record = marcRecordBean.getMarcRecordMerged(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency);
+            } else {
+                record = marcRecordBean.getMarcRecordExpanded(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
+            }
+
+            res = new String(RecordObjectMapper.marcToContent(record));
+
+            return Response.ok(res, MediaType.APPLICATION_XML).build();
+        } catch (InternalServerException ex) {
+            LOGGER.error("Exception during getRecord", ex);
+            return Response.serverError().build();
+        } catch (RecordNotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        } finally {
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/content/expanded");
         }
     }
 
@@ -78,15 +140,17 @@ public class RecordService {
         String res = "";
 
         try {
-            final Record record = marcRecordBean.getRawRecord(bibliographicRecordId, agencyId);
+            final Record record = marcRecordBean.getRawRepoRecordRaw(bibliographicRecordId, agencyId);
 
-            res = jsonbContext.marshall(RecordMapper.recordMetaDataToDTO(record));
+            res = jsonbContext.marshall(RecordDTOMapper.recordMetaDataToDTO(record));
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
 
-        } catch (JSONBException ex) {
+        } catch (JSONBException | InternalServerException ex) {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
+        } catch (RecordNotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND).build();
         } finally {
             LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/meta");
         }
@@ -96,11 +160,12 @@ public class RecordService {
     @Path("v1/record/{agencyid}/{bibliographicrecordid}/exists")
     @Produces({MediaType.APPLICATION_JSON})
     public Response recordExists(@PathParam("agencyid") int agencyId,
-                                 @PathParam("bibliographicrecordid") String bibliographicRecordId) {
+                                 @PathParam("bibliographicrecordid") String bibliographicRecordId,
+                                 @DefaultValue("false") @QueryParam("maybe-deleted") boolean maybeDeleted) {
         String res = "";
 
         try {
-            final boolean value = marcRecordBean.recordExists(bibliographicRecordId, agencyId, false);
+            final boolean value = marcRecordBean.recordExists(bibliographicRecordId, agencyId, maybeDeleted);
 
             RecordExistsDTO dto = new RecordExistsDTO();
             dto.setValue(value);
@@ -112,37 +177,11 @@ public class RecordService {
         } catch (JSONBException ex) {
             LOGGER.error("Exception during recordExists", ex);
             return Response.serverError().build();
+        } catch (InternalServerException e) {
+            return Response.status(Response.Status.NOT_FOUND).build();
         } finally {
             LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/exists");
         }
-
     }
-
-    @GET
-    @Path("v1/record/{agencyid}/{bibliographicrecordid}/exists-maybe-deleted")
-    @Produces({MediaType.APPLICATION_JSON})
-    public Response recordExistsMaybeDeleted(@PathParam("agencyid") int agencyId,
-                                             @PathParam("bibliographicrecordid") String bibliographicRecordId) {
-        String res = "";
-
-        try {
-            final boolean value = marcRecordBean.recordExists(bibliographicRecordId, agencyId, true);
-
-            RecordExistsDTO dto = new RecordExistsDTO();
-            dto.setValue(value);
-
-            res = jsonbContext.marshall(dto);
-
-            return Response.ok(res, MediaType.APPLICATION_JSON).build();
-
-        } catch (JSONBException ex) {
-            LOGGER.error("Exception during recordExistsMaybeDeleted", ex);
-            return Response.serverError().build();
-        } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/exists-maybe-deleted");
-        }
-
-    }
-
 
 }

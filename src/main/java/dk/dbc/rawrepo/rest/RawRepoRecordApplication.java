@@ -5,12 +5,8 @@
 
 package dk.dbc.rawrepo.rest;
 
-import dk.dbc.rawrepo.service.ContentJSONService;
-import dk.dbc.rawrepo.service.ContentLineService;
-import dk.dbc.rawrepo.service.ContentXMLService;
+import dk.dbc.rawrepo.service.RecordCollectionService;
 import dk.dbc.rawrepo.service.RecordService;
-import dk.dbc.rawrepo.writer.MarcRecordCollectionXMLMessageBodyWriter;
-import dk.dbc.rawrepo.writer.MarcRecordXMLMessageBodyWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,14 +24,8 @@ public class RawRepoRecordApplication extends Application {
     public Set<Class<?>> getClasses() {
         final Set<Class<?>> classes = new HashSet<>();
         classes.add(StatusBean.class);
-
-        classes.add(ContentXMLService.class);
-        classes.add(ContentLineService.class);
-        classes.add(ContentJSONService.class);
         classes.add(RecordService.class);
-
-        classes.add(MarcRecordXMLMessageBodyWriter.class);
-        classes.add(MarcRecordCollectionXMLMessageBodyWriter.class);
+        classes.add(RecordCollectionService.class);
 
         for (Class<?> clazz : classes) {
             LOGGER.info("Registered {} resource", clazz.getName());

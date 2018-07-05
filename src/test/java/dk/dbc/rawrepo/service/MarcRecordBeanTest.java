@@ -8,6 +8,7 @@ import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.rawrepo.RawRepoDAO;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.Record;
+import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import javax.sql.DataSource;
-import javax.ws.rs.NotFoundException;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -56,7 +56,7 @@ public class MarcRecordBeanTest {
         }
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test(expected = RecordNotFoundException.class)
     public void testGetRawRecordNotFound() throws Exception {
         MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
 
@@ -68,7 +68,7 @@ public class MarcRecordBeanTest {
         when(globalDataSource.getConnection()).thenReturn(null);
         when(rawRepoDAO.fetchRecord(eq(bibliographicRecordId), eq(agencyId))).thenReturn(record);
 
-        bean.getMarcRecord(bibliographicRecordId, agencyId);
+        bean.getMarcRecord(bibliographicRecordId, agencyId, true, false);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class MarcRecordBeanTest {
         when(globalDataSource.getConnection()).thenReturn(null);
         when(rawRepoDAO.fetchRecord(eq(bibliographicRecordId), eq(agencyId))).thenReturn(record);
 
-        Assert.assertThat(bean.getMarcRecord(bibliographicRecordId, agencyId), is(marcRecord));
+        Assert.assertThat(bean.getMarcRecord(bibliographicRecordId, agencyId, true, false), is(marcRecord));
     }
 
     @Test
@@ -104,7 +104,7 @@ public class MarcRecordBeanTest {
         when(globalDataSource.getConnection()).thenReturn(null);
         when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
 
-        Assert.assertThat(bean.getMarcRecordMergedOrExpanded(bibliographicRecordId, agencyId, false, true, false, false), is(marcRecord));
+        Assert.assertThat(bean.getMarcRecordMerged(bibliographicRecordId, agencyId, true, false, false), is(marcRecord));
     }
 
     @Test
@@ -123,7 +123,7 @@ public class MarcRecordBeanTest {
         when(globalDataSource.getConnection()).thenReturn(null);
         when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
 
-        Assert.assertThat(bean.getMarcRecordMergedOrExpanded(bibliographicRecordId, agencyId, false, true, true, false), is(loadMarcRecord("merged-ex-dbc-fields.xml")));
+        Assert.assertThat(bean.getMarcRecordMerged(bibliographicRecordId, agencyId, true, true, false), is(loadMarcRecord("merged-ex-dbc-fields.xml")));
     }
 
     @Test
@@ -141,7 +141,7 @@ public class MarcRecordBeanTest {
         when(globalDataSource.getConnection()).thenReturn(null);
         when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
 
-        Assert.assertThat(bean.getMarcRecordMergedOrExpanded(bibliographicRecordId, agencyId, false, true, false, true), is(marcRecord));
+        Assert.assertThat(bean.getMarcRecordMerged(bibliographicRecordId, agencyId, true, false, true), is(marcRecord));
     }
 
     @Test
@@ -157,9 +157,9 @@ public class MarcRecordBeanTest {
                 marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
 
         when(globalDataSource.getConnection()).thenReturn(null);
-        when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
+        when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
 
-        Assert.assertThat(bean.getMarcRecordMergedOrExpanded(bibliographicRecordId, agencyId, true, true, false, false), is(marcRecord));
+        Assert.assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, false, false, false), is(marcRecord));
     }
 
     @Test
@@ -176,9 +176,9 @@ public class MarcRecordBeanTest {
                 marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
 
         when(globalDataSource.getConnection()).thenReturn(null);
-        when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
+        when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
 
-        Assert.assertThat(bean.getMarcRecordMergedOrExpanded(bibliographicRecordId, agencyId, true, true, true, false), is(loadMarcRecord("merged-ex-dbc-fields.xml")));
+        Assert.assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, true, false, false), is(loadMarcRecord("merged-ex-dbc-fields.xml")));
     }
 
     @Test
@@ -194,9 +194,9 @@ public class MarcRecordBeanTest {
                 marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
 
         when(globalDataSource.getConnection()).thenReturn(null);
-        when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
+        when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
 
-        Assert.assertThat(bean.getMarcRecordMergedOrExpanded(bibliographicRecordId, agencyId, true, true, false, true), is(marcRecord));
+        Assert.assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, false, true, false), is(marcRecord));
     }
 
     @Test
@@ -218,9 +218,9 @@ public class MarcRecordBeanTest {
         recordMap.put(bibliographicRecordId, record);
 
         when(globalDataSource.getConnection()).thenReturn(null);
-        when(rawRepoDAO.fetchRecordCollectionExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class))).thenReturn(recordMap);
+        when(rawRepoDAO.fetchRecordCollection(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class))).thenReturn(recordMap);
 
-        Assert.assertThat(bean.getMarcRecordCollection(bibliographicRecordId, agencyId, true, false, true), is(collection));
+        Assert.assertThat(bean.getMarcRecordCollection(bibliographicRecordId, agencyId, true, false, true, true, false), is(collection));
     }
 
     private MarcRecord loadMarcRecord(String filename) throws Exception {

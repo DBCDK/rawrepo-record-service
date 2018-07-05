@@ -4,13 +4,16 @@ import dk.dbc.marc.binding.DataField;
 import dk.dbc.marc.binding.Field;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.binding.SubField;
+import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.RecordId;
+import dk.dbc.rawrepo.service.RecordObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-public class RecordMapper {
+public class RecordDTOMapper {
 
     public static RecordMetaDataDTO recordMetaDataToDTO(Record record) {
         RecordMetaDataDTO dto = new RecordMetaDataDTO();
@@ -34,6 +37,22 @@ public class RecordMapper {
         dto.setTrackingId(rawRecord.getTrackingId());
         dto.setContent(rawRecord.getContent());
         dto.setContentJSON(contentToDTO(marcRecord));
+
+        return dto;
+    }
+
+    public static RecordCollectionDTO recordCollectionToDTO(Map<String, Record> records) throws MarcReaderException {
+        List<RecordDTO> dtoList = new ArrayList<>();
+
+        for (Map.Entry<String, Record> entry : records.entrySet()) {
+            final Record rawRecord = entry.getValue();
+            final MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
+
+            dtoList.add(recordToDTO(rawRecord, marcRecord));
+        }
+
+        RecordCollectionDTO dto = new RecordCollectionDTO();
+        dto.setRecords(dtoList);
 
         return dto;
     }
