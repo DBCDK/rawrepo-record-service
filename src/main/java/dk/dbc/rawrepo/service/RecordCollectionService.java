@@ -25,11 +25,10 @@ import java.util.Map;
 @Path("api")
 public class RecordCollectionService {
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(RecordCollectionService.class);
+    private final JSONBContext jsonbContext = new JSONBContext();
 
     @EJB
     private MarcRecordBean marcRecordBean;
-
-    private final JSONBContext jsonbContext = new JSONBContext();
 
     @GET
     @Path("v1/records/{agencyid}/{bibliographicrecordid}")

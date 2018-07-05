@@ -8,6 +8,10 @@ public class FieldDTO {
     private String indicators;
     private List<SubfieldDTO> subfields;
 
+    public FieldDTO() {
+
+    }
+
     public String getName() {
         return name;
     }
@@ -30,10 +34,6 @@ public class FieldDTO {
 
     public void setSubfields(List<SubfieldDTO> subfields) {
         this.subfields = subfields;
-    }
-
-    public FieldDTO() {
-
     }
 
     @Override

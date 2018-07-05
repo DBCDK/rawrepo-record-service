@@ -4,11 +4,11 @@ import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
-import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.Record;
-import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.rawrepo.dto.RecordDTOMapper;
 import dk.dbc.rawrepo.dto.RecordExistsDTO;
+import dk.dbc.rawrepo.exception.InternalServerException;
+import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -27,36 +27,10 @@ import javax.ws.rs.core.Response;
 @Path("api")
 public class RecordService {
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(RecordService.class);
+    private final JSONBContext jsonbContext = new JSONBContext();
 
     @EJB
     private MarcRecordBean marcRecordBean;
-
-    private final JSONBContext jsonbContext = new JSONBContext();
-
-    public enum Mode {
-        RAW("raw"),
-        MERGED("merged"),
-        EXPANDED("expanded");
-
-        private String text;
-
-        Mode(String text) {
-            this.text = text;
-        }
-
-        public String getText() {
-            return this.text;
-        }
-
-        public static Mode fromString(String text) {
-            for (Mode b : Mode.values()) {
-                if (b.text.equalsIgnoreCase(text)) {
-                    return b;
-                }
-            }
-            return null;
-        }
-    }
 
     @GET
     @Path("v1/record/{agencyid}/{bibliographicrecordid}")
@@ -181,6 +155,31 @@ public class RecordService {
             return Response.status(Response.Status.NOT_FOUND).build();
         } finally {
             LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/exists");
+        }
+    }
+
+    public enum Mode {
+        RAW("raw"),
+        MERGED("merged"),
+        EXPANDED("expanded");
+
+        private String text;
+
+        Mode(String text) {
+            this.text = text;
+        }
+
+        public static Mode fromString(String text) {
+            for (Mode b : Mode.values()) {
+                if (b.text.equalsIgnoreCase(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+
+        public String getText() {
+            return this.text;
         }
     }
 

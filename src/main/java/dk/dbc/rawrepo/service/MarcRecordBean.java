@@ -7,13 +7,13 @@ import dk.dbc.marcxmerge.FieldRules;
 import dk.dbc.marcxmerge.MarcXChangeMimeType;
 import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.marcxmerge.MarcXMergerException;
-import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.RawRepoDAO;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.Record;
-import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.rawrepo.RelationHintsOpenAgency;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
+import dk.dbc.rawrepo.exception.InternalServerException;
+import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -52,6 +52,18 @@ public class MarcRecordBean {
     // Default constructor - required as there is another constructor
     public MarcRecordBean() {
 
+    }
+
+    private static boolean isMarcXChange(String mimeType) {
+        switch (mimeType) {
+            case MarcXChangeMimeType.AUTHORITY:
+            case MarcXChangeMimeType.ARTICLE:
+            case MarcXChangeMimeType.ENRICHMENT:
+            case MarcXChangeMimeType.MARCXCHANGE:
+                return true;
+            default:
+                return false;
+        }
     }
 
     protected RawRepoDAO createDAO(Connection conn) throws RawRepoException {
@@ -102,18 +114,6 @@ public class MarcRecordBean {
         newMarcRecord.addAllFields(fields);
 
         return newMarcRecord;
-    }
-
-    private static boolean isMarcXChange(String mimeType) {
-        switch (mimeType) {
-            case MarcXChangeMimeType.AUTHORITY:
-            case MarcXChangeMimeType.ARTICLE:
-            case MarcXChangeMimeType.ENRICHMENT:
-            case MarcXChangeMimeType.MARCXCHANGE:
-                return true;
-            default:
-                return false;
-        }
     }
 
     public boolean recordExists(String bibliographicRecordId, int agencyId, boolean maybeDeleted) throws InternalServerException {
@@ -217,7 +217,6 @@ public class MarcRecordBean {
                 final RawRepoDAO dao = createDAO(conn);
 
                 final Record rawRecord = dao.fetchRecord(bibliographicRecordId, agencyId);
-
 
 
                 if (rawRecord.getContent() == null || rawRecord.getContent().length == 0) {
