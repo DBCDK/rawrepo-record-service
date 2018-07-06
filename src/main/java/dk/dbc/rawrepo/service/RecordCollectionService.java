@@ -35,7 +35,7 @@ public class RecordCollectionService {
     @Produces({MediaType.APPLICATION_JSON})
     public Response getRecordCollection(@PathParam("agencyid") int agencyId,
                                         @PathParam("bibliographicrecordid") String bibliographicRecordId,
-                                        @DefaultValue("true") @QueryParam("allow-deleted") boolean allowDeleted,
+                                        @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
                                         @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                         @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                         @DefaultValue("false") @QueryParam("expand") boolean expand,
@@ -65,7 +65,7 @@ public class RecordCollectionService {
     @Produces({MediaType.APPLICATION_XML})
     public Response getRecordContentCollection(@PathParam("agencyid") int agencyId,
                                                @PathParam("bibliographicrecordid") String bibliographicRecordId,
-                                               @DefaultValue("true") @QueryParam("allow-deleted") boolean allowDeleted,
+                                               @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
                                                @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                                @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                                @DefaultValue("false") @QueryParam("expand") boolean expand,

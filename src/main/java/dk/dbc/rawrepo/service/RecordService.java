@@ -38,7 +38,7 @@ public class RecordService {
     public Response getRecord(@PathParam("agencyid") int agencyId,
                               @PathParam("bibliographicrecordid") String bibliographicRecordId,
                               @DefaultValue("raw") @QueryParam("mode") Mode mode,
-                              @DefaultValue("true") @QueryParam("allow-deleted") boolean allowDeleted,
+                              @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
                               @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                               @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                               @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields) {
@@ -48,7 +48,7 @@ public class RecordService {
             Record record;
 
             if (Mode.RAW.equals(mode)) {
-                record = marcRecordBean.getRawRepoRecordRaw(bibliographicRecordId, agencyId);
+                record = marcRecordBean.getRawRepoRecordRaw(bibliographicRecordId, agencyId, allowDeleted);
             } else if (Mode.MERGED.equals(mode)) {
                 record = marcRecordBean.getRawRepoRecordMerged(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency);
             } else if (Mode.EXPANDED.equals(mode)) {
@@ -77,10 +77,10 @@ public class RecordService {
     @Produces({MediaType.APPLICATION_XML})
     public Response GetContent(@PathParam("agencyid") int agencyId,
                                @PathParam("bibliographicrecordid") String bibliographicRecordId,
-                               @DefaultValue("true") @QueryParam("allow-deleted") boolean allowDeleted,
+                               @DefaultValue("merged") @QueryParam("mode") Mode mode,
+                               @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
                                @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
-                               @DefaultValue("merged") @QueryParam("mode") Mode mode,
                                @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields) {
         String res = "";
 
@@ -110,11 +110,12 @@ public class RecordService {
     @Path("v1/record/{agencyid}/{bibliographicrecordid}/meta")
     @Produces({MediaType.APPLICATION_JSON})
     public Response getRecordMetaData(@PathParam("agencyid") int agencyId,
-                                      @PathParam("bibliographicrecordid") String bibliographicRecordId) {
+                                      @PathParam("bibliographicrecordid") String bibliographicRecordId,
+                                      @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted) {
         String res = "";
 
         try {
-            final Record record = marcRecordBean.getRawRepoRecordRaw(bibliographicRecordId, agencyId);
+            final Record record = marcRecordBean.getRawRepoRecordRaw(bibliographicRecordId, agencyId, allowDeleted);
 
             res = jsonbContext.marshall(RecordDTOMapper.recordMetaDataToDTO(record));
 
@@ -135,7 +136,7 @@ public class RecordService {
     @Produces({MediaType.APPLICATION_JSON})
     public Response recordExists(@PathParam("agencyid") int agencyId,
                                  @PathParam("bibliographicrecordid") String bibliographicRecordId,
-                                 @DefaultValue("false") @QueryParam("maybe-deleted") boolean maybeDeleted) {
+                                 @DefaultValue("false") @QueryParam("allow-deleted") boolean maybeDeleted) {
         String res = "";
 
         try {

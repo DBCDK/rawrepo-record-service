@@ -85,6 +85,7 @@ public class MarcRecordBeanTest {
 
         when(globalDataSource.getConnection()).thenReturn(null);
         when(rawRepoDAO.fetchRecord(eq(bibliographicRecordId), eq(agencyId))).thenReturn(record);
+        when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
 
         Assert.assertThat(bean.getMarcRecord(bibliographicRecordId, agencyId, true, false), is(marcRecord));
     }

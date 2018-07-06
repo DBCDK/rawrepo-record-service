@@ -92,14 +92,30 @@ pipeline {
         stage("Deploy to staging") {
             when {
                 expression {
+                    (currentBuild.result == null || currentBuild.result == 'SUCCESS') && env.BRANCH_NAME == 'develop'
+                }
+            }
+            steps {
+                script {
+                    lock('meta-rawrepo-record-service-deploy-staging') {
+                        deploy("basismig")
+                        deploy("fbstest")
+                    }
+                }
+            }
+        }
+
+        stage("Deploy to prod") {
+            when {
+                expression {
                     (currentBuild.result == null || currentBuild.result == 'SUCCESS') && env.BRANCH_NAME == 'master'
                 }
             }
             steps {
                 script {
-                    lock('meta-rawrepo-record-deploy-staging') {
-                        deploy("basismig")
-                        deploy("fbstest")
+                    lock('meta-rawrepo-record-service-deploy-prod') {
+                        deploy("boblebad")
+                        deploy("cisterne")
                     }
                 }
             }
