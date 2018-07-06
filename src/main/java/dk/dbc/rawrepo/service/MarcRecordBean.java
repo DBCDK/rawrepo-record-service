@@ -137,18 +137,22 @@ public class MarcRecordBean {
         }
     }
 
-    public Record getRawRepoRecordRaw(String bibliographicRecordId, int agencyId) throws InternalServerException, RecordNotFoundException {
+    public Record getRawRepoRecordRaw(String bibliographicRecordId, int agencyId, boolean allowDeleted) throws InternalServerException, RecordNotFoundException {
         try (Connection conn = globalDataSource.getConnection()) {
             try {
                 final RawRepoDAO dao = createDAO(conn);
 
-                final Record rawRecord = dao.fetchRecord(bibliographicRecordId, agencyId);
-
-                if (rawRecord.getContent() == null || rawRecord.getContent().length == 0) {
-                    throw new RecordNotFoundException("Posten '" + bibliographicRecordId + ":" + Integer.toString(agencyId) + "' blev ikke fundet");
+                if (allowDeleted) {
+                    if (!dao.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)) {
+                        throw new RecordNotFoundException("Posten '" + bibliographicRecordId + ":" + Integer.toString(agencyId) + "' blev ikke fundet");
+                    }
+                } else {
+                    if (!dao.recordExists(bibliographicRecordId, agencyId)) {
+                        throw new RecordNotFoundException("Posten '" + bibliographicRecordId + ":" + Integer.toString(agencyId) + "' blev ikke fundet eller er slettet");
+                    }
                 }
 
-                return rawRecord;
+                return dao.fetchRecord(bibliographicRecordId, agencyId);
             } catch (RawRepoException ex) {
                 conn.rollback();
                 LOGGER.error(ex.getMessage(), ex);
@@ -216,12 +220,17 @@ public class MarcRecordBean {
             try {
                 final RawRepoDAO dao = createDAO(conn);
 
-                final Record rawRecord = dao.fetchRecord(bibliographicRecordId, agencyId);
-
-
-                if (rawRecord.getContent() == null || rawRecord.getContent().length == 0) {
-                    throw new RecordNotFoundException("Posten '" + bibliographicRecordId + ":" + Integer.toString(agencyId) + "' blev ikke fundet");
+                if (allowDeleted) {
+                    if (!dao.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)) {
+                        throw new RecordNotFoundException("Posten '" + bibliographicRecordId + ":" + Integer.toString(agencyId) + "' blev ikke fundet");
+                    }
+                } else {
+                    if (!dao.recordExists(bibliographicRecordId, agencyId)) {
+                        throw new RecordNotFoundException("Posten '" + bibliographicRecordId + ":" + Integer.toString(agencyId) + "' blev ikke fundet eller er slettet");
+                    }
                 }
+
+                final Record rawRecord = dao.fetchRecord(bibliographicRecordId, agencyId);
 
                 MarcRecord result = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
 
