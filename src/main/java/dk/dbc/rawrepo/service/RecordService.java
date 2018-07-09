@@ -136,11 +136,11 @@ public class RecordService {
     @Produces({MediaType.APPLICATION_JSON})
     public Response recordExists(@PathParam("agencyid") int agencyId,
                                  @PathParam("bibliographicrecordid") String bibliographicRecordId,
-                                 @DefaultValue("false") @QueryParam("allow-deleted") boolean maybeDeleted) {
+                                 @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted) {
         String res = "";
 
         try {
-            final boolean value = marcRecordBean.recordExists(bibliographicRecordId, agencyId, maybeDeleted);
+            final boolean value = marcRecordBean.recordExists(bibliographicRecordId, agencyId, allowDeleted);
 
             RecordExistsDTO dto = new RecordExistsDTO();
             dto.setValue(value);
