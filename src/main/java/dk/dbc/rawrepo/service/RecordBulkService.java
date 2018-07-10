@@ -3,6 +3,7 @@ package dk.dbc.rawrepo.service;
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.marc.binding.MarcRecord;
+import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.dao.RawRepoBean;
@@ -11,6 +12,9 @@ import dk.dbc.rawrepo.dto.RecordDTO;
 import dk.dbc.rawrepo.dto.RecordDTOMapper;
 import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
+import dk.dbc.rawrepo.exception.InternalServerException;
+import dk.dbc.rawrepo.exception.RecordNotFoundException;
+import dk.dbc.rawrepo.interceptor.Compress;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -45,6 +49,7 @@ public class RecordBulkService {
 
     @GET
     @Path("v1/bibliographicrecordids/{agencyid}")
+    @Compress
     @Produces({MediaType.APPLICATION_JSON})
     public Response getBibliographicRecordIds(@PathParam("agencyid") int agencyId,
                                               @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted) {
@@ -53,11 +58,8 @@ public class RecordBulkService {
         try {
             List<String> bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgency(agencyId, allowDeleted);
 
-            LOGGER.info("Found {} record ids for agency {} ({} deleted records)", bibliographicRecordIdList.size(), agencyId, allowDeleted ? "including" : "not including");
-
-            RecordIdCollectionDTO dto = new RecordIdCollectionDTO();
+            final RecordIdCollectionDTO dto = new RecordIdCollectionDTO();
             dto.setRecordIds(new ArrayList<>());
-            //-----------------------------------------
 
             for (String bibliographicRecordId : bibliographicRecordIdList) {
                 dto.getRecordIds().add(new RecordIdDTO(bibliographicRecordId, agencyId));
@@ -66,12 +68,14 @@ public class RecordBulkService {
                 }
             }
 
+            LOGGER.info("Found {} record ids for agency {} ({} deleted records)", dto.getRecordIds().size(), agencyId, allowDeleted ? "including" : "not including");
+
             res = jsonbContext.marshall(dto);
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
         } catch (JSONBException | RawRepoException ex) {
             LOGGER.error("Exception during getBibliographicRecordIds", ex);
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
             LOGGER.info("v1/bibliographicrecordids/{agencyid}");
         }
@@ -79,6 +83,7 @@ public class RecordBulkService {
 
     @POST
     @Path("vi/records/bulk")
+    @Compress
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     public Response getRecordsBulk(String request,
@@ -93,7 +98,7 @@ public class RecordBulkService {
             RecordCollectionDTO dto = new RecordCollectionDTO();
             List<RecordDTO> recordDTOs = new ArrayList<>();
 
-            RecordIdCollectionDTO recordIdCollectionDTO = jsonbContext.unmarshall(request, RecordIdCollectionDTO.class);
+            final RecordIdCollectionDTO recordIdCollectionDTO = jsonbContext.unmarshall(request, RecordIdCollectionDTO.class);
 
             Record rawrepoRecord;
             for (RecordIdDTO idDTO : recordIdCollectionDTO.getRecordIds()) {
@@ -103,9 +108,9 @@ public class RecordBulkService {
                     rawrepoRecord = marcRecordBean.getRawRepoRecordMerged(idDTO.getBibliographicRecordId(), idDTO.getAgencyId(), allowDeleted, excludeDBCFields, useParentAgency);
                 }
 
-                MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawrepoRecord.getContent());
+                final MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawrepoRecord.getContent());
 
-                RecordDTO recordDTO = RecordDTOMapper.recordToDTO(rawrepoRecord, marcRecord);
+                final RecordDTO recordDTO = RecordDTOMapper.recordToDTO(rawrepoRecord, marcRecord);
                 recordDTOs.add(recordDTO);
             }
             dto.setRecords(recordDTOs);
@@ -113,10 +118,12 @@ public class RecordBulkService {
             res = jsonbContext.marshall(dto);
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
-
-        } catch (Exception ex) {
-            LOGGER.error("Exception during getRecord", ex);
-            return Response.serverError().build();
+        } catch (JSONBException | InternalServerException | MarcReaderException ex) {
+            LOGGER.error("Exception during getRecordsBulk", ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } catch (RecordNotFoundException ex) {
+            LOGGER.error("Record not found", ex);
+            return Response.status(Response.Status.NOT_FOUND).build();
         } finally {
             LOGGER.info("vi/records/bulk");
         }
