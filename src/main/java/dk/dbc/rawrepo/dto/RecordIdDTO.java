@@ -8,6 +8,11 @@ public class RecordIdDTO {
     public RecordIdDTO() {
     }
 
+    public RecordIdDTO(String bibliographicRecordId, int agencyId) {
+        this.bibliographicRecordId = bibliographicRecordId;
+        this.agencyId = agencyId;
+    }
+
     public String getBibliographicRecordId() {
         return bibliographicRecordId;
     }
