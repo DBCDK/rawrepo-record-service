@@ -26,6 +26,7 @@ public class RawRepoBean {
 
     private static final String QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY = "SELECT bibliographicrecordid FROM records where agencyid=? and deleted='f'";
     private static final String QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL = "SELECT bibliographicrecordid FROM records where agencyid=?";
+    private static final String QUERY_AGENCIES = "SELECT DISTINCT(agencyid) FROM records";
 
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
@@ -50,9 +51,32 @@ public class RawRepoBean {
 
             return ret;
         } catch (SQLException ex) {
-            throw new RawRepoException("Error getting record history", ex);
+            throw new RawRepoException("Error getting bibliographicrecordids", ex);
         } finally {
             watch.stop("RawRepoBean.getBibliographicRecordIdForAgency");
+        }
+    }
+
+    public List<Integer> getAgencies() throws RawRepoException {
+        StopWatch watch = new Log4JStopWatch();
+        try {
+            ArrayList<Integer> ret = new ArrayList<>();
+
+            try (Connection connection = dataSource.getConnection();
+                 PreparedStatement stmt = connection.prepareStatement(QUERY_AGENCIES)) {
+                try (ResultSet resultSet = stmt.executeQuery()) {
+                    while (resultSet.next()) {
+                        int agencyId = resultSet.getInt(1);
+                        ret.add(agencyId);
+                    }
+                }
+            }
+
+            return ret;
+        } catch (SQLException ex) {
+            throw new RawRepoException("Error getting agencies", ex);
+        } finally {
+            watch.stop("RawRepoBean.getAgencies");
         }
     }
 

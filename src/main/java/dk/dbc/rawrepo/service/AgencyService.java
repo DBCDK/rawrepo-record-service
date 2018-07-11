@@ -9,6 +9,7 @@ import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.dao.RawRepoBean;
+import dk.dbc.rawrepo.dto.AgencyCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
 import dk.dbc.rawrepo.interceptor.Compress;
@@ -38,6 +39,29 @@ public class AgencyService {
 
     @EJB
     private RawRepoBean rawRepoBean;
+
+    @GET
+    @Path("v1/agencies")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getAgencies() {
+        String res;
+
+        try {
+            List<Integer> agencies = rawRepoBean.getAgencies();
+
+            AgencyCollectionDTO dto = new AgencyCollectionDTO();
+            dto.setAgencies(agencies);
+
+            res = jsonbContext.marshall(dto);
+
+            return Response.ok(res, MediaType.APPLICATION_JSON).build();
+        } catch (JSONBException | RawRepoException ex) {
+            LOGGER.error("Exception during getBibliographicRecordIds", ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            LOGGER.info("v1/agency/{agencyid}/recordids");
+        }
+    }
 
     @GET
     @Path("v1/agency/{agencyid}/recordids")
