@@ -1,3 +1,8 @@
+/*
+ * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
+ *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
+ */
+
 package dk.dbc.rawrepo.interceptor;
 
 import javax.ws.rs.WebApplicationException;
@@ -9,6 +14,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
+/*
+    Inspired by https://dzone.com/articles/how-compress-responses-java
+ */
 @Provider
 @Compress
 public class GZIPWriterInterceptor implements WriterInterceptor {
