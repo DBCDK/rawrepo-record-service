@@ -40,12 +40,12 @@ public class AgencyService {
     private RawRepoBean rawRepoBean;
 
     @GET
-    @Path("v1/agency/{agencyid}/bibliographicrecordids")
+    @Path("v1/agency/{agencyid}/recordids")
     @Compress
     @Produces({MediaType.APPLICATION_JSON})
     public Response getBibliographicRecordIds(@PathParam("agencyid") int agencyId,
                                               @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted) {
-        String res = "";
+        String res;
 
         try {
             List<String> bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgency(agencyId, allowDeleted);
@@ -69,7 +69,7 @@ public class AgencyService {
             LOGGER.error("Exception during getBibliographicRecordIds", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            LOGGER.info("v1/bibliographicrecordids/{agencyid}");
+            LOGGER.info("v1/agency/{agencyid}/recordids");
         }
     }
 
