@@ -1,3 +1,8 @@
+/*
+ * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
+ *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
+ */
+
 package dk.dbc.rawrepo.dto;
 
 public class RecordIdDTO {
@@ -6,6 +11,11 @@ public class RecordIdDTO {
     private int agencyId;
 
     public RecordIdDTO() {
+    }
+
+    public RecordIdDTO(String bibliographicRecordId, int agencyId) {
+        this.bibliographicRecordId = bibliographicRecordId;
+        this.agencyId = agencyId;
     }
 
     public String getBibliographicRecordId() {
