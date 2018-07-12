@@ -14,7 +14,4 @@ public class AgencyCollectionDTO {
         this.agencies = agencies;
     }
 
-    public AgencyCollectionDTO() {
-
-    }
 }

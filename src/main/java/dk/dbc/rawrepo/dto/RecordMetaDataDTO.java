@@ -14,11 +14,7 @@ public class RecordMetaDataDTO {
     private String modified;
     private String trackingId;
 
-    public RecordMetaDataDTO() {
-    }
-
     public RecordIdDTO getRecordId() {
-
         return recordId;
     }
 
@@ -66,15 +62,4 @@ public class RecordMetaDataDTO {
         this.trackingId = trackingId;
     }
 
-    @Override
-    public String toString() {
-        return "RecordMetaDataDTO{" +
-                "recordId=" + recordId +
-                ", isDeleted=" + isDeleted +
-                ", mimetype='" + mimetype + '\'' +
-                ", created='" + created + '\'' +
-                ", modified='" + modified + '\'' +
-                ", trackingId='" + trackingId + '\'' +
-                '}';
-    }
 }
