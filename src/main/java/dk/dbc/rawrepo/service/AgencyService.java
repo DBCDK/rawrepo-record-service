@@ -13,11 +13,15 @@ import dk.dbc.rawrepo.dto.AgencyCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
 import dk.dbc.rawrepo.interceptor.Compress;
+import dk.dbc.rawrepo.interceptor.GZIPWriterInterceptor;
+import dk.dbc.util.StopwatchInterceptor;
+import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -30,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Interceptors({StopwatchInterceptor.class, GZIPWriterInterceptor.class})
 @Stateless
 @Path("api")
 public class AgencyService {
@@ -43,6 +48,7 @@ public class AgencyService {
     @GET
     @Path("v1/agencies")
     @Produces({MediaType.APPLICATION_JSON})
+    @Timed
     public Response getAgencies() {
         String res;
 
@@ -67,6 +73,7 @@ public class AgencyService {
     @Path("v1/agency/{agencyid}/recordids")
     @Compress
     @Produces({MediaType.APPLICATION_JSON})
+    @Timed
     public Response getBibliographicRecordIds(@PathParam("agencyid") int agencyId,
                                               @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted) {
         String res;

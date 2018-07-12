@@ -6,11 +6,12 @@
 package dk.dbc.rawrepo.dao;
 
 import dk.dbc.rawrepo.RawRepoException;
-import org.perf4j.StopWatch;
-import org.perf4j.log4j.Log4JStopWatch;
+import dk.dbc.util.StopwatchInterceptor;
+import dk.dbc.util.Timed;
 
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,6 +20,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Interceptors(StopwatchInterceptor.class)
 @Stateless
 public class RawRepoBean {
     // Outcommented because PMD is angry about unused variable but we will probably need it in the future
@@ -31,8 +33,8 @@ public class RawRepoBean {
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
 
+    @Timed
     public List<String> getBibliographicRecordIdForAgency(int agencyId, boolean allowDeleted) throws RawRepoException {
-        StopWatch watch = new Log4JStopWatch();
         try {
             ArrayList<String> ret = new ArrayList<>();
 
@@ -52,13 +54,11 @@ public class RawRepoBean {
             return ret;
         } catch (SQLException ex) {
             throw new RawRepoException("Error getting bibliographicrecordids", ex);
-        } finally {
-            watch.stop("RawRepoBean.getBibliographicRecordIdForAgency");
         }
     }
 
+    @Timed
     public List<Integer> getAgencies() throws RawRepoException {
-        StopWatch watch = new Log4JStopWatch();
         try {
             ArrayList<Integer> ret = new ArrayList<>();
 
@@ -75,8 +75,6 @@ public class RawRepoBean {
             return ret;
         } catch (SQLException ex) {
             throw new RawRepoException("Error getting agencies", ex);
-        } finally {
-            watch.stop("RawRepoBean.getAgencies");
         }
     }
 

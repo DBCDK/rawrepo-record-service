@@ -18,11 +18,15 @@ import dk.dbc.rawrepo.dto.RecordIdDTO;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.rawrepo.interceptor.Compress;
+import dk.dbc.rawrepo.interceptor.GZIPWriterInterceptor;
+import dk.dbc.util.StopwatchInterceptor;
+import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -38,6 +42,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+@Interceptors({StopwatchInterceptor.class, GZIPWriterInterceptor.class})
 @Stateless
 @Path("api")
 public class RecordCollectionService {
@@ -50,6 +55,7 @@ public class RecordCollectionService {
     @GET
     @Path("v1/records/{agencyid}/{bibliographicrecordid}")
     @Produces({MediaType.APPLICATION_JSON})
+    @Timed
     public Response getRecordCollection(@PathParam("agencyid") int agencyId,
                                         @PathParam("bibliographicrecordid") String bibliographicRecordId,
                                         @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
@@ -80,6 +86,7 @@ public class RecordCollectionService {
     @GET
     @Path("v1/records/{agencyid}/{bibliographicrecordid}/content/")
     @Produces({MediaType.APPLICATION_XML})
+    @Timed
     public Response getRecordContentCollection(@PathParam("agencyid") int agencyId,
                                                @PathParam("bibliographicrecordid") String bibliographicRecordId,
                                                @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
@@ -110,6 +117,7 @@ public class RecordCollectionService {
     @Compress
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
+    @Timed
     public Response getRecordsBulk(String request,
                                    @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
                                    @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
