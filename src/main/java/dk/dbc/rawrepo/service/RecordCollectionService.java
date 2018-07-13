@@ -17,8 +17,6 @@ import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
-import dk.dbc.rawrepo.interceptor.Compress;
-import dk.dbc.rawrepo.interceptor.GZIPWriterInterceptor;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
@@ -42,7 +40,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-@Interceptors({StopwatchInterceptor.class, GZIPWriterInterceptor.class})
+@Interceptors({StopwatchInterceptor.class})
 @Stateless
 @Path("api")
 public class RecordCollectionService {
@@ -114,7 +112,6 @@ public class RecordCollectionService {
 
     @POST
     @Path("v1/records/bulk")
-    @Compress
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Timed

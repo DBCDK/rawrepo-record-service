@@ -12,8 +12,6 @@ import dk.dbc.rawrepo.dao.RawRepoBean;
 import dk.dbc.rawrepo.dto.AgencyCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
-import dk.dbc.rawrepo.interceptor.Compress;
-import dk.dbc.rawrepo.interceptor.GZIPWriterInterceptor;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
@@ -34,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Interceptors({StopwatchInterceptor.class, GZIPWriterInterceptor.class})
+@Interceptors({StopwatchInterceptor.class})
 @Stateless
 @Path("api")
 public class AgencyService {
@@ -71,7 +69,6 @@ public class AgencyService {
 
     @GET
     @Path("v1/agency/{agencyid}/recordids")
-    @Compress
     @Produces({MediaType.APPLICATION_JSON})
     @Timed
     public Response getBibliographicRecordIds(@PathParam("agencyid") int agencyId,
