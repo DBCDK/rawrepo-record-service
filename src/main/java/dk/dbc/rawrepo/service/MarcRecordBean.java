@@ -1,3 +1,8 @@
+/*
+ * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
+ *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
+ */
+
 package dk.dbc.rawrepo.service;
 
 import dk.dbc.marc.binding.Field;
@@ -14,6 +19,8 @@ import dk.dbc.rawrepo.RelationHintsOpenAgency;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
+import dk.dbc.util.StopwatchInterceptor;
+import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -21,6 +28,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -31,6 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+@Interceptors(StopwatchInterceptor.class)
 @Stateless
 public class MarcRecordBean {
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(MarcRecordBean.class);
@@ -116,6 +125,7 @@ public class MarcRecordBean {
         return newMarcRecord;
     }
 
+    @Timed
     public boolean recordExists(String bibliographicRecordId, int agencyId, boolean maybeDeleted) throws InternalServerException {
         try (Connection conn = globalDataSource.getConnection()) {
             try {
@@ -137,6 +147,7 @@ public class MarcRecordBean {
         }
     }
 
+    @Timed
     public Record getRawRepoRecordRaw(String bibliographicRecordId, int agencyId, boolean allowDeleted) throws InternalServerException, RecordNotFoundException {
         try (Connection conn = globalDataSource.getConnection()) {
             try {
@@ -164,11 +175,13 @@ public class MarcRecordBean {
         }
     }
 
+    @Timed
     public Record getRawRepoRecordMerged(String bibliographicRecordId, int agencyId,
                                          boolean allowDeleted, boolean excludeDBCFields, boolean useParentAgency) throws RecordNotFoundException, InternalServerException {
         return getRawRepoRecordMergedOrExpanded(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, false, false);
     }
 
+    @Timed
     public Record getRawRepoRecordExpanded(String bibliographicRecordId, int agencyId, boolean allowDeleted, boolean excludeDBCFields,
                                            boolean useParentAgency, boolean keepAutFields) throws RecordNotFoundException, InternalServerException {
         return getRawRepoRecordMergedOrExpanded(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, true, keepAutFields);
@@ -215,6 +228,7 @@ public class MarcRecordBean {
         }
     }
 
+    @Timed
     public MarcRecord getMarcRecord(String bibliographicRecordId, int agencyId, boolean allowDeleted, boolean excludeDBCFields) throws InternalServerException, RecordNotFoundException {
         try (Connection conn = globalDataSource.getConnection()) {
             try {
@@ -253,12 +267,14 @@ public class MarcRecordBean {
         }
     }
 
+    @Timed
     public MarcRecord getMarcRecordMerged(String bibliographicRecordId, int agencyId,
                                           boolean allowDeleted, boolean excludeDBCFields,
                                           boolean useParentAgency) throws InternalServerException, RecordNotFoundException {
         return getMarcRecordMergedOrExpanded(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, false, false);
     }
 
+    @Timed
     public MarcRecord getMarcRecordExpanded(String bibliographicRecordId, int agencyId,
                                             boolean allowDeleted, boolean excludeDBCFields, boolean useParentAgency,
                                             boolean keepAutFields) throws InternalServerException, RecordNotFoundException {
@@ -304,6 +320,7 @@ public class MarcRecordBean {
         }
     }
 
+    @Timed
     public Collection<MarcRecord> getMarcRecordCollection(String bibliographicRecordId, int agencyId,
                                                           boolean allowDeleted, boolean excludeDBCFields,
                                                           boolean useParentAgency,
@@ -358,6 +375,7 @@ public class MarcRecordBean {
         }
     }
 
+    @Timed
     public Map<String, Record> getRawRepoRecordCollection(String bibliographicRecordId, int agencyId,
                                                           boolean allowDeleted, boolean excludeDBCFields,
                                                           boolean useParentAgency,

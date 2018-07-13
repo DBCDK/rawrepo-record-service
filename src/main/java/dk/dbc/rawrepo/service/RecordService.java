@@ -1,3 +1,8 @@
+/*
+ * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
+ *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
+ */
+
 package dk.dbc.rawrepo.service;
 
 import dk.dbc.jsonb.JSONBContext;
@@ -9,11 +14,14 @@ import dk.dbc.rawrepo.dto.RecordDTOMapper;
 import dk.dbc.rawrepo.dto.RecordExistsDTO;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
+import dk.dbc.util.StopwatchInterceptor;
+import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -23,6 +31,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+@Interceptors(StopwatchInterceptor.class)
 @Stateless
 @Path("api")
 public class RecordService {
@@ -35,6 +44,7 @@ public class RecordService {
     @GET
     @Path("v1/record/{agencyid}/{bibliographicrecordid}")
     @Produces({MediaType.APPLICATION_JSON})
+    @Timed
     public Response getRecord(@PathParam("agencyid") int agencyId,
                               @PathParam("bibliographicrecordid") String bibliographicRecordId,
                               @DefaultValue("raw") @QueryParam("mode") Mode mode,
@@ -56,7 +66,7 @@ public class RecordService {
             } else {
                 return Response.serverError().build();
             }
-            LOGGER.info(new String(record.getContent()));
+
             MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(record.getContent());
 
             res = jsonbContext.marshall(RecordDTOMapper.recordToDTO(record, marcRecord));
@@ -75,6 +85,7 @@ public class RecordService {
     @GET
     @Path("v1/record/{agencyid}/{bibliographicrecordid}/content")
     @Produces({MediaType.APPLICATION_XML})
+    @Timed
     public Response GetContent(@PathParam("agencyid") int agencyId,
                                @PathParam("bibliographicrecordid") String bibliographicRecordId,
                                @DefaultValue("merged") @QueryParam("mode") Mode mode,
@@ -109,6 +120,7 @@ public class RecordService {
     @GET
     @Path("v1/record/{agencyid}/{bibliographicrecordid}/meta")
     @Produces({MediaType.APPLICATION_JSON})
+    @Timed
     public Response getRecordMetaData(@PathParam("agencyid") int agencyId,
                                       @PathParam("bibliographicrecordid") String bibliographicRecordId,
                                       @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted) {
@@ -134,13 +146,14 @@ public class RecordService {
     @GET
     @Path("v1/record/{agencyid}/{bibliographicrecordid}/exists")
     @Produces({MediaType.APPLICATION_JSON})
+    @Timed
     public Response recordExists(@PathParam("agencyid") int agencyId,
                                  @PathParam("bibliographicrecordid") String bibliographicRecordId,
-                                 @DefaultValue("false") @QueryParam("allow-deleted") boolean maybeDeleted) {
+                                 @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted) {
         String res = "";
 
         try {
-            final boolean value = marcRecordBean.recordExists(bibliographicRecordId, agencyId, maybeDeleted);
+            final boolean value = marcRecordBean.recordExists(bibliographicRecordId, agencyId, allowDeleted);
 
             RecordExistsDTO dto = new RecordExistsDTO();
             dto.setValue(value);

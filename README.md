@@ -25,7 +25,19 @@ This endpoint return a JSON document containing a list of all records which the 
 ### Record content list
     /api/v1/records/{agencyid}/{bibliographicrecordid}/content
 
-This endpoint return a MarcXchange XML collection of all record which the input record depends on.
+This endpoint returns a MarcXchange collection document containing all records which the input record depends on.
+
+### Record exists
+    /api/v1/record/{agencyid}/{bibliographicrecordid}/exists
+
+Returns a JSON document with a 'value' element which is true is the record is found - otherwise false is returned.
+
+Note that by default this function will only look for active records. To also include deleted record the allow-deleted url param can be used.
+
+### Record meta data
+    /api/v1/record/{agencyid}/{bibliographicrecordid}/meta
+
+Returns a JSON document with a record, but without the content fields.
 
 ## URL params
 The endpoints make use of the following parameters:
