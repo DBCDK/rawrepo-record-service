@@ -11,9 +11,6 @@ public class RecordCollectionDTO {
 
     private List<RecordDTO> records;
 
-    public RecordCollectionDTO() {
-    }
-
     public List<RecordDTO> getRecords() {
         return records;
     }

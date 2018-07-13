@@ -5,8 +5,6 @@
 
 package dk.dbc.rawrepo.dto;
 
-import java.util.Arrays;
-
 public class RecordDTO {
 
     private RecordIdDTO recordId;
@@ -17,10 +15,6 @@ public class RecordDTO {
     private String trackingId;
     private ContentDTO contentJSON;
     private byte[] content;
-
-    public RecordDTO() {
-
-    }
 
     public RecordIdDTO getRecordId() {
         return recordId;
@@ -86,17 +80,4 @@ public class RecordDTO {
         this.content = content;
     }
 
-    @Override
-    public String toString() {
-        return "RecordDTO{" +
-                "recordId=" + recordId +
-                ", isDeleted=" + isDeleted +
-                ", mimetype='" + mimetype + '\'' +
-                ", created='" + created + '\'' +
-                ", modified='" + modified + '\'' +
-                ", trackingId='" + trackingId + '\'' +
-                ", contentJSON=" + contentJSON +
-                ", content=" + Arrays.toString(content) +
-                '}';
-    }
 }

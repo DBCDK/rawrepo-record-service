@@ -19,7 +19,4 @@ public class RecordIdCollectionDTO {
         this.recordIds = recordIds;
     }
 
-    public RecordIdCollectionDTO() {
-
-    }
 }

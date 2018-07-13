@@ -12,9 +12,6 @@ public class ContentDTO {
     private List<FieldDTO> fields;
     private String leader;
 
-    public ContentDTO() {
-    }
-
     public List<FieldDTO> getFields() {
         return fields;
     }
@@ -31,11 +28,4 @@ public class ContentDTO {
         this.leader = leader;
     }
 
-    @Override
-    public String toString() {
-        return "ContentDTO{" +
-                "fields=" + fields +
-                ", leader='" + leader + '\'' +
-                '}';
-    }
 }

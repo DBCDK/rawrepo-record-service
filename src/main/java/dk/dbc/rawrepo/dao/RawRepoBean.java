@@ -23,9 +23,6 @@ import java.util.List;
 @Interceptors(StopwatchInterceptor.class)
 @Stateless
 public class RawRepoBean {
-    // Outcommented because PMD is angry about unused variable but we will probably need it in the future
-    //private static final XLogger LOGGER = XLoggerFactory.getXLogger(RawRepoBean.class);
-
     private static final String QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY = "SELECT bibliographicrecordid FROM records where agencyid=? and deleted='f'";
     private static final String QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL = "SELECT bibliographicrecordid FROM records where agencyid=?";
     private static final String QUERY_AGENCIES = "SELECT DISTINCT(agencyid) FROM records";

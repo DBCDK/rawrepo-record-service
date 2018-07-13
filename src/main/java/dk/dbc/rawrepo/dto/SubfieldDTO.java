@@ -10,9 +10,6 @@ public class SubfieldDTO {
     private String name;
     private String value;
 
-    public SubfieldDTO() {
-    }
-
     public String getName() {
         return name;
     }
@@ -29,11 +26,4 @@ public class SubfieldDTO {
         this.value = value;
     }
 
-    @Override
-    public String toString() {
-        return "SubfieldDTO{" +
-                "name='" + name + '\'' +
-                ", value='" + value + '\'' +
-                '}';
-    }
 }

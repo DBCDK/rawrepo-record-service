@@ -10,6 +10,7 @@ public class RecordIdDTO {
     private String bibliographicRecordId;
     private int agencyId;
 
+    // Need default constructor as there is another constructor
     public RecordIdDTO() {
     }
 
@@ -34,11 +35,4 @@ public class RecordIdDTO {
         this.agencyId = agencyId;
     }
 
-    @Override
-    public String toString() {
-        return "RecordIdDTO{" +
-                "bibliographicRecordId='" + bibliographicRecordId + '\'' +
-                ", agencyId=" + agencyId +
-                '}';
-    }
 }
