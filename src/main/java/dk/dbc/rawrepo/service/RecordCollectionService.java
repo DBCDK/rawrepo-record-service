@@ -62,7 +62,8 @@ public class RecordCollectionService {
                                         @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                         @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                         @DefaultValue("false") @QueryParam("expand") boolean expand,
-                                        @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields) {
+                                        @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields,
+                                        @QueryParam("exclude-attribute") List<String> excludeAttributes) {
         String res;
 
         try {
@@ -70,6 +71,20 @@ public class RecordCollectionService {
             Map<String, Record> collection = marcRecordBean.getRawRepoRecordCollection(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields);
 
             RecordCollectionDTO dtoList = RecordDTOMapper.recordCollectionToDTO(collection);
+
+            for (String excludeAttribute : excludeAttributes) {
+                if ("content".equalsIgnoreCase(excludeAttribute)) {
+                    for (RecordDTO recordDTO : dtoList.getRecords()) {
+                        recordDTO.setContent(null);
+                    }
+                }
+
+                if ("contentjson".equalsIgnoreCase(excludeAttribute)) {
+                    for (RecordDTO recordDTO : dtoList.getRecords()) {
+                        recordDTO.setContentJSON(null);
+                    }
+                }
+            }
 
             res = jsonbContext.marshall(dtoList);
 
@@ -123,7 +138,8 @@ public class RecordCollectionService {
                                    @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                    @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                    @DefaultValue("false") @QueryParam("expand") boolean expand,
-                                   @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields) {
+                                   @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields,
+                                   @QueryParam("exclude-attribute") List<String> excludeAttributes) {
         String res;
 
         try {
@@ -143,6 +159,17 @@ public class RecordCollectionService {
                 final MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawrepoRecord.getContent());
 
                 final RecordDTO recordDTO = RecordDTOMapper.recordToDTO(rawrepoRecord, marcRecord);
+
+                for (String excludeAttribute : excludeAttributes) {
+                    if ("content".equalsIgnoreCase(excludeAttribute)) {
+                        recordDTO.setContent(null);
+                    }
+
+                    if ("contentjson".equalsIgnoreCase(excludeAttribute)) {
+                        recordDTO.setContentJSON(null);
+                    }
+                }
+
                 recordDTOs.add(recordDTO);
             }
             dto.setRecords(recordDTOs);
