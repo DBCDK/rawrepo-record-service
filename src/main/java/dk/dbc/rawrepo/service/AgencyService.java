@@ -75,20 +75,25 @@ public class AgencyService {
     @Produces({MediaType.APPLICATION_JSON})
     @Timed
     public Response getBibliographicRecordIds(@PathParam("agencyid") int agencyId,
-                                              @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted) {
+                                              @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
+                                              @DefaultValue("false") @QueryParam("internal-agency-handling") boolean internalAgencyHandling) {
         String res;
 
         try {
-            List<String> bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgency(agencyId, allowDeleted);
+            final List<String> bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgency(agencyId, allowDeleted);
 
             final RecordIdCollectionDTO dto = new RecordIdCollectionDTO();
             dto.setRecordIds(new ArrayList<>());
 
+            int returnAgencyId = agencyId;
+
+            // If internalAgencyHandling is true a list of bibliographicRecordId:191919 is returned instead of bibliographicRecordId:agencyId
+            if (internalAgencyHandling && DBC_AGENCIES.contains(agencyId)) {
+                returnAgencyId = 191919;
+            }
+
             for (String bibliographicRecordId : bibliographicRecordIdList) {
-                dto.getRecordIds().add(new RecordIdDTO(bibliographicRecordId, agencyId));
-                if (DBC_AGENCIES.contains(agencyId)) {
-                    dto.getRecordIds().add(new RecordIdDTO(bibliographicRecordId, 191919));
-                }
+                dto.getRecordIds().add(new RecordIdDTO(bibliographicRecordId, returnAgencyId));
             }
 
             LOGGER.info("Found {} record ids for agency {} ({} deleted records)", dto.getRecordIds().size(), agencyId, allowDeleted ? "including" : "not including");
