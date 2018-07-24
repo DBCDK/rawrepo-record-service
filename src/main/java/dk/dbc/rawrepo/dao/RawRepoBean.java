@@ -71,11 +71,11 @@ public class RawRepoBean {
             }
 
             if (hasValue(modifiedBefore)) {
-                query += " AND created < ?";
+                query += " AND modified < ?";
             }
 
             if (hasValue(modifiedAfter)) {
-                query += " AND created >= ?";
+                query += " AND modified >= ?";
             }
 
             try (Connection connection = dataSource.getConnection();
