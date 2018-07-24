@@ -73,11 +73,21 @@ public class AgencyService {
     @Timed
     public Response getBibliographicRecordIds(@PathParam("agencyid") int agencyId,
                                               @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
-                                              @DefaultValue("false") @QueryParam("internal-agency-handling") boolean internalAgencyHandling) {
+                                              @DefaultValue("false") @QueryParam("internal-agency-handling") boolean internalAgencyHandling,
+                                              @QueryParam("created-before") String createdBefore,
+                                              @QueryParam("created-after") String createdAfter,
+                                              @QueryParam("modified-before") String modifiedBefore,
+                                              @QueryParam("modified-after") String modifiedAfter) {
         String res;
 
         try {
-            final List<String> bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgency(agencyId, allowDeleted);
+            List<String> bibliographicRecordIdList;
+
+            if (createdBefore == null && createdAfter == null &&  modifiedBefore == null && modifiedAfter == null) {
+                bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgency(agencyId, allowDeleted);
+            } else {
+                bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgencyInterval(agencyId, allowDeleted, createdBefore, createdAfter, modifiedBefore, modifiedAfter);
+            }
 
             final RecordIdCollectionDTO dto = new RecordIdCollectionDTO();
             dto.setRecordIds(new ArrayList<>());
