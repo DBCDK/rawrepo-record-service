@@ -17,6 +17,7 @@ import dk.dbc.rawrepo.service.RecordObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class RecordDTOMapper {
 
@@ -102,6 +103,17 @@ public class RecordDTOMapper {
         }
 
         dto.setFields(fieldDTOList);
+
+        return dto;
+    }
+
+    public static RecordIdCollectionDTO recordIdToCollectionDTO(Set<RecordId> set) {
+        RecordIdCollectionDTO dto = new RecordIdCollectionDTO();
+        dto.setRecordIds(new ArrayList<>());
+
+        for (RecordId recordId : set) {
+            dto.getRecordIds().add(recordIdToDTO(recordId));
+        }
 
         return dto;
     }
