@@ -194,8 +194,7 @@ public class RecordService {
     @Produces({MediaType.APPLICATION_JSON})
     @Timed
     public Response getRelationsParents(@PathParam("agencyid") int agencyId,
-                                     @PathParam("bibliographicrecordid") String bibliographicRecordId,
-                                     @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted) {
+                                        @PathParam("bibliographicrecordid") String bibliographicRecordId) {
         String res = "";
 
         try {
@@ -217,8 +216,7 @@ public class RecordService {
     @Produces({MediaType.APPLICATION_JSON})
     @Timed
     public Response getRelationsChildren(@PathParam("agencyid") int agencyId,
-                                     @PathParam("bibliographicrecordid") String bibliographicRecordId,
-                                     @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted) {
+                                         @PathParam("bibliographicrecordid") String bibliographicRecordId) {
         String res = "";
 
         try {
@@ -240,8 +238,7 @@ public class RecordService {
     @Produces({MediaType.APPLICATION_JSON})
     @Timed
     public Response getRelationsSiblingsFromMe(@PathParam("agencyid") int agencyId,
-                                      @PathParam("bibliographicrecordid") String bibliographicRecordId,
-                                      @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted) {
+                                               @PathParam("bibliographicrecordid") String bibliographicRecordId) {
         String res = "";
 
         try {
@@ -263,8 +260,7 @@ public class RecordService {
     @Produces({MediaType.APPLICATION_JSON})
     @Timed
     public Response getRelationsSiblingsToMe(@PathParam("agencyid") int agencyId,
-                                               @PathParam("bibliographicrecordid") String bibliographicRecordId,
-                                               @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted) {
+                                             @PathParam("bibliographicrecordid") String bibliographicRecordId) {
         String res = "";
 
         try {
@@ -286,8 +282,7 @@ public class RecordService {
     @Produces({MediaType.APPLICATION_JSON})
     @Timed
     public Response getRelationsFrom(@PathParam("agencyid") int agencyId,
-                                             @PathParam("bibliographicrecordid") String bibliographicRecordId,
-                                             @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted) {
+                                     @PathParam("bibliographicrecordid") String bibliographicRecordId) {
         String res = "";
 
         try {
