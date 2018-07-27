@@ -17,8 +17,6 @@ import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
-import dk.dbc.rawrepo.interceptor.Compress;
-import dk.dbc.rawrepo.interceptor.GZIPWriterInterceptor;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
@@ -42,7 +40,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-@Interceptors({StopwatchInterceptor.class, GZIPWriterInterceptor.class})
+@Interceptors({StopwatchInterceptor.class})
 @Stateless
 @Path("api")
 public class RecordCollectionService {
@@ -62,7 +60,8 @@ public class RecordCollectionService {
                                         @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                         @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                         @DefaultValue("false") @QueryParam("expand") boolean expand,
-                                        @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields) {
+                                        @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields,
+                                        @QueryParam("exclude-attribute") List<String> excludeAttributes) {
         String res;
 
         try {
@@ -70,6 +69,20 @@ public class RecordCollectionService {
             Map<String, Record> collection = marcRecordBean.getRawRepoRecordCollection(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields);
 
             RecordCollectionDTO dtoList = RecordDTOMapper.recordCollectionToDTO(collection);
+
+            for (String excludeAttribute : excludeAttributes) {
+                if ("content".equalsIgnoreCase(excludeAttribute)) {
+                    for (RecordDTO recordDTO : dtoList.getRecords()) {
+                        recordDTO.setContent(null);
+                    }
+                }
+
+                if ("contentjson".equalsIgnoreCase(excludeAttribute)) {
+                    for (RecordDTO recordDTO : dtoList.getRecords()) {
+                        recordDTO.setContentJSON(null);
+                    }
+                }
+            }
 
             res = jsonbContext.marshall(dtoList);
 
@@ -114,7 +127,6 @@ public class RecordCollectionService {
 
     @POST
     @Path("v1/records/bulk")
-    @Compress
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Timed
@@ -123,7 +135,8 @@ public class RecordCollectionService {
                                    @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                    @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                    @DefaultValue("false") @QueryParam("expand") boolean expand,
-                                   @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields) {
+                                   @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields,
+                                   @QueryParam("exclude-attribute") List<String> excludeAttributes) {
         String res;
 
         try {
@@ -143,6 +156,17 @@ public class RecordCollectionService {
                 final MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawrepoRecord.getContent());
 
                 final RecordDTO recordDTO = RecordDTOMapper.recordToDTO(rawrepoRecord, marcRecord);
+
+                for (String excludeAttribute : excludeAttributes) {
+                    if ("content".equalsIgnoreCase(excludeAttribute)) {
+                        recordDTO.setContent(null);
+                    }
+
+                    if ("contentjson".equalsIgnoreCase(excludeAttribute)) {
+                        recordDTO.setContentJSON(null);
+                    }
+                }
+
                 recordDTOs.add(recordDTO);
             }
             dto.setRecords(recordDTOs);

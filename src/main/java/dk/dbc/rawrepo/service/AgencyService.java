@@ -12,8 +12,6 @@ import dk.dbc.rawrepo.dao.RawRepoBean;
 import dk.dbc.rawrepo.dto.AgencyCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
-import dk.dbc.rawrepo.interceptor.Compress;
-import dk.dbc.rawrepo.interceptor.GZIPWriterInterceptor;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
@@ -34,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Interceptors({StopwatchInterceptor.class, GZIPWriterInterceptor.class})
+@Interceptors({StopwatchInterceptor.class})
 @Stateless
 @Path("api")
 public class AgencyService {
@@ -71,24 +69,38 @@ public class AgencyService {
 
     @GET
     @Path("v1/agency/{agencyid}/recordids")
-    @Compress
     @Produces({MediaType.APPLICATION_JSON})
     @Timed
     public Response getBibliographicRecordIds(@PathParam("agencyid") int agencyId,
-                                              @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted) {
+                                              @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
+                                              @DefaultValue("false") @QueryParam("internal-agency-handling") boolean internalAgencyHandling,
+                                              @QueryParam("created-before") String createdBefore,
+                                              @QueryParam("created-after") String createdAfter,
+                                              @QueryParam("modified-before") String modifiedBefore,
+                                              @QueryParam("modified-after") String modifiedAfter) {
         String res;
 
         try {
-            List<String> bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgency(agencyId, allowDeleted);
+            List<String> bibliographicRecordIdList;
+
+            if (createdBefore == null && createdAfter == null &&  modifiedBefore == null && modifiedAfter == null) {
+                bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgency(agencyId, allowDeleted);
+            } else {
+                bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgencyInterval(agencyId, allowDeleted, createdBefore, createdAfter, modifiedBefore, modifiedAfter);
+            }
 
             final RecordIdCollectionDTO dto = new RecordIdCollectionDTO();
             dto.setRecordIds(new ArrayList<>());
 
+            int returnAgencyId = agencyId;
+
+            // If internalAgencyHandling is true a list of bibliographicRecordId:191919 is returned instead of bibliographicRecordId:agencyId
+            if (internalAgencyHandling && DBC_AGENCIES.contains(agencyId)) {
+                returnAgencyId = 191919;
+            }
+
             for (String bibliographicRecordId : bibliographicRecordIdList) {
-                dto.getRecordIds().add(new RecordIdDTO(bibliographicRecordId, agencyId));
-                if (DBC_AGENCIES.contains(agencyId)) {
-                    dto.getRecordIds().add(new RecordIdDTO(bibliographicRecordId, 191919));
-                }
+                dto.getRecordIds().add(new RecordIdDTO(bibliographicRecordId, returnAgencyId));
             }
 
             LOGGER.info("Found {} record ids for agency {} ({} deleted records)", dto.getRecordIds().size(), agencyId, allowDeleted ? "including" : "not including");
