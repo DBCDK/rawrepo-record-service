@@ -25,10 +25,12 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.sql.Connection;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Matchers.any;
@@ -227,6 +229,19 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.fetchRecordCollection(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class))).thenReturn(recordMap);
 
         Assert.assertThat(bean.getMarcRecordCollection(bibliographicRecordId, agencyId, true, false, true, true, false), is(collection));
+    }
+
+    @Test
+    public void testGetAllAgenciesForBibliographicRecordId() throws Exception {
+        MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+        String bibliographicRecordId = "123456789";
+
+        Set<Integer> agencySet = new HashSet<>(Arrays.asList(191919, 870970));
+
+        when(globalDataSource.getConnection()).thenReturn(null);
+        when(rawRepoDAO.allAgenciesForBibliographicRecordId(eq(bibliographicRecordId))).thenReturn(agencySet);
+
+        Assert.assertThat(bean.getAllAgenciesForBibliographicRecordId(bibliographicRecordId), is(agencySet));
     }
 
     private MarcRecord loadMarcRecord(String filename) throws Exception {
