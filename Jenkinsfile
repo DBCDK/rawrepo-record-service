@@ -38,7 +38,7 @@ void notifyOfdeploy(final String server) {
     <p>Jenkins byggenr: #${env.BUILD_NUMBER}</p>
     <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>
     """
-    emailtext(
+    emailext(
         subject: "$subject",
         body: "$details",
         mimeType: "text/html",
