@@ -43,6 +43,7 @@ void notifyOfdeploy(final String server) {
         body: "$details",
         mimeType: "text/html",
         recipientsProviders: ["atm@dbc.dk"]
+    )
 }
 
 pipeline {
