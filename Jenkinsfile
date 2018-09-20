@@ -42,7 +42,7 @@ void notifyOfdeploy(final String server) {
         subject: "$subject",
         body: "$details",
         mimeType: "text/html",
-        recipientsProviders: ["atm@dbc.dk"]
+        to: "atm@dbc.dk"
     )
 }
 
