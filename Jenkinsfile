@@ -30,6 +30,21 @@ void deploy(String deployEnvironment) {
 	"""
 }
 
+void notifyOfdeploy(final String server) {
+    final String subject = "Updateservice er deployet til ${server}"
+    final String details = """
+    <p>Team: MetaScrum</p>
+    <p>Komponent: Rawrepo Record Service</p>
+    <p>Jenkins byggenr: #${env.BUILD_NUMBER}</p>
+    <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>
+    """
+    emailtext(
+        subject: "$subject",
+        body: "$details",
+        mimeType: "text/html",
+        recipientsProviders: ["atm@dbc.dk"]
+}
+
 pipeline {
     agent { label workerNode }
 
@@ -63,6 +78,7 @@ pipeline {
             steps {
                 sh "mvn verify pmd:pmd"
                 junit "**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml"
+                notifyOfdeploy("fbstest")
             }
         }
 
