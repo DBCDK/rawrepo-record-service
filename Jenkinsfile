@@ -31,12 +31,13 @@ void deploy(String deployEnvironment) {
 }
 
 void notifyOfdeploy(final String server) {
-    final String subject = "Updateservice er deployet til ${server}"
+    final String subject = "${env.JOB_NAME} has been deployed to ${server}"
     final String details = """
     <p>Team: MetaScrum</p>
+    <p>Server: mesos</p>
     <p>Komponent: Rawrepo Record Service</p>
     <p>Jenkins byggenr: #${env.BUILD_NUMBER}</p>
-    <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>
+    <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.BUILD_URL}</a>to view the results.</p>
     """
     emailext(
         subject: "$subject",
