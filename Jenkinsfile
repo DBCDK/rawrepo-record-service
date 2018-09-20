@@ -36,9 +36,7 @@ void notifyOfdeploy(final String server) {
     <p>Team: MetaScrum</p>
     <p>Server: mesos</p>
     <p>Komponent: Rawrepo Record Service</p>
-    <br>
-    <p>metascrum/${env.JOB_NAME} - Build # ${env.BUILD_NUMBER}</p>
-    <br>
+    <p>${env.JOB_NAME} - Build # ${env.BUILD_NUMBER}</p>
     <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.BUILD_URL}</a>to view the results.</p>
     """
     emailext(
