@@ -30,7 +30,7 @@ void deploy(String deployEnvironment) {
 	"""
 }
 
-void notifyOfdeploy(final String server) {
+void notifyOfdeploy(final String server, final String recipient) {
     final String subject = "${env.JOB_NAME} has been deployed to ${server}"
     final String details = """
     <p>Team: MetaScrum</p>
@@ -43,7 +43,7 @@ void notifyOfdeploy(final String server) {
         subject: "$subject",
         body: "$details",
         mimeType: "text/html",
-        to: "atm@dbc.dk"
+        to: "$recipient"
     )
 }
 
@@ -80,7 +80,7 @@ pipeline {
             steps {
                 sh "mvn verify pmd:pmd"
                 junit "**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml"
-                notifyOfdeploy("fbstest")
+                notifyOfdeploy("fbstest", "atm@dbc.dk")
             }
         }
 
