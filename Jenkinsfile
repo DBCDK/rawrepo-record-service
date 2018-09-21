@@ -80,7 +80,6 @@ pipeline {
             steps {
                 sh "mvn verify pmd:pmd"
                 junit "**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml"
-                notifyOfdeploy("fbstest", "atm@dbc.dk")
             }
         }
 
@@ -133,7 +132,9 @@ pipeline {
                 script {
                     lock('meta-rawrepo-record-service-deploy-prod') {
                         deploy("boblebad")
+                        notifyOfdeploy("boblebad", "it-change@dbc.dk")
                         deploy("cisterne")
+                        notifyOfdeploy("cisterne", "it-change@dbc.dk")
                     }
                 }
             }
