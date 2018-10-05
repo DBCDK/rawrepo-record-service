@@ -30,6 +30,23 @@ void deploy(String deployEnvironment) {
 	"""
 }
 
+void notifyOfdeploy(final String server, final String recipient) {
+    final String subject = "${env.JOB_NAME} has been deployed to ${server}"
+    final String details = """
+    <p>Team: MetaScrum</p>
+    <p>Server: mesos</p>
+    <p>Komponent: Rawrepo Record Service</p>
+    <p>${env.JOB_NAME} - Build # ${env.BUILD_NUMBER}</p>
+    <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.BUILD_URL}</a>&QUOT; to view the results.</p>
+    """
+    emailext(
+        subject: "$subject",
+        body: "$details",
+        mimeType: "text/html",
+        to: "$recipient"
+    )
+}
+
 pipeline {
     agent { label workerNode }
 
@@ -116,6 +133,7 @@ pipeline {
                     lock('meta-rawrepo-record-service-deploy-prod') {
                         deploy("boblebad")
                         deploy("cisterne")
+                        notifyOfdeploy("prod", "it-change@dbc.dk")
                     }
                 }
             }
