@@ -453,6 +453,28 @@ public class MarcRecordBean {
         }
     }
 
+
+    public Set<Integer> getAllAgenciesForBibliographicRecordId(String bibliographicRecordId) throws InternalServerException {
+        Set<Integer> result;
+
+        try (Connection conn = globalDataSource.getConnection()) {
+            try {
+                final RawRepoDAO dao = createDAO(conn);
+
+                result = dao.allAgenciesForBibliographicRecordId(bibliographicRecordId);
+
+                return result;
+            } catch (RawRepoException ex) {
+                conn.rollback();
+                LOGGER.error(ex.getMessage(), ex);
+                throw new InternalServerException(ex.getMessage(), ex);
+            }
+        } catch (SQLException ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            throw new InternalServerException(ex.getMessage(), ex);
+        }
+    }
+
     public Set<RecordId> getRelationsChildren(String bibliographicRecordId, int agencyId) throws InternalServerException {
         Set<RecordId> result;
         try (Connection conn = globalDataSource.getConnection()) {

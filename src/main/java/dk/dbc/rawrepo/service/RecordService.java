@@ -11,6 +11,7 @@ import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.RecordId;
+import dk.dbc.rawrepo.dto.AgencyCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordDTO;
 import dk.dbc.rawrepo.dto.RecordDTOMapper;
 import dk.dbc.rawrepo.dto.RecordExistsDTO;
@@ -32,6 +33,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -296,6 +298,32 @@ public class RecordService {
             return Response.serverError().build();
         } finally {
             LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/children");
+        }
+    }
+
+    @GET
+    @Path("v1/record/{bibliographicrecordid}/all-agencies-for")
+    @Produces({MediaType.APPLICATION_JSON})
+    @Timed
+    public Response getAllAgenciesForBibliographicRecordId(
+            @PathParam("bibliographicrecordid") String bibliographicRecordId) {
+        String res = "";
+
+        try {
+            final Set<Integer> agencySet = marcRecordBean.getAllAgenciesForBibliographicRecordId(bibliographicRecordId);
+
+            final List<Integer> agencyList = new ArrayList<>(agencySet);
+            final AgencyCollectionDTO dto = new AgencyCollectionDTO();
+            dto.setAgencies(agencyList);
+
+            res = jsonbContext.marshall(dto);
+
+            return Response.ok(res, MediaType.APPLICATION_JSON).build();
+        } catch (JSONBException | InternalServerException ex) {
+            LOGGER.error("Exception during getRecord", ex);
+            return Response.serverError().build();
+        } finally {
+            LOGGER.info("v1/record/{bibliographicrecordid}/all-agencies-for");
         }
     }
 
