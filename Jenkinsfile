@@ -132,9 +132,8 @@ pipeline {
                 script {
                     lock('meta-rawrepo-record-service-deploy-prod') {
                         deploy("boblebad")
-                        notifyOfdeploy("boblebad", "it-change@dbc.dk")
                         deploy("cisterne")
-                        notifyOfdeploy("cisterne", "it-change@dbc.dk")
+                        notifyOfdeploy("prod", "it-change@dbc.dk")
                     }
                 }
             }
