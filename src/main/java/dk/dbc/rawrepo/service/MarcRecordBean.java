@@ -100,11 +100,6 @@ public class MarcRecordBean {
 
             overwriteMerger = new MarcXMerger(customFieldRules);
 
-            try (Connection conn = globalDataSource.getConnection()) {
-                final RawRepoDAO dao = createDAO(conn);
-                dao.validateConnection();
-            }
-
             relationHints = new RelationHintsOpenAgency(openAgency.getService());
         } catch (Exception ex) {
             throw new RuntimeException(ex);
