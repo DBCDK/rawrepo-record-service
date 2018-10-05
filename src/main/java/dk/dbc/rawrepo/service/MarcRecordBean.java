@@ -54,6 +54,7 @@ public class MarcRecordBean {
 
     private MarcXMerger defaultMerger;
     private MarcXMerger overwriteMerger;
+    private RelationHintsOpenAgency relationHints;
 
     // Constructor used for mocking
     MarcRecordBean(DataSource globalDataSource) {
@@ -80,7 +81,7 @@ public class MarcRecordBean {
     protected RawRepoDAO createDAO(Connection conn) throws RawRepoException {
         try {
             RawRepoDAO.Builder rawRepoBuilder = RawRepoDAO.builder(conn);
-            rawRepoBuilder.relationHints(new RelationHintsOpenAgency(openAgency.getService()));
+            rawRepoBuilder.relationHints(relationHints);
             return rawRepoBuilder.build();
         } finally {
             LOGGER.info("rawrepo.createDAO");
@@ -98,6 +99,13 @@ public class MarcRecordBean {
             final FieldRules customFieldRules = new FieldRules(immutable, overwrite, FieldRules.INVALID_DEFAULT, FieldRules.VALID_REGEX_DANMARC2);
 
             overwriteMerger = new MarcXMerger(customFieldRules);
+
+            try (Connection conn = globalDataSource.getConnection()) {
+                final RawRepoDAO dao = createDAO(conn);
+                dao.validateConnection();
+            }
+
+            relationHints = new RelationHintsOpenAgency(openAgency.getService());
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
