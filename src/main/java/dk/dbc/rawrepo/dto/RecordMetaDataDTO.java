@@ -13,6 +13,7 @@ public class RecordMetaDataDTO {
     private String created;
     private String modified;
     private String trackingId;
+    private String enrichmentTrail;
 
     public RecordIdDTO getRecordId() {
         return recordId;
@@ -62,4 +63,11 @@ public class RecordMetaDataDTO {
         this.trackingId = trackingId;
     }
 
+    public String getEnrichmentTrail() {
+        return enrichmentTrail;
+    }
+
+    public void setEnrichmentTrail(String enrichmentTrail) {
+        this.enrichmentTrail = enrichmentTrail;
+    }
 }
