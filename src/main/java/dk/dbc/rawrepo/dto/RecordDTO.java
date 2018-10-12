@@ -15,6 +15,7 @@ public class RecordDTO {
     private String trackingId;
     private ContentDTO contentJSON;
     private byte[] content;
+    private String enrichmentTrail;
 
     public RecordIdDTO getRecordId() {
         return recordId;
@@ -80,4 +81,11 @@ public class RecordDTO {
         this.content = content;
     }
 
+    public String getEnrichmentTrail() {
+        return enrichmentTrail;
+    }
+
+    public void setEnrichmentTrail(String enrichmentTrail) {
+        this.enrichmentTrail = enrichmentTrail;
+    }
 }

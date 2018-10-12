@@ -29,6 +29,7 @@ public class RecordDTOMapper {
         dto.setModified(record.getModified().toString());
         dto.setMimetype(record.getMimeType());
         dto.setTrackingId(record.getTrackingId());
+        dto.setEnrichmentTrail(record.getEnrichmentTrail());
 
         return dto;
     }
@@ -41,6 +42,7 @@ public class RecordDTOMapper {
         dto.setModified(rawRecord.getModified().toString());
         dto.setMimetype(rawRecord.getMimeType());
         dto.setTrackingId(rawRecord.getTrackingId());
+        dto.setEnrichmentTrail(rawRecord.getEnrichmentTrail());
         dto.setContent(rawRecord.getContent());
         dto.setContentJSON(contentToDTO(marcRecord));
 
