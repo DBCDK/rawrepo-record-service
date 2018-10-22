@@ -201,7 +201,7 @@ public class MarcRecordBean {
                 Record rawRecord;
 
                 if (doExpand) {
-                    rawRecord = dao.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, getMerger(useParentAgency), allowDeleted);
+                    rawRecord = dao.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, getMerger(useParentAgency), allowDeleted, keepAutFields);
                 } else {
                     rawRecord = dao.fetchMergedRecord(bibliographicRecordId, agencyId, getMerger(useParentAgency), allowDeleted);
                 }
