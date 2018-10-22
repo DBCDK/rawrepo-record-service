@@ -226,7 +226,7 @@ public class MarcRecordBeanTest {
         recordMap.put(bibliographicRecordId, record);
 
         when(globalDataSource.getConnection()).thenReturn(null);
-        when(rawRepoDAO.fetchRecordCollection(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class))).thenReturn(recordMap);
+        when(rawRepoDAO.fetchRecordCollectionExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true), eq(false))).thenReturn(recordMap);
 
         Assert.assertThat(bean.getMarcRecordCollection(bibliographicRecordId, agencyId, true, false, true, true, false), is(collection));
     }

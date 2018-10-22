@@ -98,7 +98,7 @@ public class MarcRecordBean {
 
             final FieldRules customFieldRules = new FieldRules(immutable, overwrite, FieldRules.INVALID_DEFAULT, FieldRules.VALID_REGEX_DANMARC2);
 
-            overwriteMerger = new MarcXMerger(customFieldRules);
+            overwriteMerger = new MarcXMerger(customFieldRules, "RECORD_SERVICE");
 
             relationHints = new RelationHintsOpenAgency(openAgency.getService());
         } catch (Exception ex) {
@@ -200,10 +200,10 @@ public class MarcRecordBean {
                 final RawRepoDAO dao = createDAO(conn);
                 Record rawRecord;
 
-                rawRecord = dao.fetchMergedRecord(bibliographicRecordId, agencyId, getMerger(useParentAgency), allowDeleted);
-
                 if (doExpand) {
-                    dao.expandRecord(rawRecord, keepAutFields);
+                    rawRecord = dao.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, getMerger(useParentAgency), allowDeleted);
+                } else {
+                    rawRecord = dao.fetchMergedRecord(bibliographicRecordId, agencyId, getMerger(useParentAgency), allowDeleted);
                 }
 
                 if (rawRecord.getContent() == null || rawRecord.getContent().length == 0) {
@@ -342,7 +342,11 @@ public class MarcRecordBean {
                     collection = new HashMap<>();
                     collection.put(bibliographicRecordId, rawRecord);
                 } else {
-                    collection = dao.fetchRecordCollection(bibliographicRecordId, agencyId, getMerger(useParentAgency));
+                    if (expand) {
+                        collection = dao.fetchRecordCollectionExpanded(bibliographicRecordId, agencyId, getMerger(useParentAgency),true, keepAutFields);
+                    } else {
+                        collection = dao.fetchRecordCollection(bibliographicRecordId, agencyId, getMerger(useParentAgency));
+                    }
                 }
 
                 final Collection<MarcRecord> marcRecords = new HashSet<>();
@@ -350,10 +354,6 @@ public class MarcRecordBean {
                     final Record rawRecord = entry.getValue();
                     if (!isMarcXChange(rawRecord.getMimeType())) {
                         throw new MarcXMergerException("Cannot make marcx:collection from mimetype: " + rawRecord.getMimeType());
-                    }
-
-                    if (expand) {
-                        dao.expandRecord(rawRecord, keepAutFields);
                     }
 
                     MarcRecord record = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
