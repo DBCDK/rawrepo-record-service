@@ -37,7 +37,7 @@ public abstract class ObjectPool<T> {
                     if (validate(t)) {
                         unlocked.remove(t);
                         locked.put(t, now);
-                        return (t);
+                        return t;
                     } else {
                         // object failed validation
                         unlocked.remove(t);
@@ -50,7 +50,7 @@ public abstract class ObjectPool<T> {
         // no objects available, create a new one
         t = create();
         locked.put(t, now);
-        return (t);
+        return t;
     }
 
     public synchronized void checkIn(T t) {
