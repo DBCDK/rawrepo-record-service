@@ -192,6 +192,31 @@ public class MarcRecordBean {
     private Record getRawRepoRecordMergedOrExpanded(String bibliographicRecordId, int agencyId,
                                                     boolean allowDeleted, boolean excludeDBCFields, boolean useParentAgency,
                                                     boolean doExpand, boolean keepAutFields) throws InternalServerException, RecordNotFoundException {
+        try {
+            Record rawRecord = getRawRepoRecord(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, doExpand, keepAutFields);
+
+            if (rawRecord == null) {
+                return null;
+            }
+
+            MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
+
+            if (excludeDBCFields) {
+                marcRecord = removePrivateFields(marcRecord);
+            }
+
+            rawRecord.setContent(RecordObjectMapper.marcToContent(marcRecord));
+
+            return rawRecord;
+        } catch (MarcReaderException ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            throw new InternalServerException(ex.getMessage(), ex);
+        }
+    }
+
+    private Record getRawRepoRecord(String bibliographicRecordId, int agencyId,
+                                    boolean allowDeleted, boolean excludeDBCFields, boolean useParentAgency,
+                                    boolean doExpand, boolean keepAutFields) throws InternalServerException, RecordNotFoundException {
         try (Connection conn = globalDataSource.getConnection()) {
             try {
                 final RawRepoDAO dao = createDAO(conn);
@@ -358,54 +383,21 @@ public class MarcRecordBean {
     private MarcRecord getMarcRecordMergedOrExpanded(String bibliographicRecordId, int agencyId,
                                                      boolean allowDeleted, boolean excludeDBCFields, boolean useParentAgency,
                                                      boolean doExpand, boolean keepAutFields) throws InternalServerException, RecordNotFoundException {
-        try (Connection conn = globalDataSource.getConnection()) {
-            try {
-                final RawRepoDAO dao = createDAO(conn);
-                Record rawRecord;
+        try {
+            Record rawRecord = getRawRepoRecord(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, doExpand, keepAutFields);
 
-                MarcXMerger merger = getMerger(useParentAgency);
-
-                boolean recordExists = dao.recordExistsMaybeDeleted(bibliographicRecordId, agencyId);
-                boolean isDeleted = recordExists && !dao.recordExists(bibliographicRecordId, agencyId);
-
-                // If the record doesn't exist at all or if the record is marked as deleted and the result should not
-                // include deleted records then return null.
-                if (!recordExists || (isDeleted && !allowDeleted)) {
-                    return null;
-                } else if (isDeleted) {
-                    // There are no relations on deleted records to we have to handle merging 191919 records in a different way
-                    if (useParentAgency && agencyId == 191919) {
-                        rawRecord = mergeDeletedRecord(bibliographicRecordId, agencyId, merger, dao);
-                    } else {
-                        rawRecord = dao.fetchRecord(bibliographicRecordId, agencyId);
-                    }
-                } else {
-                    if (doExpand) {
-                        rawRecord = dao.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, merger, allowDeleted);
-                    } else {
-                        rawRecord = dao.fetchMergedRecord(bibliographicRecordId, agencyId, merger, allowDeleted);
-                    }
-                }
-
-                System.out.println(rawRecord== null);
-                System.out.println(rawRecord.getContent() == null);
-
-                MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
-
-                if (excludeDBCFields) {
-                    marcRecord = removePrivateFields(marcRecord);
-                }
-
-                return marcRecord;
-            } catch (RawRepoException ex) {
-                conn.rollback();
-                LOGGER.error(ex.getMessage(), ex);
-                throw new InternalServerException(ex.getMessage(), ex);
-            } catch (MarcReaderException | MarcXMergerException ex) {
-                LOGGER.error(ex.getMessage(), ex);
-                throw new InternalServerException(ex.getMessage(), ex);
+            if (rawRecord == null) {
+                return null;
             }
-        } catch (SQLException ex) {
+
+            MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
+
+            if (excludeDBCFields) {
+                marcRecord = removePrivateFields(marcRecord);
+            }
+
+            return marcRecord;
+        } catch (MarcReaderException ex) {
             LOGGER.error(ex.getMessage(), ex);
             throw new InternalServerException(ex.getMessage(), ex);
         }
