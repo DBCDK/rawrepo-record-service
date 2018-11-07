@@ -9,6 +9,7 @@ import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
+import dk.dbc.rawrepo.MarcRecordBean;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.dto.RecordCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordDTO;
@@ -87,7 +88,6 @@ public class RecordCollectionService {
             res = jsonbContext.marshall(dtoList);
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
-
         } catch (Exception ex) {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
@@ -110,13 +110,11 @@ public class RecordCollectionService {
         String res;
 
         try {
-
             Collection<MarcRecord> marcRecords = marcRecordBean.getMarcRecordCollection(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields);
 
             res = new String(RecordObjectMapper.marcRecordCollectionToContent(marcRecords));
 
             return Response.ok(res, MediaType.APPLICATION_XML).build();
-
         } catch (Exception ex) {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
@@ -152,6 +150,12 @@ public class RecordCollectionService {
                 } else {
                     rawrepoRecord = marcRecordBean.getRawRepoRecordMerged(idDTO.getBibliographicRecordId(), idDTO.getAgencyId(), allowDeleted, excludeDBCFields, useParentAgency);
                 }
+
+                // Ignore records that doesn't exist
+                if (rawrepoRecord == null) {
+                    continue;
+                }
+                // TODO Collect all failed or missing records and present those in the returned DTO
 
                 final MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawrepoRecord.getContent());
 

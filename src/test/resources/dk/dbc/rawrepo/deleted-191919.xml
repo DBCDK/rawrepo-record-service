@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<record xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="info:lc/xmlns/marcxchange-v1">
+    <leader>00000n    2200000   4500</leader>
+    <datafield ind1="0" ind2="0" tag="001">
+        <subfield code="a">00199087</subfield>
+        <subfield code="b">191919</subfield>
+        <subfield code="c">20180206130519</subfield>
+        <subfield code="d">19750417</subfield>
+        <subfield code="f">a</subfield>
+        <subfield code="o">c</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="0" tag="004">
+        <subfield code="r">d</subfield>
+    </datafield>
+</record>
