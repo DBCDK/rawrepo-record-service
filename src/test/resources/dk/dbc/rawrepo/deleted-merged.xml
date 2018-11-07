@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record xmlns="info:lc/xmlns/marcxchange-v1">
+    <leader>00000n    2200000   4500</leader>
+    <datafield ind1="0" ind2="0" tag="001">
+        <subfield code="a">00199087</subfield>
+        <subfield code="b">870970</subfield>
+        <subfield code="c">20180206130519</subfield>
+        <subfield code="d">19750417</subfield>
+        <subfield code="f">a</subfield>
+        <subfield code="o">c</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="0" tag="004">
+        <subfield code="r">d</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="0" tag="008">
+        <subfield code="t">m</subfield>
+        <subfield code="u">r</subfield>
+        <subfield code="a">1968</subfield>
+        <subfield code="z">1974</subfield>
+        <subfield code="l">ger</subfield>
+        <subfield code="v">1</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="0" tag="014">
+        <subfield code="a">50443337</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="0" tag="021">
+        <subfield code="a">3-15-010112-3</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="0" tag="245">
+        <subfield code="g">1</subfield>
+        <subfield code="a">Frühzeit, Barock und Klassik</subfield>
+        <subfield code="f">unter Mitarbeit von Christiane Bernsdorff-Engelbrecht</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="0" tag="300">
+        <subfield code="a">802 sider</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="0" tag="440">
+        <subfield code="a">Universal-Bibliothek</subfield>
+        <subfield code="v">10 112-24</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="0" tag="996">
+        <subfield code="a">DBC</subfield>
+    </datafield>
+</record>

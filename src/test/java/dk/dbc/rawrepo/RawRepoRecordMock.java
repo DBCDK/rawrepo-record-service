@@ -3,10 +3,7 @@
  *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
  */
 
-package dk.dbc.rawrepo.service;
-
-import dk.dbc.rawrepo.Record;
-import dk.dbc.rawrepo.RecordId;
+package dk.dbc.rawrepo;
 
 import java.time.Instant;
 import java.util.Set;
@@ -109,7 +106,7 @@ public class RawRepoRecordMock implements Record {
     }
 
     public String getEnrichmentTrail() {
-        return "";
+        return Integer.toString(id.agencyId);
     }
 
     public Set<RecordId> getReferences() {
