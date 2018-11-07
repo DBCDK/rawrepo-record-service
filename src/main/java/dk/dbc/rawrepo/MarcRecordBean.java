@@ -214,6 +214,8 @@ public class MarcRecordBean {
         }
     }
 
+    // keepAutFields will be used later
+    @SuppressWarnings("PMD.UnusedFormalParameter")
     private Record getRawRepoRecord(String bibliographicRecordId, int agencyId,
                                     boolean allowDeleted, boolean excludeDBCFields, boolean useParentAgency,
                                     boolean doExpand, boolean keepAutFields) throws InternalServerException, RecordNotFoundException {
@@ -229,7 +231,7 @@ public class MarcRecordBean {
 
                 // If the record doesn't exist at all or if the record is marked as deleted and the result should not
                 // include deleted records then return null.
-                if (!recordExists || (isDeleted && !allowDeleted)) {
+                if (!recordExists || isDeleted && !allowDeleted) {
                     return null;
                 } else if (isDeleted) {
                     // There are no relations on deleted records to we have to handle merging 191919 records in a different way
