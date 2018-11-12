@@ -461,11 +461,16 @@ public class MarcRecordBean {
     }
 
     @Timed
-    public Map<String, Record> getRawRepoRecordCollection(String bibliographicRecordId, int agencyId,
-                                                          boolean allowDeleted, boolean excludeDBCFields,
+    public Map<String, Record> getRawRepoRecordCollection(String bibliographicRecordId,
+                                                          int agencyId,
+                                                          boolean allowDeleted,
+                                                          boolean excludeDBCFields,
                                                           boolean useParentAgency,
-                                                          boolean expand, boolean keepAutFields) throws InternalServerException {
+                                                          boolean expand,
+                                                          boolean keepAutFields,
+                                                          boolean excludeAutRecords) throws InternalServerException {
         Map<String, Record> collection;
+        Map<String, Record> result = new HashMap<>();
 
         try (Connection conn = globalDataSource.getConnection()) {
             try {
@@ -488,6 +493,10 @@ public class MarcRecordBean {
                         throw new MarcXMergerException("Cannot make marcx:collection from mimetype: " + rawRecord.getMimeType());
                     }
 
+                    if (excludeAutRecords && MarcXChangeMimeType.AUTHORITY.equals(rawRecord.getMimeType())) {
+                        continue;
+                    }
+
                     if (expand) {
                         dao.expandRecord(rawRecord, keepAutFields);
                     }
@@ -497,9 +506,11 @@ public class MarcRecordBean {
                     if (excludeDBCFields) {
                         rawRecord.setContent(RecordObjectMapper.marcToContent(removePrivateFields(record)));
                     }
+
+                    result.put(entry.getKey(), rawRecord);
                 }
 
-                return collection;
+                return result;
             } catch (RawRepoException ex) {
                 conn.rollback();
                 LOGGER.error(ex.getMessage(), ex);
