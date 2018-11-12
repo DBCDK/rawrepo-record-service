@@ -62,12 +62,13 @@ public class RecordCollectionService {
                                         @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                         @DefaultValue("false") @QueryParam("expand") boolean expand,
                                         @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields,
+                                        @DefaultValue("false") @QueryParam("exclude-aut-records") boolean excludeAutRecords,
                                         @QueryParam("exclude-attribute") List<String> excludeAttributes) {
         String res;
 
         try {
 
-            Map<String, Record> collection = marcRecordBean.getRawRepoRecordCollection(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields);
+            Map<String, Record> collection = marcRecordBean.getRawRepoRecordCollection(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields, excludeAutRecords);
 
             RecordCollectionDTO dtoList = RecordDTOMapper.recordCollectionToDTO(collection);
 
