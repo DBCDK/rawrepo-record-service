@@ -158,9 +158,7 @@ public class RecordCollectionService {
                 }
                 // TODO Collect all failed or missing records and present those in the returned DTO
 
-                final MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawrepoRecord.getContent());
-
-                final RecordDTO recordDTO = RecordDTOMapper.recordToDTO(rawrepoRecord, marcRecord);
+                final RecordDTO recordDTO = RecordDTOMapper.recordToDTO(rawrepoRecord);
 
                 for (String excludeAttribute : excludeAttributes) {
                     if ("content".equalsIgnoreCase(excludeAttribute)) {

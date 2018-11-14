@@ -657,4 +657,25 @@ public class MarcRecordBean {
         }
     }
 
+    public Record fetchRecord(String bibliographicRecordId, int agencyId) throws InternalServerException {
+        Record result;
+        try (Connection conn = globalDataSource.getConnection()) {
+            try {
+                final RawRepoDAO dao = createDAO(conn);
+
+
+                result = dao.fetchRecord(bibliographicRecordId, agencyId);
+
+                return result;
+            } catch (RawRepoException ex) {
+                conn.rollback();
+                LOGGER.error(ex.getMessage(), ex);
+                throw new InternalServerException(ex.getMessage(), ex);
+            }
+        } catch (SQLException ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            throw new InternalServerException(ex.getMessage(), ex);
+        }
+    }
+
 }
