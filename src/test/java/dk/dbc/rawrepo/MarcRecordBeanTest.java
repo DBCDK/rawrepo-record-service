@@ -113,6 +113,7 @@ public class MarcRecordBeanTest {
                 marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
 
         when(globalDataSource.getConnection()).thenReturn(null);
+        when(rawRepoDAO.agencyFor(eq(bibliographicRecordId), eq(agencyId), eq(true))).thenReturn(agencyId);
         when(rawRepoDAO.recordExists(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
@@ -134,6 +135,7 @@ public class MarcRecordBeanTest {
                 marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
 
         when(globalDataSource.getConnection()).thenReturn(null);
+        when(rawRepoDAO.agencyFor(eq(bibliographicRecordId), eq(agencyId), eq(true))).thenReturn(agencyId);
         when(rawRepoDAO.recordExists(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
@@ -154,6 +156,7 @@ public class MarcRecordBeanTest {
                 marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
 
         when(globalDataSource.getConnection()).thenReturn(null);
+        when(rawRepoDAO.agencyFor(eq(bibliographicRecordId), eq(agencyId), eq(true))).thenReturn(agencyId);
         when(rawRepoDAO.recordExists(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
@@ -174,6 +177,7 @@ public class MarcRecordBeanTest {
                 marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
 
         when(globalDataSource.getConnection()).thenReturn(null);
+        when(rawRepoDAO.agencyFor(eq(bibliographicRecordId), eq(agencyId), eq(true))).thenReturn(agencyId);
         when(rawRepoDAO.recordExists(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
@@ -195,6 +199,7 @@ public class MarcRecordBeanTest {
                 marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
 
         when(globalDataSource.getConnection()).thenReturn(null);
+        when(rawRepoDAO.agencyFor(eq(bibliographicRecordId), eq(agencyId), eq(true))).thenReturn(agencyId);
         when(rawRepoDAO.recordExists(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
@@ -215,6 +220,7 @@ public class MarcRecordBeanTest {
                 marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
 
         when(globalDataSource.getConnection()).thenReturn(null);
+        when(rawRepoDAO.agencyFor(eq(bibliographicRecordId), eq(agencyId), eq(true))).thenReturn(agencyId);
         when(rawRepoDAO.recordExists(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);

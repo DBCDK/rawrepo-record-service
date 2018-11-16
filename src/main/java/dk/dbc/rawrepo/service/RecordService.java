@@ -75,6 +75,10 @@ public class RecordService {
                 return Response.serverError().build();
             }
 
+            if (record == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
             RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record);
 
             for (String excludeAttribute : excludeAttributes) {
