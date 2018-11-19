@@ -226,8 +226,10 @@ public class MarcRecordBean {
 
                 MarcXMerger merger = getMerger(useParentAgency);
 
-                boolean recordExists = dao.recordExistsMaybeDeleted(bibliographicRecordId, agencyId);
-                boolean isDeleted = recordExists && !dao.recordExists(bibliographicRecordId, agencyId);
+                int correctedAgencyId = dao.agencyFor(bibliographicRecordId, agencyId, allowDeleted);
+
+                boolean recordExists = dao.recordExistsMaybeDeleted(bibliographicRecordId, correctedAgencyId);
+                boolean isDeleted = recordExists && !dao.recordExists(bibliographicRecordId, correctedAgencyId);
 
                 // If the record doesn't exist at all or if the record is marked as deleted and the result should not
                 // include deleted records then return null.
@@ -235,16 +237,16 @@ public class MarcRecordBean {
                     return null;
                 } else if (isDeleted) {
                     // There are no relations on deleted records to we have to handle merging 191919 records in a different way
-                    if (useParentAgency && agencyId == 191919) {
-                        rawRecord = mergeDeletedRecord(bibliographicRecordId, agencyId, merger, dao);
+                    if (useParentAgency && correctedAgencyId == 191919) {
+                        rawRecord = mergeDeletedRecord(bibliographicRecordId, correctedAgencyId, merger, dao);
                     } else {
-                        rawRecord = dao.fetchRecord(bibliographicRecordId, agencyId);
+                        rawRecord = dao.fetchRecord(bibliographicRecordId, correctedAgencyId);
                     }
                 } else {
                     if (doExpand) {
-                        rawRecord = dao.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, merger, allowDeleted);
+                        rawRecord = dao.fetchMergedRecordExpanded(bibliographicRecordId, correctedAgencyId, merger, allowDeleted);
                     } else {
-                        rawRecord = dao.fetchMergedRecord(bibliographicRecordId, agencyId, merger, allowDeleted);
+                        rawRecord = dao.fetchMergedRecord(bibliographicRecordId, correctedAgencyId, merger, allowDeleted);
                     }
                 }
 
@@ -257,7 +259,9 @@ public class MarcRecordBean {
                 rawRecord.setContent(RecordObjectMapper.marcToContent(marcRecord));
 
                 return rawRecord;
-            } catch (RawRepoException ex) {
+            } catch (RawRepoExceptionRecordNotFound ex) {
+                return null;
+            }catch (RawRepoException ex) {
                 conn.rollback();
                 LOGGER.error(ex.getMessage(), ex);
                 throw new InternalServerException(ex.getMessage(), ex);
@@ -446,6 +450,9 @@ public class MarcRecordBean {
                 }
 
                 return marcRecords;
+            }catch (RawRepoExceptionRecordNotFound ex) {
+                LOGGER.error("Record not found", ex);
+                throw new RecordNotFoundException("Posten '" + bibliographicRecordId + ":" + agencyId + "' blev ikke fundet");
             } catch (RawRepoException ex) {
                 conn.rollback();
                 LOGGER.error(ex.getMessage(), ex);

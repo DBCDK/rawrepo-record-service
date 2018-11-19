@@ -116,6 +116,9 @@ public class RecordCollectionService {
             res = new String(RecordObjectMapper.marcRecordCollectionToContent(marcRecords));
 
             return Response.ok(res, MediaType.APPLICATION_XML).build();
+        } catch (RecordNotFoundException ex) {
+            LOGGER.error("Record not found", ex);
+            return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception ex) {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
