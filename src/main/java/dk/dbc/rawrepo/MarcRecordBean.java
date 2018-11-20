@@ -382,8 +382,17 @@ public class MarcRecordBean {
     private MarcRecord getMarcRecordMergedOrExpanded(String bibliographicRecordId, int agencyId,
                                                      boolean allowDeleted, boolean excludeDBCFields, boolean useParentAgency,
                                                      boolean doExpand, boolean keepAutFields) throws InternalServerException, RecordNotFoundException {
-        try {
-            Record rawRecord = getRawRepoRecord(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, doExpand, keepAutFields);
+        try (Connection conn = globalDataSource.getConnection()) {
+            try {
+                final RawRepoDAO dao = createDAO(conn);
+                Record rawRecord;
+
+                ObjectPool<MarcXMerger> mergePool = getMergerPool(useParentAgency);
+                MarcXMerger merger = mergePool.checkOut();
+
+                rawRecord = dao.fetchMergedRecord(bibliographicRecordId, agencyId, merger, allowDeleted);
+
+                mergePool.checkIn(merger);
 
             if (rawRecord == null) {
                 return null;
