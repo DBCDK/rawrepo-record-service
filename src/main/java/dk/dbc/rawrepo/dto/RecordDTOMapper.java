@@ -29,11 +29,12 @@ public class RecordDTOMapper {
         dto.setModified(record.getModified().toString());
         dto.setMimetype(record.getMimeType());
         dto.setTrackingId(record.getTrackingId());
+        dto.setEnrichmentTrail(record.getEnrichmentTrail());
 
         return dto;
     }
 
-    public static RecordDTO recordToDTO(Record rawRecord, MarcRecord marcRecord) {
+    public static RecordDTO recordToDTO(Record rawRecord) throws MarcReaderException {
         RecordDTO dto = new RecordDTO();
         dto.setRecordId(recordIdToDTO(rawRecord.getId()));
         dto.setDeleted(rawRecord.isDeleted());
@@ -41,8 +42,16 @@ public class RecordDTOMapper {
         dto.setModified(rawRecord.getModified().toString());
         dto.setMimetype(rawRecord.getMimeType());
         dto.setTrackingId(rawRecord.getTrackingId());
-        dto.setContent(rawRecord.getContent());
-        dto.setContentJSON(contentToDTO(marcRecord));
+        dto.setEnrichmentTrail(rawRecord.getEnrichmentTrail());
+
+        if (rawRecord.getContent().length == 0) {
+            dto.setContent(null);
+            dto.setContentJSON(null);
+        } else {
+            dto.setContent(rawRecord.getContent());
+            final MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
+            dto.setContentJSON(contentToDTO(marcRecord));
+        }
 
         return dto;
     }
@@ -52,9 +61,8 @@ public class RecordDTOMapper {
 
         for (Map.Entry<String, Record> entry : records.entrySet()) {
             final Record rawRecord = entry.getValue();
-            final MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
 
-            dtoList.add(recordToDTO(rawRecord, marcRecord));
+            dtoList.add(recordToDTO(rawRecord));
         }
 
         RecordCollectionDTO dto = new RecordCollectionDTO();
