@@ -392,7 +392,6 @@ public class MarcRecordBeanTest {
 
         final FieldRules customFieldRules = new FieldRules(immutable, overwrite, FieldRules.INVALID_DEFAULT, FieldRules.VALID_REGEX_DANMARC2);
 
-        return new MarcXMerger(customFieldRules);
+        return new MarcXMerger(customFieldRules, "CUSTOM");
     }
-
 }

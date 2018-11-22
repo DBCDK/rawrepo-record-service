@@ -14,6 +14,9 @@ import dk.dbc.marcxmerge.MarcXMergerException;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
+import dk.dbc.rawrepo.pool.CustomMarcXMergerPool;
+import dk.dbc.rawrepo.pool.DefaultMarcXMergerPool;
+import dk.dbc.rawrepo.pool.ObjectPool;
 import dk.dbc.rawrepo.service.RecordObjectMapper;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
@@ -215,7 +218,8 @@ public class MarcRecordBean {
                 final RawRepoDAO dao = createDAO(conn);
                 Record rawRecord;
 
-                MarcXMerger merger = getMerger(useParentAgency);
+                ObjectPool<MarcXMerger> mergePool = getMergerPool(useParentAgency);
+                MarcXMerger merger = mergePool.checkOut();
 
                 int correctedAgencyId = dao.agencyFor(bibliographicRecordId, agencyId, allowDeleted);
 
