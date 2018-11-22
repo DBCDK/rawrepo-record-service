@@ -75,9 +75,11 @@ public class RecordService {
                 return Response.serverError().build();
             }
 
-            MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(record.getContent());
+            if (record == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
 
-            RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record, marcRecord);
+            RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record);
 
             for (String excludeAttribute : excludeAttributes) {
                 if ("content".equalsIgnoreCase(excludeAttribute)) {
@@ -97,6 +99,31 @@ public class RecordService {
             return Response.serverError().build();
         } catch (RecordNotFoundException ex) {
             return Response.status(Response.Status.NOT_FOUND).build();
+        } finally {
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}");
+        }
+    }
+
+    @GET
+    @Path("v1/record/{agencyid}/{bibliographicrecordid}/fetch")
+    @Produces({MediaType.APPLICATION_JSON})
+    @Timed
+    public Response fetchRecord(@PathParam("agencyid") int agencyId,
+                                @PathParam("bibliographicrecordid") String bibliographicRecordId,
+                                @QueryParam("exclude-attribute") List<String> excludeAttributes) {
+        String res = "";
+
+        try {
+            Record record = marcRecordBean.fetchRecord(bibliographicRecordId, agencyId);
+
+            RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record);
+
+            res = jsonbContext.marshall(recordDTO);
+
+            return Response.ok(res, MediaType.APPLICATION_JSON).build();
+        } catch (JSONBException | InternalServerException | MarcReaderException ex) {
+            LOGGER.error("Exception during getRecord", ex);
+            return Response.serverError().build();
         } finally {
             LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}");
         }
