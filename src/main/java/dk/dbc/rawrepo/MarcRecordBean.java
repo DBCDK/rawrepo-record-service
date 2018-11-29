@@ -322,7 +322,7 @@ public class MarcRecordBean {
         StringBuilder enrichmentTrail = new StringBuilder(deletedCommon.getEnrichmentTrail());
         enrichmentTrail.append(',').append(deletedEnrichment.getId().getAgencyId());
 
-        return RecordImpl.enriched(bibliographicRecordId, deletedEnrichment.getId().getAgencyId(), true,
+        return RecordImpl.fromCache(bibliographicRecordId, deletedEnrichment.getId().getAgencyId(), true,
                 merger.mergedMimetype(deletedCommon.getMimeType(), deletedEnrichment.getMimeType()), content,
                 deletedCommon.getCreated().isAfter(deletedEnrichment.getCreated()) ? deletedCommon.getCreated() : deletedEnrichment.getCreated(),
                 deletedCommon.getModified().isAfter(deletedEnrichment.getModified()) ? deletedCommon.getModified() : deletedEnrichment.getModified(),
@@ -495,7 +495,11 @@ public class MarcRecordBean {
                     collection = new HashMap<>();
                     collection.put(bibliographicRecordId, rawRecord);
                 } else {
-                    collection = dao.fetchRecordCollection(bibliographicRecordId, agencyId, merger);
+                    if (expand) {
+                        collection = dao.fetchRecordCollectionExpanded(bibliographicRecordId, agencyId, merger, true, keepAutFields);
+                    } else {
+                        collection = dao.fetchRecordCollection(bibliographicRecordId, agencyId, merger);
+                    }
                 }
 
                 mergePool.checkIn(merger);
@@ -508,10 +512,6 @@ public class MarcRecordBean {
 
                     if (excludeAutRecords && MarcXChangeMimeType.AUTHORITY.equals(rawRecord.getMimeType())) {
                         continue;
-                    }
-
-                    if (expand) {
-                        dao.expandRecord(rawRecord, keepAutFields);
                     }
 
                     MarcRecord record = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
