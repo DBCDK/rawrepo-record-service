@@ -125,7 +125,7 @@ public class RecordService {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}");
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/fetch");
         }
     }
 
@@ -160,7 +160,7 @@ public class RecordService {
         } catch (RecordNotFoundException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/content/expanded");
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/content");
         }
     }
 
@@ -281,7 +281,7 @@ public class RecordService {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/children");
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/siblings-from");
         }
     }
 
@@ -303,7 +303,7 @@ public class RecordService {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/children");
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/siblings-to");
         }
     }
 
@@ -325,7 +325,7 @@ public class RecordService {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/children");
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/relations-from");
         }
     }
 
