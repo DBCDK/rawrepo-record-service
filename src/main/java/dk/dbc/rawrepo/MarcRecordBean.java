@@ -8,13 +8,15 @@ package dk.dbc.rawrepo;
 import dk.dbc.marc.binding.Field;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
-import dk.dbc.marcxmerge.FieldRules;
 import dk.dbc.marcxmerge.MarcXChangeMimeType;
 import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.marcxmerge.MarcXMergerException;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
+import dk.dbc.rawrepo.pool.CustomMarcXMergerPool;
+import dk.dbc.rawrepo.pool.DefaultMarcXMergerPool;
+import dk.dbc.rawrepo.pool.ObjectPool;
 import dk.dbc.rawrepo.service.RecordObjectMapper;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
@@ -49,8 +51,9 @@ public class MarcRecordBean {
     @EJB
     private OpenAgencyBean openAgency;
 
-    private MarcXMerger defaultMerger;
-    private MarcXMerger overwriteMerger;
+    private ObjectPool<MarcXMerger> customMarcXMergerPool = new CustomMarcXMergerPool();
+    private ObjectPool<MarcXMerger> defaultMarcXMergerPool = new DefaultMarcXMergerPool();
+
     private RelationHintsOpenAgency relationHints;
 
     // Constructor used for mocking
@@ -88,26 +91,17 @@ public class MarcRecordBean {
     @PostConstruct
     public void init() {
         try {
-            defaultMerger = new MarcXMerger();
-
-            final String immutable = "001;010;020;990;991;996";
-            final String overwrite = "004;005;013;014;017;035;036;240;243;247;300;008 009 038 039 100 110 239 245 652 654";
-
-            final FieldRules customFieldRules = new FieldRules(immutable, overwrite, FieldRules.INVALID_DEFAULT, FieldRules.VALID_REGEX_DANMARC2);
-
-            overwriteMerger = new MarcXMerger(customFieldRules);
-
             relationHints = new RelationHintsOpenAgency(openAgency.getService());
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    private MarcXMerger getMerger(boolean useParentAgency) {
+    private ObjectPool<MarcXMerger> getMergerPool(boolean useParentAgency) {
         if (useParentAgency) {
-            return overwriteMerger;
+            return customMarcXMergerPool;
         } else {
-            return defaultMerger;
+            return defaultMarcXMergerPool;
         }
     }
 
@@ -224,7 +218,8 @@ public class MarcRecordBean {
                 final RawRepoDAO dao = createDAO(conn);
                 Record rawRecord;
 
-                MarcXMerger merger = getMerger(useParentAgency);
+                ObjectPool<MarcXMerger> mergePool = getMergerPool(useParentAgency);
+                MarcXMerger merger = mergePool.checkOut();
 
                 int correctedAgencyId = dao.agencyFor(bibliographicRecordId, agencyId, allowDeleted);
 
@@ -249,6 +244,8 @@ public class MarcRecordBean {
                         rawRecord = dao.fetchMergedRecord(bibliographicRecordId, correctedAgencyId, merger, allowDeleted);
                     }
                 }
+
+                mergePool.checkIn(merger);
 
                 MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
 
@@ -325,7 +322,7 @@ public class MarcRecordBean {
         StringBuilder enrichmentTrail = new StringBuilder(deletedCommon.getEnrichmentTrail());
         enrichmentTrail.append(',').append(deletedEnrichment.getId().getAgencyId());
 
-        return RecordImpl.enriched(bibliographicRecordId, deletedEnrichment.getId().getAgencyId(), true,
+        return RecordImpl.fromCache(bibliographicRecordId, deletedEnrichment.getId().getAgencyId(), true,
                 merger.mergedMimetype(deletedCommon.getMimeType(), deletedEnrichment.getMimeType()), content,
                 deletedCommon.getCreated().isAfter(deletedEnrichment.getCreated()) ? deletedCommon.getCreated() : deletedEnrichment.getCreated(),
                 deletedCommon.getModified().isAfter(deletedEnrichment.getModified()) ? deletedCommon.getModified() : deletedEnrichment.getModified(),
@@ -419,6 +416,9 @@ public class MarcRecordBean {
             try {
                 final RawRepoDAO dao = createDAO(conn);
 
+                ObjectPool<MarcXMerger> mergePool = getMergerPool(useParentAgency);
+                MarcXMerger merger = mergePool.checkOut();
+
                 if (allowDeleted &&
                         !dao.recordExists(bibliographicRecordId, agencyId) &&
                         dao.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)) {
@@ -426,18 +426,20 @@ public class MarcRecordBean {
                     collection = new HashMap<>();
                     collection.put(bibliographicRecordId, rawRecord);
                 } else {
-                    collection = dao.fetchRecordCollection(bibliographicRecordId, agencyId, getMerger(useParentAgency));
+                    if (expand) {
+                        collection = dao.fetchRecordCollectionExpanded(bibliographicRecordId, agencyId, merger, true, keepAutFields);
+                    } else {
+                        collection = dao.fetchRecordCollection(bibliographicRecordId, agencyId, merger);
+                    }
                 }
+
+                mergePool.checkIn(merger);
 
                 final Collection<MarcRecord> marcRecords = new HashSet<>();
                 for (Map.Entry<String, Record> entry : collection.entrySet()) {
                     final Record rawRecord = entry.getValue();
                     if (!isMarcXChange(rawRecord.getMimeType())) {
                         throw new MarcXMergerException("Cannot make marcx:collection from mimetype: " + rawRecord.getMimeType());
-                    }
-
-                    if (expand) {
-                        dao.expandRecord(rawRecord, keepAutFields);
                     }
 
                     MarcRecord record = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
@@ -483,6 +485,9 @@ public class MarcRecordBean {
             try {
                 final RawRepoDAO dao = createDAO(conn);
 
+                ObjectPool<MarcXMerger> mergePool = getMergerPool(useParentAgency);
+                MarcXMerger merger = mergePool.checkOut();
+
                 if (allowDeleted &&
                         !dao.recordExists(bibliographicRecordId, agencyId) &&
                         dao.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)) {
@@ -490,9 +495,14 @@ public class MarcRecordBean {
                     collection = new HashMap<>();
                     collection.put(bibliographicRecordId, rawRecord);
                 } else {
-                    collection = dao.fetchRecordCollection(bibliographicRecordId, agencyId, getMerger(useParentAgency));
+                    if (expand) {
+                        collection = dao.fetchRecordCollectionExpanded(bibliographicRecordId, agencyId, merger, true, keepAutFields);
+                    } else {
+                        collection = dao.fetchRecordCollection(bibliographicRecordId, agencyId, merger);
+                    }
                 }
 
+                mergePool.checkIn(merger);
 
                 for (Map.Entry<String, Record> entry : collection.entrySet()) {
                     final Record rawRecord = entry.getValue();
@@ -502,10 +512,6 @@ public class MarcRecordBean {
 
                     if (excludeAutRecords && MarcXChangeMimeType.AUTHORITY.equals(rawRecord.getMimeType())) {
                         continue;
-                    }
-
-                    if (expand) {
-                        dao.expandRecord(rawRecord, keepAutFields);
                     }
 
                     MarcRecord record = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
