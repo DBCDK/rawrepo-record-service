@@ -8,6 +8,8 @@ package dk.dbc.rawrepo.dao;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
+import org.slf4j.ext.XLogger;
+import org.slf4j.ext.XLoggerFactory;
 
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
@@ -24,9 +26,12 @@ import java.util.List;
 @Interceptors(StopwatchInterceptor.class)
 @Stateless
 public class RawRepoBean {
+    private static final XLogger LOGGER = XLoggerFactory.getXLogger(RawRepoBean.class);
+
     private static final String QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY = "SELECT bibliographicrecordid FROM records WHERE agencyid=? AND deleted='f'";
     private static final String QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL = "SELECT bibliographicrecordid FROM records WHERE agencyid=?";
     private static final String QUERY_AGENCIES = "SELECT DISTINCT(agencyid) FROM records";
+    private static final String SET_SERVER_URL_CONFIGURATION = "INSERT INTO configurations (key, value) VALUES (?, ?) ON CONFLICT (key) DO UPDATE SET value =?";
 
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
@@ -122,6 +127,21 @@ public class RawRepoBean {
             return ret;
         } catch (SQLException ex) {
             throw new RawRepoException("Error getting agencies", ex);
+        }
+    }
+
+    public void setConfigurations(String key, String value) throws RawRepoException{
+        try {
+            try (Connection connection = dataSource.getConnection();
+                 PreparedStatement stmt = connection.prepareStatement(SET_SERVER_URL_CONFIGURATION)) {
+                stmt.setString(1, key);
+                stmt.setString(2, value);
+                stmt.setString(3, value);
+                stmt.execute();
+            }
+        } catch (SQLException ex) {
+            LOGGER.info("Caught exception: {}", ex);
+            throw new RawRepoException("Error updating configurations", ex);
         }
     }
 
