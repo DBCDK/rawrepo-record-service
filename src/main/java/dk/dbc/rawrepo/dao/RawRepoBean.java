@@ -136,7 +136,6 @@ public class RawRepoBean {
                  PreparedStatement stmt = connection.prepareStatement(SET_SERVER_URL_CONFIGURATION)) {
                 stmt.setString(1, key);
                 stmt.setString(2, value);
-                stmt.setString(3, value);
                 stmt.execute();
             }
         } catch (SQLException ex) {
