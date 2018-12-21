@@ -131,9 +131,10 @@ pipeline {
             steps {
                 script {
                     lock('meta-rawrepo-record-service-deploy-prod') {
-                        deploy("boblebad")
-                        deploy("cisterne")
-                        notifyOfdeploy("prod", "it-change@dbc.dk")
+                        #deploy("boblebad")
+                        #deploy("cisterne")
+                        #notifyOfdeploy("prod", "it-change@dbc.dk")
+                        echo "Skipped"
                     }
                 }
             }
