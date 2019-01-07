@@ -510,7 +510,8 @@ public class MarcRecordBean {
                         throw new MarcXMergerException("Cannot make marcx:collection from mimetype: " + rawRecord.getMimeType());
                     }
 
-                    if (excludeAutRecords && MarcXChangeMimeType.AUTHORITY.equals(rawRecord.getMimeType())) {
+                    // excludeAutRecords indicate authority records should be thrown away unless it is the requested record
+                    if (excludeAutRecords && MarcXChangeMimeType.AUTHORITY.equals(rawRecord.getMimeType()) && !bibliographicRecordId.equals(rawRecord.getId().getBibliographicRecordId())) {
                         continue;
                     }
 
