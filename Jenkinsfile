@@ -106,6 +106,20 @@ pipeline {
             }
         }
 
+        stage("Docker build DIT") {
+            when {
+                expression {
+                    currentBuild.result == null || currentBuild.result == 'SUCCESS' && env.BRANCH_NAME == 'develop'
+                }
+            }
+            steps {
+                script {
+                    def image = docker.build("docker-io.dbc.dk/rawrepo-record-service:${DOCKER_IMAGE_DIT_VERSION}")
+                    image.push()
+                }
+            }
+        }
+
         stage("Deploy to staging") {
             when {
                 expression {
