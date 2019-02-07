@@ -8,7 +8,10 @@ package dk.dbc.rawrepo.dump;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marc.writer.MarcWriterException;
+import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.marcxmerge.MarcXMergerException;
+import dk.dbc.rawrepo.pool.CustomMarcXMergerPool;
+import dk.dbc.rawrepo.pool.DefaultMarcXMergerPool;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -21,20 +24,22 @@ public class MergeRunnable implements Callable<Boolean> {
 
     private RecordResultSet recordSet;
     private RecordByteWriter writer;
-    private MergeHelper mergeHelper;
     private AgencyType agencyType;
+    private MarcXMerger mergerDefault;
+    private MarcXMerger mergerDBC;
 
     MergeRunnable(RecordResultSet recordSet, RecordByteWriter writer, AgencyType agencyType) {
         this.recordSet = recordSet;
         this.writer = writer;
         this.agencyType = agencyType;
 
-        this.mergeHelper = new MergeHelper();
+        this.mergerDefault = new DefaultMarcXMergerPool().checkOut();
+        this.mergerDBC = new CustomMarcXMergerPool().checkOut();
     }
 
     @Override
     public Boolean call() {
-         //This function assumes the params object has already been validate so no further checks will be performed
+        //This function assumes the params object has already been validate so no further checks will be performed
         RecordItem item = null;
         byte[] result, common, local;
         try {
@@ -44,7 +49,7 @@ public class MergeRunnable implements Callable<Boolean> {
                     if (item != null) {
                         common = item.getCommon();
                         local = item.getLocal();
-                        result = mergeHelper.mergeDBC(common, local);
+                        result = mergerDBC.merge(common, local, true);
                         writer.write(result);
                     }
                 } while (item != null);
@@ -57,7 +62,7 @@ public class MergeRunnable implements Callable<Boolean> {
                         if (common == null || common.length == 0) {
                             result = local;
                         } else {
-                            result = mergeHelper.mergeFBS(common, local);
+                            result = mergerDefault.merge(common, local, true);
                         }
                         writer.write(result);
                     }

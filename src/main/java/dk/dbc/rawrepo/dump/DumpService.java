@@ -66,7 +66,6 @@ public class DumpService {
     // Outstanding issues
     // TODO Look at second look class naming
     // TODO Rethink the date from/to logic (time doesn't work?!)
-    // TODO Optimize merge pool logic (create one pool per thread and use that)
     // TODO Implement Holdings functionality
     // TODO Implement dry-run functionality to get row count
     // TODO Implement readme and create wrapper script
