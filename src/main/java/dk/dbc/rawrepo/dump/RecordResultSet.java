@@ -30,11 +30,15 @@ public class RecordResultSet implements AutoCloseable {
         this.agencyId = agencyId;
         this.agencyType = agencyType;
 
+        // Since the request could result in a very large dataset we want to use a cursor to open the result set
+        // This is done by setAutoCommit(false) and setFetchSize(fetchSize)
         connection.setAutoCommit(false);
 
         prepare();
 
         preparedStatement.setFetchSize(fetchSize);
+
+        resultSet = preparedStatement.executeQuery();
     }
 
     private void prepare() throws SQLException {
@@ -66,8 +70,6 @@ public class RecordResultSet implements AutoCloseable {
         if (params.getRowLimit() > 0) {
             pos = prepareStatementLimit(pos, params.getRowLimit());
         }
-
-        resultSet = preparedStatement.executeQuery();
     }
 
     private void prepareFBS() throws SQLException {
@@ -105,8 +107,6 @@ public class RecordResultSet implements AutoCloseable {
         if (params.getRowLimit() > 0) {
             pos = prepareStatementLimit(pos, params.getRowLimit());
         }
-
-        resultSet = preparedStatement.executeQuery();
     }
 
     private void prepareLocal() throws SQLException {
@@ -127,8 +127,6 @@ public class RecordResultSet implements AutoCloseable {
         if (params.getRowLimit() > 0) {
             pos = prepareStatementLimit(pos, params.getRowLimit());
         }
-
-        resultSet = preparedStatement.executeQuery();
     }
 
     private String prepareSQLEnrichment() {
