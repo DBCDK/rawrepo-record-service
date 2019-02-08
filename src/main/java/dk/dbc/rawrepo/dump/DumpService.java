@@ -118,7 +118,7 @@ public class DumpService {
 
                                 List<Callable<Boolean>> threadList = new ArrayList<>();
                                 for (int i = 0; i < threadCount; i++) {
-                                    threadList.add(new MergeRunnable(resultSet, recordByteWriter, agencyType));
+                                    threadList.add(new MergerThread(resultSet, recordByteWriter, agencyType));
                                 }
 
                                 executor.invokeAll(threadList);
@@ -230,38 +230,37 @@ public class DumpService {
             }
         }
 
-        if (params.getCreated() != null) {
-            if (params.getCreated().getFrom() != null) {
-                try {
-                    Date.valueOf(params.getCreated().getFrom());
-                } catch (IllegalArgumentException e) {
-                    result.add("created: Værdien i 'from' har ikke et datoformat som kan fortolkes");
-                }
-            }
-
-            if (params.getCreated().getTo() != null) {
-                try {
-                    Date.valueOf(params.getCreated().getTo());
-                } catch (IllegalArgumentException e) {
-                    result.add("created: Værdien i 'to' har ikke et datoformat som kan fortolkes");
-                }
+        if (params.getCreatedFrom() != null) {
+            try {
+                Date.valueOf(params.getCreatedFrom());
+            } catch (IllegalArgumentException e) {
+                result.add("createdFrom: Værdien i 'createdFrom' har ikke et datoformat som kan fortolkes");
             }
         }
 
-        if (params.getModified() != null) {
-            if (params.getModified().getFrom() != null) {
+        if (params.getCreatedTo() != null) {
+            try {
+                Date.valueOf(params.getCreatedTo());
+            } catch (IllegalArgumentException e) {
+                result.add("createdTo: Værdien i 'createdTo' har ikke et datoformat som kan fortolkes");
+            }
+        }
+
+
+        if (params.getModifiedFrom() != null) {
+            if (params.getModifiedFrom() != null) {
                 try {
-                    Date.valueOf(params.getModified().getFrom());
+                    Date.valueOf(params.getModifiedFrom());
                 } catch (IllegalArgumentException e) {
-                    result.add("modified: Værdien i 'from' har ikke et datoformat som kan fortolkes");
+                    result.add("modifiedFrom: Værdien i 'modifiedFrom' har ikke et datoformat som kan fortolkes");
                 }
             }
 
-            if (params.getModified().getTo() != null) {
+            if (params.getModifiedTo() != null) {
                 try {
-                    Date.valueOf(params.getModified().getTo());
+                    Date.valueOf(params.getModifiedTo());
                 } catch (IllegalArgumentException e) {
-                    result.add("modified: Værdien i 'to' har ikke et datoformat som kan fortolkes");
+                    result.add("modifiedTo: Værdien i 'modifiedTo' har ikke et datoformat som kan fortolkes");
                 }
             }
         }

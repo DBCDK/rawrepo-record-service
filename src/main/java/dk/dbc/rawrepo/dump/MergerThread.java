@@ -19,8 +19,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
-public class MergeRunnable implements Callable<Boolean> {
-    private static final XLogger LOGGER = XLoggerFactory.getXLogger(MergeRunnable.class);
+public class MergerThread implements Callable<Boolean> {
+    private static final XLogger LOGGER = XLoggerFactory.getXLogger(MergerThread.class);
 
     private RecordResultSet recordSet;
     private RecordByteWriter writer;
@@ -28,7 +28,7 @@ public class MergeRunnable implements Callable<Boolean> {
     private MarcXMerger mergerDefault;
     private MarcXMerger mergerDBC;
 
-    MergeRunnable(RecordResultSet recordSet, RecordByteWriter writer, AgencyType agencyType) {
+    MergerThread(RecordResultSet recordSet, RecordByteWriter writer, AgencyType agencyType) {
         this.recordSet = recordSet;
         this.writer = writer;
         this.agencyType = agencyType;
