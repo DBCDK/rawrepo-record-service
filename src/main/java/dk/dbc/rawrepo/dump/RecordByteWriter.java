@@ -32,23 +32,27 @@ public class RecordByteWriter {
     }
 
     public void write(byte[] data) throws IOException, MarcReaderException, JSONBException, MarcWriterException {
-        synchronized (this) {
-            switch (OutputFormat.fromString(params.getOutputFormat())) {
-                case JSON:
-                    MarcRecord recordJSON = RecordObjectMapper.contentToMarcRecord(data);
-                    ContentDTO contentDTO = RecordDTOMapper.contentToDTO(recordJSON);
+        switch (OutputFormat.fromString(params.getOutputFormat())) {
+            case JSON:
+                MarcRecord recordJSON = RecordObjectMapper.contentToMarcRecord(data);
+                ContentDTO contentDTO = RecordDTOMapper.contentToDTO(recordJSON);
+                synchronized (this) {
                     outputStream.write(jsonbContext.marshall(contentDTO).getBytes(params.getOutputEncoding()));
                     outputStream.write("\n".getBytes());
-                    break;
-                case LINE:
-                    MarcRecord recordLine = RecordObjectMapper.contentToMarcRecord(data);
+                }
+                break;
+            case LINE:
+                MarcRecord recordLine = RecordObjectMapper.contentToMarcRecord(data);
+                synchronized (this) {
                     outputStream.write(lineFormatWriter.write(recordLine, Charset.forName(params.getOutputEncoding())));
-                    break;
-                case MARCXHANGE:
+                }
+                break;
+            case MARCXHANGE:
+                synchronized (this) {
                     outputStream.write(data);
                     outputStream.write("\n".getBytes());
-                    break;
-            }
+                }
+                break;
         }
     }
 
