@@ -25,6 +25,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -108,7 +109,7 @@ public class DumpService {
         try {
             StreamingOutput output = new StreamingOutput() {
                 @Override
-                public void write(OutputStream out) {
+                public void write(OutputStream out) throws WebApplicationException {
                     try {
                         for (Integer agencyId : params.getAgencies()) {
                             RecordByteWriter recordByteWriter = new RecordByteWriter(out, params);
@@ -125,12 +126,16 @@ public class DumpService {
                             }
                         }
                     } catch (SQLException | OpenAgencyException | InterruptedException e) {
-                        e.printStackTrace();
+                        LOGGER.error("Caught exception during write", e);
+                        throw new WebApplicationException("Caught exception during write", e);
                     }
                 }
             };
 
             return Response.ok(output).build();
+        } catch (WebApplicationException ex) {
+            LOGGER.error("Caught unexpected exception", ex);
+            return Response.status(500).entity("Internal server error. Please see the server log.").build();
         } finally {
             LOGGER.info("v1/dump");
         }
