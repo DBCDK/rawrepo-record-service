@@ -12,7 +12,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -42,13 +41,11 @@ public class DumpService {
 
     @Inject
     @ConfigProperty(name = "DUMP_THREAD_COUNT", defaultValue = "8")
-    private String THREAD_COUNT;
-    private int threadCount;
+    private int THREAD_COUNT;
 
     @Inject
     @ConfigProperty(name = "DUMP_FETCH_SIZE", defaultValue = "50")
-    private String FETCH_SIZE;
-    private int fetchSize;
+    private int FETCH_SIZE;
 
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
@@ -65,21 +62,6 @@ public class DumpService {
     // TODO Implement Holdings functionality
     // TODO Implement dry-run functionality to get row count
     // TODO Implement readme and create wrapper script
-
-    @PostConstruct
-    public void postConstruct() {
-        try {
-            threadCount = Integer.parseInt(THREAD_COUNT);
-        } catch (NumberFormatException e) {
-            throw new RuntimeException("Could not parse DUMP_THREAD_COUNT");
-        }
-
-        try {
-            fetchSize = Integer.parseInt(FETCH_SIZE);
-        } catch (NumberFormatException e) {
-            throw new RuntimeException("Could not parse DUMP_FETCH_SIZE");
-        }
-    }
 
     @POST
     @Path("v1/dump")
@@ -110,10 +92,10 @@ public class DumpService {
                             RecordByteWriter recordByteWriter = new RecordByteWriter(out, params);
                             AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
                             try (Connection connection = dataSource.getConnection();
-                                 RecordResultSet resultSet = new RecordResultSet(connection, params, agencyId, agencyType, fetchSize)) {
+                                 RecordResultSet resultSet = new RecordResultSet(connection, params, agencyId, agencyType, FETCH_SIZE)) {
 
                                 List<Callable<Boolean>> threadList = new ArrayList<>();
-                                for (int i = 0; i < threadCount; i++) {
+                                for (int i = 0; i < THREAD_COUNT; i++) {
                                     threadList.add(new MergerThread(resultSet, recordByteWriter, agencyType));
                                 }
 
