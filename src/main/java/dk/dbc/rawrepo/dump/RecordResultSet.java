@@ -149,19 +149,19 @@ public class RecordResultSet implements AutoCloseable {
         }
 
         if (params.getCreatedFrom() != null) {
-            sb.append(" AND local.created > ? ::date");
+            sb.append(" AND local.created > ?");
         }
 
         if (params.getCreatedTo() != null) {
-            sb.append(" AND local.created < ? ::date");
+            sb.append(" AND local.created < ?");
         }
 
         if (params.getModifiedFrom() != null) {
-            sb.append(" AND local.modified > ? ::date");
+            sb.append(" AND local.modified > ?");
         }
 
         if (params.getModifiedTo() != null) {
-            sb.append(" AND local.modified < ? ::date");
+            sb.append(" AND local.modified < ?");
         }
 
         return sb.toString();
@@ -207,19 +207,19 @@ public class RecordResultSet implements AutoCloseable {
         // If recordStatus == RecordStatus.ALL then we just ignore the deleted column
 
         if (params.getCreatedFrom() != null) {
-            sb.append(" AND local.created > ? ::date");
+            sb.append(" AND local.created > ?");
         }
 
         if (params.getCreatedTo() != null) {
-            sb.append(" AND local.created < ? ::date");
+            sb.append(" AND local.created < ?");
         }
 
         if (params.getModifiedFrom() != null) {
-            sb.append(" AND local.modified > ? ::date");
+            sb.append(" AND local.modified > ?");
         }
 
         if (params.getModifiedTo() != null) {
-            sb.append(" AND local.modified < ? ::date");
+            sb.append(" AND local.modified < ?");
         }
 
         return sb.toString();
