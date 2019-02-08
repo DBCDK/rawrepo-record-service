@@ -18,13 +18,7 @@ public enum RecordStatus {
     }
 
     public static RecordStatus fromString(String s) {
-        for (RecordStatus recordStatus : RecordStatus.values()) {
-            if (s.equals(recordStatus.value)) {
-                return recordStatus;
-            }
-        }
-
-        throw new IllegalArgumentException("Could not parse '" + s + "'");
+        return RecordStatus.valueOf(s.trim().toUpperCase());
     }
 
     public static String validValues() {

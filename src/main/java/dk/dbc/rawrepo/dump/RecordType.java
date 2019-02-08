@@ -18,13 +18,7 @@ public enum RecordType {
     }
 
     public static RecordType fromString(String s) {
-        for (RecordType recordType : RecordType.values()) {
-            if (s.equals(recordType.value)) {
-                return recordType;
-            }
-        }
-
-        throw new IllegalArgumentException("Could not parse '" + s + "'");
+        return RecordType.valueOf(s.trim().toUpperCase());
     }
 
     public static String validValues() {

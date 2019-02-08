@@ -18,13 +18,7 @@ public enum OutputFormat {
     }
 
     public static OutputFormat fromString(String s) {
-        for (OutputFormat outputFormat : OutputFormat.values()) {
-            if (s.equals(outputFormat.value)) {
-                return outputFormat;
-            }
-        }
-
-        throw new IllegalArgumentException("Could not parse '" + s + "'");
+        return OutputFormat.valueOf(s.trim().toUpperCase());
     }
 
     public static String validValues() {
