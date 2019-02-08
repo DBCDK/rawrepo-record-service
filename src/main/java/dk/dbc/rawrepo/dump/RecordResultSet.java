@@ -9,10 +9,10 @@ import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 public class RecordResultSet implements AutoCloseable {
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(DumpService.class);
@@ -148,24 +148,20 @@ public class RecordResultSet implements AutoCloseable {
             sb.append(" AND common.deleted = 'f'");
         }
 
-        if (params.getCreated() != null) {
-            if (params.getCreated().getFrom() != null) {
-                sb.append(" AND common.created > ?");
-            }
-
-            if (params.getCreated().getTo() != null) {
-                sb.append(" AND common.created < ?");
-            }
+        if (params.getCreatedFrom() != null) {
+            sb.append(" AND local.created > ? ::date");
         }
 
-        if (params.getModified() != null) {
-            if (params.getModified().getFrom() != null) {
-                sb.append(" AND common.modified > ?");
-            }
+        if (params.getCreatedTo() != null) {
+            sb.append(" AND local.created < ? ::date");
+        }
 
-            if (params.getModified().getTo() != null) {
-                sb.append(" AND common.modified < ?");
-            }
+        if (params.getModifiedFrom() != null) {
+            sb.append(" AND local.modified > ? ::date");
+        }
+
+        if (params.getModifiedTo() != null) {
+            sb.append(" AND local.modified < ? ::date");
         }
 
         return sb.toString();
@@ -175,24 +171,20 @@ public class RecordResultSet implements AutoCloseable {
         preparedStatement.setInt(pos++, commonAgencyId);
         preparedStatement.setInt(pos++, localAgencyId);
 
-        if (params.getCreated() != null) {
-            if (params.getCreated().getFrom() != null) {
-                preparedStatement.setDate(pos++, Date.valueOf(params.getCreated().getFrom()));
-            }
-
-            if (params.getCreated().getTo() != null) {
-                preparedStatement.setDate(pos++, Date.valueOf(params.getCreated().getTo()));
-            }
+        if (params.getCreatedFrom() != null) {
+            preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getCreatedFrom()));
         }
 
-        if (params.getModified() != null) {
-            if (params.getModified().getFrom() != null) {
-                preparedStatement.setDate(pos++, Date.valueOf(params.getModified().getFrom()));
-            }
+        if (params.getCreatedTo() != null) {
+            preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getCreatedTo()));
+        }
 
-            if (params.getModified().getTo() != null) {
-                preparedStatement.setDate(pos++, Date.valueOf(params.getModified().getTo()));
-            }
+        if (params.getModifiedFrom() != null) {
+            preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getModifiedFrom()));
+        }
+
+        if (params.getModifiedTo() != null) {
+            preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getModifiedFrom()));
         }
 
         return pos;
@@ -214,24 +206,20 @@ public class RecordResultSet implements AutoCloseable {
         }
         // If recordStatus == RecordStatus.ALL then we just ignore the deleted column
 
-        if (params.getCreated() != null) {
-            if (params.getCreated().getFrom() != null) {
-                sb.append(" AND local.created > ?").append(params.getCreated().getFrom());
-            }
-
-            if (params.getCreated().getTo() != null) {
-                sb.append(" AND local.created < ?").append(params.getCreated().getTo());
-            }
+        if (params.getCreatedFrom() != null) {
+            sb.append(" AND local.created > ? ::date");
         }
 
-        if (params.getModified() != null) {
-            if (params.getModified().getFrom() != null) {
-                sb.append(" AND local.modified > ?").append(params.getModified().getFrom());
-            }
+        if (params.getCreatedTo() != null) {
+            sb.append(" AND local.created < ? ::date");
+        }
 
-            if (params.getModified().getTo() != null) {
-                sb.append(" AND local.modified < ?").append(params.getModified().getTo());
-            }
+        if (params.getModifiedFrom() != null) {
+            sb.append(" AND local.modified > ? ::date");
+        }
+
+        if (params.getModifiedTo() != null) {
+            sb.append(" AND local.modified < ? ::date");
         }
 
         return sb.toString();
@@ -240,24 +228,20 @@ public class RecordResultSet implements AutoCloseable {
     private int prepareStatementLocal(int pos, int localAgencyId) throws SQLException {
         preparedStatement.setInt(pos++, localAgencyId);
 
-        if (params.getCreated() != null) {
-            if (params.getCreated().getFrom() != null) {
-                preparedStatement.setDate(pos++, Date.valueOf(params.getCreated().getFrom()));
-            }
-
-            if (params.getCreated().getTo() != null) {
-                preparedStatement.setDate(pos++, Date.valueOf(params.getCreated().getTo()));
-            }
+        if (params.getCreatedFrom() != null) {
+            preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getCreatedFrom()));
         }
 
-        if (params.getModified() != null) {
-            if (params.getModified().getFrom() != null) {
-                preparedStatement.setDate(pos++, Date.valueOf(params.getModified().getFrom()));
-            }
+        if (params.getCreatedTo() != null) {
+            preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getCreatedTo()));
+        }
 
-            if (params.getModified().getTo() != null) {
-                preparedStatement.setDate(pos++, Date.valueOf(params.getModified().getTo()));
-            }
+        if (params.getModifiedFrom() != null) {
+            preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getModifiedFrom()));
+        }
+
+        if (params.getModifiedTo() != null) {
+            preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getModifiedFrom()));
         }
 
         return pos;

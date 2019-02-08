@@ -32,8 +32,8 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -232,7 +232,7 @@ public class DumpService {
 
         if (params.getCreatedFrom() != null) {
             try {
-                Date.valueOf(params.getCreatedFrom());
+                Timestamp.valueOf(params.getCreatedFrom());
             } catch (IllegalArgumentException e) {
                 result.add("createdFrom: Værdien i 'createdFrom' har ikke et datoformat som kan fortolkes");
             }
@@ -240,7 +240,7 @@ public class DumpService {
 
         if (params.getCreatedTo() != null) {
             try {
-                Date.valueOf(params.getCreatedTo());
+                Timestamp.valueOf(params.getCreatedTo());
             } catch (IllegalArgumentException e) {
                 result.add("createdTo: Værdien i 'createdTo' har ikke et datoformat som kan fortolkes");
             }
@@ -248,20 +248,18 @@ public class DumpService {
 
 
         if (params.getModifiedFrom() != null) {
-            if (params.getModifiedFrom() != null) {
-                try {
-                    Date.valueOf(params.getModifiedFrom());
-                } catch (IllegalArgumentException e) {
-                    result.add("modifiedFrom: Værdien i 'modifiedFrom' har ikke et datoformat som kan fortolkes");
-                }
+            try {
+                Timestamp.valueOf(params.getModifiedFrom());
+            } catch (IllegalArgumentException e) {
+                result.add("modifiedFrom: Værdien i 'modifiedFrom' har ikke et datoformat som kan fortolkes");
             }
+        }
 
-            if (params.getModifiedTo() != null) {
-                try {
-                    Date.valueOf(params.getModifiedTo());
-                } catch (IllegalArgumentException e) {
-                    result.add("modifiedTo: Værdien i 'modifiedTo' har ikke et datoformat som kan fortolkes");
-                }
+        if (params.getModifiedTo() != null) {
+            try {
+                Timestamp.valueOf(params.getModifiedTo());
+            } catch (IllegalArgumentException e) {
+                result.add("modifiedTo: Værdien i 'modifiedTo' har ikke et datoformat som kan fortolkes");
             }
         }
 

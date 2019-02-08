@@ -12,8 +12,10 @@ public class Params {
     private List<Integer> agencies;
     private String recordStatus;
     private List<String> recordType;
-    private FromTo created;
-    private FromTo modified;
+    private String createdFrom;
+    private String createdTo;
+    private String modifiedFrom;
+    private String modifiedTo;
     private String outputEncoding;
     private String outputFormat;
     private int rowLimit;
@@ -50,20 +52,36 @@ public class Params {
         this.recordType = recordType;
     }
 
-    public FromTo getCreated() {
-        return created;
+    public String getCreatedFrom() {
+        return createdFrom;
     }
 
-    public void setCreated(FromTo created) {
-        this.created = created;
+    public void setCreatedFrom(String createdFrom) {
+        this.createdFrom = createdFrom;
     }
 
-    public FromTo getModified() {
-        return modified;
+    public String getCreatedTo() {
+        return createdTo;
     }
 
-    public void setModified(FromTo modified) {
-        this.modified = modified;
+    public void setCreatedTo(String createdTo) {
+        this.createdTo = createdTo;
+    }
+
+    public String getModifiedFrom() {
+        return modifiedFrom;
+    }
+
+    public void setModifiedFrom(String modifiedFrom) {
+        this.modifiedFrom = modifiedFrom;
+    }
+
+    public String getModifiedTo() {
+        return modifiedTo;
+    }
+
+    public void setModifiedTo(String modifiedTo) {
+        this.modifiedTo = modifiedTo;
     }
 
     public String getOutputEncoding() {
@@ -86,12 +104,15 @@ public class Params {
     public String toString() {
         return "Params{" +
                 "agencies=" + agencies +
-                ", recordStatus=" + recordStatus +
+                ", recordStatus='" + recordStatus + '\'' +
                 ", recordType=" + recordType +
-                ", created=" + created +
-                ", modified=" + modified +
-                ", outputEncoding=" + outputEncoding +
-                ", outputFormat=" + outputFormat +
+                ", createdFrom='" + createdFrom + '\'' +
+                ", createdTo='" + createdTo + '\'' +
+                ", modifiedFrom='" + modifiedFrom + '\'' +
+                ", modifiedTo='" + modifiedTo + '\'' +
+                ", outputEncoding='" + outputEncoding + '\'' +
+                ", outputFormat='" + outputFormat + '\'' +
+                ", rowLimit=" + rowLimit +
                 '}';
     }
 }
