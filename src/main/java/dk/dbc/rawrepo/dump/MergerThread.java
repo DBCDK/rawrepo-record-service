@@ -12,15 +12,15 @@ import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.marcxmerge.MarcXMergerException;
 import dk.dbc.rawrepo.pool.CustomMarcXMergerPool;
 import dk.dbc.rawrepo.pool.DefaultMarcXMergerPool;
-import org.slf4j.ext.XLogger;
-import org.slf4j.ext.XLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
 public class MergerThread implements Callable<Boolean> {
-    private static final XLogger LOGGER = XLoggerFactory.getXLogger(MergerThread.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MergerThread.class);
 
     private RecordResultSet recordSet;
     private RecordByteWriter writer;

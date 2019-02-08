@@ -5,8 +5,8 @@
 
 package dk.dbc.rawrepo.dump;
 
-import org.slf4j.ext.XLogger;
-import org.slf4j.ext.XLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,7 +15,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 public class RecordResultSet implements AutoCloseable {
-    private static final XLogger LOGGER = XLoggerFactory.getXLogger(DumpService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DumpService.class);
 
     private Connection connection;
     private PreparedStatement preparedStatement;

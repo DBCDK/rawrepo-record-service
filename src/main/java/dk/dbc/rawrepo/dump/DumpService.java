@@ -10,8 +10,8 @@ import dk.dbc.openagency.client.OpenAgencyException;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.util.Timed;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.slf4j.ext.XLogger;
-import org.slf4j.ext.XLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -42,7 +42,7 @@ import java.util.concurrent.Callable;
 @Stateless
 @Path("api")
 public class DumpService {
-    private static final XLogger LOGGER = XLoggerFactory.getXLogger(DumpService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DumpService.class);
 
     @Inject
     @ConfigProperty(name = "DUMP_THREAD_COUNT", defaultValue = "8")
