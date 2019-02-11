@@ -148,21 +148,7 @@ public class RecordResultSet implements AutoCloseable {
             sb.append(" AND common.deleted = 'f'");
         }
 
-        if (params.getCreatedFrom() != null) {
-            sb.append(" AND local.created > ? ::timestamp AT TIME ZONE 'CET'");
-        }
-
-        if (params.getCreatedTo() != null) {
-            sb.append(" AND local.created < ? ::timestamp AT TIME ZONE 'CET'");
-        }
-
-        if (params.getModifiedFrom() != null) {
-            sb.append(" AND local.modified > ? ::timestamp AT TIME ZONE 'CET'");
-        }
-
-        if (params.getModifiedTo() != null) {
-            sb.append(" AND local.modified < ? ::timestamp AT TIME ZONE 'CET'");
-        }
+        prepareSQLTimestamp(sb);
 
         return sb.toString();
     }
@@ -171,21 +157,7 @@ public class RecordResultSet implements AutoCloseable {
         preparedStatement.setInt(pos++, commonAgencyId);
         preparedStatement.setInt(pos++, localAgencyId);
 
-        if (params.getCreatedFrom() != null) {
-            preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getCreatedFrom()));
-        }
-
-        if (params.getCreatedTo() != null) {
-            preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getCreatedTo()));
-        }
-
-        if (params.getModifiedFrom() != null) {
-            preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getModifiedFrom()));
-        }
-
-        if (params.getModifiedTo() != null) {
-            preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getModifiedFrom()));
-        }
+        pos = prepareStatementTimestamp(pos);
 
         return pos;
     }
@@ -206,21 +178,7 @@ public class RecordResultSet implements AutoCloseable {
         }
         // If recordStatus == RecordStatus.ALL then we just ignore the deleted column
 
-        if (params.getCreatedFrom() != null) {
-            sb.append(" AND local.created > ? ::timestamp AT TIME ZONE 'CET'");
-        }
-
-        if (params.getCreatedTo() != null) {
-            sb.append(" AND local.created < ? ::timestamp AT TIME ZONE 'CET'");
-        }
-
-        if (params.getModifiedFrom() != null) {
-            sb.append(" AND local.modified > ? ::timestamp AT TIME ZONE 'CET'");
-        }
-
-        if (params.getModifiedTo() != null) {
-            sb.append(" AND local.modified < ? ::timestamp AT TIME ZONE 'CET'");
-        }
+        prepareSQLTimestamp(sb);
 
         return sb.toString();
     }
@@ -228,20 +186,41 @@ public class RecordResultSet implements AutoCloseable {
     private int prepareStatementLocal(int pos, int localAgencyId) throws SQLException {
         preparedStatement.setInt(pos++, localAgencyId);
 
+        pos = prepareStatementTimestamp(pos);
+
+        return pos;
+    }
+
+    private void prepareSQLTimestamp(StringBuilder sb) {
+        sb.append(" AND local.created > ? ::timestamp AT TIME ZONE 'CET'");
+        sb.append(" AND local.created <= ? ::timestamp AT TIME ZONE 'CET'");
+        sb.append(" AND local.modified > ? ::timestamp AT TIME ZONE 'CET'");
+        sb.append(" AND local.modified <= ? ::timestamp AT TIME ZONE 'CET'");
+    }
+
+    private int prepareStatementTimestamp(int pos) throws SQLException {
         if (params.getCreatedFrom() != null) {
             preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getCreatedFrom()));
+        } else {
+            preparedStatement.setString(pos++, "-infinity");
         }
 
         if (params.getCreatedTo() != null) {
             preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getCreatedTo()));
+        } else {
+            preparedStatement.setString(pos++, "infinity");
         }
 
         if (params.getModifiedFrom() != null) {
             preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getModifiedFrom()));
+        } else {
+            preparedStatement.setString(pos++, "-infinity");
         }
 
         if (params.getModifiedTo() != null) {
             preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getModifiedFrom()));
+        } else {
+            preparedStatement.setString(pos++, "infinity");
         }
 
         return pos;

@@ -202,6 +202,10 @@ public class Params {
         }
 
         if (this.createdFrom != null) {
+            if (this.createdFrom.length() == 10) { // Add time to yyyy-dd-mm
+                this.createdFrom = this.createdFrom + " 00:00:00";
+            }
+
             try {
                 Timestamp.valueOf(this.createdFrom);
             } catch (IllegalArgumentException e) {
@@ -210,6 +214,10 @@ public class Params {
         }
 
         if (this.createdTo != null) {
+            if (this.createdTo.length() == 10) { // Add time to yyyy-dd-mm
+                this.createdTo = this.createdTo + " 23:59:59";
+            }
+
             try {
                 Timestamp.valueOf(this.createdTo);
             } catch (IllegalArgumentException e) {
@@ -219,6 +227,10 @@ public class Params {
 
 
         if (this.modifiedFrom != null) {
+            if (this.modifiedFrom.length() == 10) { // Add time to yyyy-dd-mm
+                this.modifiedFrom = this.modifiedFrom + " 00:00:00";
+            }
+
             try {
                 Timestamp.valueOf(this.modifiedFrom);
             } catch (IllegalArgumentException e) {
@@ -227,6 +239,10 @@ public class Params {
         }
 
         if (this.modifiedTo != null) {
+            if (this.modifiedTo.length() == 10) { // Add time to yyyy-dd-mm
+                this.modifiedTo = this.modifiedTo + " 23:59:59";
+            }
+
             try {
                 Timestamp.valueOf(this.modifiedTo);
             } catch (IllegalArgumentException e) {
