@@ -123,21 +123,21 @@ public class Params {
                 '}';
     }
 
-    public List<String> validate(OpenAgencyServiceFromURL openAgencyServiceFromURL) {
-        List<String> result = new ArrayList<>();
+    public List<ParamsValidationItem> validate(OpenAgencyServiceFromURL openAgencyServiceFromURL) {
+        List<ParamsValidationItem> result = new ArrayList<>();
         boolean hasFBSLibrary = false;
 
         if (this.agencies == null || this.agencies.size() == 0) {
-            result.add("agencies: Der skal være mindst ét biblioteksnummer angivet");
+            result.add(new ParamsValidationItem("agencies", "Field is mandatory and must contain at least one agency id"));
         }
 
         for (Integer agencyId : this.agencies) {
             if (agencyId.toString().length() != 6) {
-                result.add("agencies: Bibliotek " + agencyId.toString() + " er ikke et gyldigt biblioteksnummer da tekststrengen ikke er 6 tegn langt");
+                result.add(new ParamsValidationItem("agencies", "Agency " + agencyId.toString() + " is not a valid agency id as the text length is not 6 chars"));
             }
 
             if (agencyId == 191919 && this.agencies.size() > 1) {
-                result.add("agencies: Kombination af 191919 og andre bibliotekter er ikke gyldig. Hvis du er *helt* sikker på at du vil dumpe 191919 (DBC påhængsposter) så skal det gøres en i kørsel med kun 191919 i agencies");
+                result.add(new ParamsValidationItem("agencies", "The combination of 191919 and other agencies is now allowed. If you are absolutely certain you want to dump agency 191919 (DBC enrichments) then it can be done with a request with 191919 as the only agency"));
             }
         }
 
@@ -149,7 +149,7 @@ public class Params {
                     hasFBSLibrary = true;
                 }
             } catch (OpenAgencyException e) {
-                result.add("agencies: Biblioteksnummer '" + agencyId + "' blev ikke valideret af OpenAgency");
+                result.add(new ParamsValidationItem("agencies", "Agency " + agencyId + " could not be validated by OpenAgency"));
             }
         }
 
@@ -159,7 +159,7 @@ public class Params {
             try {
                 RecordStatus.fromString(this.recordStatus);
             } catch (IllegalArgumentException e) {
-                result.add("recordStatus: Værdien '" + this.recordStatus + "' er ikke en gyldig værdi. Feltet skal have en af følgende værdier: " + RecordStatus.validValues());
+                result.add(new ParamsValidationItem("recordStatus", "The value " + this.recordStatus + " is not a valid value. Allowed values are: " + RecordStatus.validValues()));
             }
         }
 
@@ -169,25 +169,25 @@ public class Params {
             try {
                 OutputFormat.fromString(this.outputFormat);
             } catch (IllegalArgumentException e) {
-                result.add("outputFormat: Værdien '" + this.outputFormat + "' er ikke en gyldig værdi. Feltet skal have en af følgende værdier: " + OutputFormat.validValues());
+                result.add(new ParamsValidationItem("outputFormat", "The value " + this.outputFormat + " is not a valid value. Allowed values are: " + OutputFormat.validValues()));
             }
         }
 
         if (this.recordType != null) { // Validate values if present
             if (this.recordType.size() == 0) {
-                result.add("recordType: Hvis feltet er med, så skal listen indeholde mindst én af følgende værdier: " + RecordType.validValues());
+                result.add(new ParamsValidationItem("recordType", "If the field is present it must contain at least one value. Allowed values are: " + RecordType.validValues()));
             } else {
                 for (String recordType : this.recordType) {
                     try {
                         RecordType.fromString(recordType);
                     } catch (IllegalArgumentException e) {
-                        result.add("recordType: Værdien '" + recordType + "' er ikke en gyldig værdi. Feltet skal have en af følgende værdier: " + RecordType.validValues());
+                        result.add(new ParamsValidationItem("recordType", "The value " + recordType + " is not a valid value. Allowed values are: " + RecordType.validValues()));
                     }
                 }
             }
         } else { // Validate if recordType is allowed to not be present
             if (hasFBSLibrary) {
-                result.add("recordType: Da der findes mindst ét FBS bibliotek i agencies er dette felt påkrævet.");
+                result.add(new ParamsValidationItem("recordType", "The field is required as agencies contains one or more FBS agencies"));
             }
         }
 
@@ -197,7 +197,7 @@ public class Params {
             try {
                 Charset.forName(this.outputEncoding);
             } catch (UnsupportedCharsetException ex) {
-                result.add("outputEncoding: Værdien '" + this.outputEncoding + "' er ikke et gyldigt charset");
+                result.add(new ParamsValidationItem("outputEncoding", "The value " + this.outputEncoding + " is not a valid charset"));
             }
         }
 
@@ -205,7 +205,7 @@ public class Params {
             try {
                 Timestamp.valueOf(this.createdFrom);
             } catch (IllegalArgumentException e) {
-                result.add("createdFrom: Værdien i 'createdFrom' har ikke et datoformat som kan fortolkes");
+                result.add(new ParamsValidationItem("createdFrom", "The value '" + this.createdFrom + "' doesn't have a valid format. Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"));
             }
         }
 
@@ -213,7 +213,7 @@ public class Params {
             try {
                 Timestamp.valueOf(this.createdTo);
             } catch (IllegalArgumentException e) {
-                result.add("createdTo: Værdien i 'createdTo' har ikke et datoformat som kan fortolkes");
+                result.add(new ParamsValidationItem("createdTo", "The value '" + this.createdTo + "' doesn't have a valid format. Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"));
             }
         }
 
@@ -222,7 +222,7 @@ public class Params {
             try {
                 Timestamp.valueOf(this.modifiedFrom);
             } catch (IllegalArgumentException e) {
-                result.add("modifiedFrom: Værdien i 'modifiedFrom' har ikke et datoformat som kan fortolkes");
+                result.add(new ParamsValidationItem("modifiedFrom", "The value '" + this.modifiedFrom + "' doesn't have a valid format. Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"));
             }
         }
 
@@ -230,7 +230,7 @@ public class Params {
             try {
                 Timestamp.valueOf(this.modifiedTo);
             } catch (IllegalArgumentException e) {
-                result.add("modifiedTo: Værdien i 'modifiedTo' har ikke et datoformat som kan fortolkes");
+                result.add(new ParamsValidationItem("modifiedTo", "The value '" + this.modifiedTo + "' doesn't have a valid format. Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"));
             }
         }
 

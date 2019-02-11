@@ -5,6 +5,8 @@
 
 package dk.dbc.rawrepo.dump;
 
+import dk.dbc.jsonb.JSONBContext;
+import dk.dbc.jsonb.JSONBException;
 import dk.dbc.openagency.client.OpenAgencyException;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.util.Timed;
@@ -38,6 +40,7 @@ import java.util.concurrent.Callable;
 @Path("api")
 public class DumpService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DumpService.class);
+    private final JSONBContext jsonbContext = new JSONBContext();
 
     @Inject
     @ConfigProperty(name = "DUMP_THREAD_COUNT", defaultValue = "8")
@@ -58,7 +61,6 @@ public class DumpService {
 
     // Outstanding issues
     // TODO Look at second look class naming
-    // TODO Rethink the date from/to logic (time doesn't work?!)
     // TODO Implement Holdings functionality
     // TODO Implement dry-run functionality to get row count
     // TODO Implement readme and create wrapper script
@@ -70,15 +72,16 @@ public class DumpService {
     public Response dumpLibraryRecords(Params params) {
         // The service is meant to be called from curl, so the error message should be easy to read.
         // Therefor the message is simple text instead of JSON or HTML
-        List<String> validateResponse = params.validate(openAgency.getService());
-        if (validateResponse.size() > 0) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Validation errors: \n");
-            for (String msg : validateResponse) {
-                sb.append(msg).append("\n");
+        try {
+            List<ParamsValidationItem> paramsValidationItemList = params.validate(openAgency.getService());
+            if (paramsValidationItemList.size() > 0) {
+                ParamsValidation paramsValidation = new ParamsValidation();
+                paramsValidation.setErrors(paramsValidationItemList);
+                LOGGER.info("Validation errors: {}", paramsValidation);
+                return Response.status(400).entity(jsonbContext.marshall(paramsValidation)).build();
             }
-
-            return Response.status(400).entity(sb.toString()).build();
+        } catch (JSONBException e) {
+            e.printStackTrace();
         }
 
         LOGGER.info("Got request: {}", params);
