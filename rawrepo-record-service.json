@@ -1,0 +1,8 @@
+{
+  "appName": "rawrepo-record-service",
+  "jdbc": {
+    "jdbc/rawrepo": {
+      "url": "${DB_URL}"
+    }
+  }
+}

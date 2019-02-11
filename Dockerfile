@@ -1,8 +1,10 @@
-FROM docker.dbc.dk/payara-micro:latest
+FROM docker.dbc.dk/payara5-micro:latest
 
-ADD docker/config.d/* config.d
-ADD target/*.war wars
+LABEL DB_URL="Full connection string for the rawrepo database. Format is 'username:pass@dbserver/dbname'. (Required)"
+LABEL OPENAGENCY_URL="URL to OpenAgency endpoint"
+LABEL DUMP_THREAD_COUNT="Number of threads to use for dumping agencies. Default 8"
+LABEL DUMP_FETCH_SIZE="How many rows should be fetched as a time. Default 50"
 
-ENV LOGBACK_FILE file:///data/logback-include-stdout.xml
+COPY target/rawrepo-record-service-1.0-SNAPSHOT.war rawrepo-record-service.json deployments/
 
-LABEL RAWREPO_URL="Full connection string for the rawrepo database. Format is 'connection-name username:pass@dbserver/dbname'. (Required)"
+EXPOSE 8080
