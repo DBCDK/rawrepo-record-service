@@ -149,19 +149,19 @@ public class RecordResultSet implements AutoCloseable {
         }
 
         if (params.getCreatedFrom() != null) {
-            sb.append(" AND local.created > ?");
+            sb.append(" AND local.created > ? ::timestamp AT TIME ZONE 'CET'");
         }
 
         if (params.getCreatedTo() != null) {
-            sb.append(" AND local.created < ?");
+            sb.append(" AND local.created < ? ::timestamp AT TIME ZONE 'CET'");
         }
 
         if (params.getModifiedFrom() != null) {
-            sb.append(" AND local.modified > ?");
+            sb.append(" AND local.modified > ? ::timestamp AT TIME ZONE 'CET'");
         }
 
         if (params.getModifiedTo() != null) {
-            sb.append(" AND local.modified < ?");
+            sb.append(" AND local.modified < ? ::timestamp AT TIME ZONE 'CET'");
         }
 
         return sb.toString();
@@ -207,19 +207,19 @@ public class RecordResultSet implements AutoCloseable {
         // If recordStatus == RecordStatus.ALL then we just ignore the deleted column
 
         if (params.getCreatedFrom() != null) {
-            sb.append(" AND local.created > ?");
+            sb.append(" AND local.created > ? ::timestamp AT TIME ZONE 'CET'");
         }
 
         if (params.getCreatedTo() != null) {
-            sb.append(" AND local.created < ?");
+            sb.append(" AND local.created < ? ::timestamp AT TIME ZONE 'CET'");
         }
 
         if (params.getModifiedFrom() != null) {
-            sb.append(" AND local.modified > ?");
+            sb.append(" AND local.modified > ? ::timestamp AT TIME ZONE 'CET'");
         }
 
         if (params.getModifiedTo() != null) {
-            sb.append(" AND local.modified < ?");
+            sb.append(" AND local.modified < ? ::timestamp AT TIME ZONE 'CET'");
         }
 
         return sb.toString();
