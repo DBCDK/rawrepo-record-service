@@ -94,14 +94,15 @@ public class DumpService {
                         for (Integer agencyId : params.getAgencies()) {
                             RecordByteWriter recordByteWriter = new RecordByteWriter(out, params);
                             AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
+                            LOGGER.info("Opening connection and RecordResultSet...");
                             try (Connection connection = dataSource.getConnection();
                                  RecordResultSet resultSet = new RecordResultSet(connection, params, agencyId, agencyType, FETCH_SIZE)) {
-
+                                LOGGER.info("RecordResultSet ready");
                                 List<Callable<Boolean>> threadList = new ArrayList<>();
                                 for (int i = 0; i < THREAD_COUNT; i++) {
                                     threadList.add(new MergerThread(resultSet, recordByteWriter, agencyType));
                                 }
-
+                                LOGGER.info("{} MergerThreads has been started", THREAD_COUNT);
                                 executor.invokeAll(threadList);
                             }
                         }

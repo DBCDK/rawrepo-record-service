@@ -238,6 +238,7 @@ public class RecordResultSet implements AutoCloseable {
 
     public RecordItem next() throws SQLException {
         synchronized (this) {
+            LOGGER.info("next");
             if (resultSet.next()) {
                 return new RecordItem(resultSet.getString(1), resultSet.getBytes(2), resultSet.getBytes(3));
             } else {
