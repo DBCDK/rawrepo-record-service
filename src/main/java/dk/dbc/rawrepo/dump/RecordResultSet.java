@@ -15,7 +15,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 public class RecordResultSet implements AutoCloseable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DumpService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RecordResultSet.class);
 
     private Connection connection;
     private PreparedStatement preparedStatement;
