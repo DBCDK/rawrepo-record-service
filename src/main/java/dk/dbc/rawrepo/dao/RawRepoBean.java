@@ -6,6 +6,9 @@
 package dk.dbc.rawrepo.dao;
 
 import dk.dbc.rawrepo.RawRepoException;
+import dk.dbc.rawrepo.dump.Params;
+import dk.dbc.rawrepo.dump.RecordItem;
+import dk.dbc.rawrepo.dump.RecordStatus;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
@@ -20,6 +23,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -130,7 +134,7 @@ public class RawRepoBean {
         }
     }
 
-    public void setConfigurations(String key, String value) throws RawRepoException{
+    public void setConfigurations(String key, String value) throws RawRepoException {
         try {
             try (Connection connection = dataSource.getConnection();
                  PreparedStatement stmt = connection.prepareStatement(SET_SERVER_URL_CONFIGURATION)) {
@@ -142,6 +146,154 @@ public class RawRepoBean {
             LOGGER.info("Caught exception: {}", ex);
             throw new RawRepoException("Error updating configurations", ex);
         }
+    }
+
+    public List<String> getBibliographicRecordIdsForEnrichmentAgency(int commonAgencyId, int localAgencyId) throws RawRepoException {
+        List<String> res = new ArrayList<>();
+        String query = "SELECT common.bibliographicrecordid" +
+                "  FROM records AS common, records AS local" +
+                " WHERE common.agencyid=?" +
+                "   AND local.agencyid=?" +
+                "   AND common.bibliographicrecordid = local.bibliographicrecordid";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, commonAgencyId);
+            preparedStatement.setInt(2, localAgencyId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                res.add(resultSet.getString(1));
+            }
+        } catch (SQLException ex) {
+            LOGGER.info("Caught exception: {}", ex);
+            throw new RawRepoException("Error during getBibliographicRecordIdsForEnrichmentAgency", ex);
+        }
+
+        return res;
+    }
+
+    public List<String> getBibliographicRecordIdsForLocalAgency(int localAgencyId) throws RawRepoException {
+        List<String> res = new ArrayList<>();
+        String query = "SELECT local.bibliographicrecordid" +
+                "  FROM records AS local" +
+                " WHERE local.agencyid=?";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, localAgencyId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                res.add(resultSet.getString(1));
+            }
+        } catch (SQLException ex) {
+            LOGGER.info("Caught exception: {}", ex);
+            throw new RawRepoException("Error during getBibliographicRecordIdsForEnrichmentAgency", ex);
+        }
+
+        return res;
+    }
+
+
+    public List<RecordItem> getDecodedContent(List<String> bibliographicRecordIds, Integer commonAgencyId, Integer localAgencyId, Params params) throws RawRepoException {
+        List<RecordItem> res = new ArrayList<>();
+        LOGGER.info("Input commonAgencyId: {}", commonAgencyId);
+        LOGGER.info("Input localAgencyId: {}", localAgencyId);
+        LOGGER.info("Input bibliographicRecordIds: {}", bibliographicRecordIds);
+        List<String> placeHolders = new ArrayList<>();
+        for (String bibliographicRecordId : bibliographicRecordIds) {
+            placeHolders.add("?");
+        }
+
+        String query;
+
+        // Local record
+        if (commonAgencyId == null) {
+            query = " SELECT local.bibliographicrecordid, " +
+                    "        null, " +
+                    "        convert_from(decode(local.content, 'base64'), 'UTF-8')" +
+                    "   FROM records as local" +
+                    "  WHERE local.agencyid=?";
+        } else { // Enrichment record
+            query = " SELECT common.bibliographicrecordid, " +
+                    "        convert_from(decode(common.content, 'base64'), 'UTF-8')," +
+                    "        convert_from(decode(local.content, 'base64'), 'UTF-8')" +
+                    "   FROM records as common, records as local" +
+                    "  WHERE common.agencyid=?" +
+                    "    AND local.agencyid=?" +
+                    "    AND common.bibliographicrecordid = local.bibliographicrecordid";
+        }
+
+        query += "       AND local.bibliographicrecordid in (" + String.join(",", placeHolders) + ")";
+
+        RecordStatus recordStatus = RecordStatus.fromString(params.getRecordStatus());
+
+        LOGGER.info("Final SQL: {}", query);
+
+        if (recordStatus == RecordStatus.DELETED) {
+            query += "   AND common.deleted = 't'";
+        }
+
+        if (recordStatus == RecordStatus.ACTIVE) {
+            query += "   AND common.deleted = 'f'";
+        }
+
+        if (params.getCreatedFrom() != null) {
+            query += "   AND local.created < ? ::timestamp AT TIME ZONE 'CET'";
+        }
+
+        if (params.getCreatedTo() != null) {
+            query += "   AND local.created >= ? ::timestamp AT TIME ZONE 'CET'";
+        }
+
+        if (params.getModifiedFrom() != null) {
+            query += "   AND local.modified < ? ::timestamp AT TIME ZONE 'CET'";
+        }
+
+        if (params.getModifiedTo() != null) {
+            query += "   AND local.modified >= ? ::timestamp AT TIME ZONE 'CET'";
+        }
+
+        int pos = 1;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            if (commonAgencyId != null) {
+                preparedStatement.setInt(pos++, commonAgencyId);
+            }
+            preparedStatement.setInt(pos++, localAgencyId);
+
+            for (String bibliographicRecordId : bibliographicRecordIds) {
+                preparedStatement.setString(pos++, bibliographicRecordId);
+            }
+
+            if (params.getCreatedFrom() != null) {
+                preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getCreatedFrom()));
+            }
+
+            if (params.getCreatedTo() != null) {
+                preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getCreatedTo()));
+            }
+
+            if (params.getModifiedFrom() != null) {
+                preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getModifiedFrom()));
+            }
+
+            if (params.getModifiedTo() != null) {
+                preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getModifiedFrom()));
+            }
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                res.add(new RecordItem(resultSet.getString(1), resultSet.getBytes(2), resultSet.getBytes(3)));
+            }
+        } catch (SQLException ex) {
+            LOGGER.info("Caught exception: {}", ex);
+            throw new RawRepoException("Error during getBibliographicRecordIdsForEnrichmentAgency", ex);
+        }
+
+        return res;
     }
 
     private boolean hasValue(String s) {

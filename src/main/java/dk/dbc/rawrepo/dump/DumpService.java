@@ -9,6 +9,7 @@ import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.openagency.client.OpenAgencyException;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
+import dk.dbc.rawrepo.dao.RawRepoBean;
 import dk.dbc.util.Timed;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
@@ -30,8 +31,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.OutputStream;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -47,8 +46,8 @@ public class DumpService {
     private int THREAD_COUNT;
 
     @Inject
-    @ConfigProperty(name = "DUMP_FETCH_SIZE", defaultValue = "50")
-    private int FETCH_SIZE;
+    @ConfigProperty(name = "DUMP_SLICE_SIZE", defaultValue = "1000")
+    private int SLICE_SIZE;
 
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
@@ -58,6 +57,9 @@ public class DumpService {
 
     @EJB
     private OpenAgencyBean openAgency;
+
+    @EJB
+    private RawRepoBean rawRepoBean;
 
     // Outstanding issues
     // TODO Look at second look class naming
@@ -95,20 +97,23 @@ public class DumpService {
                             RecordByteWriter recordByteWriter = new RecordByteWriter(out, params);
                             AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
                             LOGGER.info("Opening connection and RecordResultSet...");
-                            try (Connection connection = dataSource.getConnection();
-                                 RecordResultSet resultSet = new RecordResultSet(connection, params, agencyId, agencyType, FETCH_SIZE)) {
-                                LOGGER.info("RecordResultSet ready");
-                                List<Callable<Boolean>> threadList = new ArrayList<>();
-                                for (int i = 0; i < THREAD_COUNT; i++) {
-                                    threadList.add(new MergerThread(resultSet, recordByteWriter, agencyType));
-                                }
-                                LOGGER.info("{} MergerThreads has been started", THREAD_COUNT);
-                                executor.invokeAll(threadList);
+                            BibliographicIdResultSet bibliographicIdResultSet = new
+                                    BibliographicIdResultSet(rawRepoBean, SLICE_SIZE, params);
+                            bibliographicIdResultSet.fetchRecordIds(agencyId, agencyType);
+
+                            LOGGER.info("Found {} records", bibliographicIdResultSet.size());
+                            List<Callable<Boolean>> threadList = new ArrayList<>();
+                            for (int i = 0; i < THREAD_COUNT; i++) {
+                                threadList.add(new MergerThreadNew(rawRepoBean, bibliographicIdResultSet, recordByteWriter, agencyId, agencyType, params));
                             }
+                            LOGGER.info("{} MergerThreads has been started", THREAD_COUNT);
+                            executor.invokeAll(threadList);
                         }
-                    } catch (SQLException | OpenAgencyException | InterruptedException e) {
+                    } catch (OpenAgencyException e) {
                         LOGGER.error("Caught exception during write", e);
                         throw new WebApplicationException("Caught exception during write", e);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             };
