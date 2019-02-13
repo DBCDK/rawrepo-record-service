@@ -202,7 +202,7 @@ public class RawRepoBean {
         LOGGER.info("Input localAgencyId: {}", localAgencyId);
         LOGGER.info("Input bibliographicRecordIds: {}", bibliographicRecordIds);
         List<String> placeHolders = new ArrayList<>();
-        for (String bibliographicRecordId : bibliographicRecordIds) {
+        for (int i = 0; i < bibliographicRecordIds.size(); i++) {
             placeHolders.add("?");
         }
 

@@ -20,7 +20,6 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.inject.Inject;
-import javax.sql.DataSource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -48,9 +47,6 @@ public class DumpService {
     @Inject
     @ConfigProperty(name = "DUMP_SLICE_SIZE", defaultValue = "1000")
     private int SLICE_SIZE;
-
-    @Resource(lookup = "jdbc/rawrepo")
-    private DataSource dataSource;
 
     @Resource(lookup = "java:comp/DefaultManagedExecutorService")
     private ManagedExecutorService executor;
