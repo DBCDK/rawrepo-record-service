@@ -95,18 +95,25 @@ public class DumpService {
                             AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
                             LOGGER.info("Opening connection and RecordResultSet...");
                             BibliographicIdResultSet bibliographicIdResultSet = new
-                                    BibliographicIdResultSet(rawRepoBean, SLICE_SIZE, params);
-                            bibliographicIdResultSet.fetchRecordIds(agencyId, agencyType);
+                                    BibliographicIdResultSet(agencyId, params, SLICE_SIZE, rawRepoBean);
 
                             LOGGER.info("Found {} records", bibliographicIdResultSet.size());
                             List<Callable<Boolean>> threadList = new ArrayList<>();
-                            for (int i = 0; i < THREAD_COUNT; i++) {
-                                threadList.add(new MergerThreadNew(rawRepoBean, bibliographicIdResultSet, recordByteWriter, agencyId, agencyType, params));
+                            int num = Math.min(bibliographicIdResultSet.size() / SLICE_SIZE + 1, THREAD_COUNT);
+                            for (int i = 0; i < num; i++) {
+                                if (agencyType == AgencyType.DBC) {
+                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet, recordByteWriter, agencyId, params));
+                                } else if (agencyType == AgencyType.FBS) {
+                                    threadList.add(new MergerThreadFBS(rawRepoBean, bibliographicIdResultSet, recordByteWriter, agencyId, params));
+                                } else {
+                                    threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet, recordByteWriter, agencyId, params));
+                                }
+
                             }
                             LOGGER.info("{} MergerThreads has been started", THREAD_COUNT);
                             executor.invokeAll(threadList);
                         }
-                    } catch (OpenAgencyException | InterruptedException | DumpException | RawRepoException e) {
+                    } catch (OpenAgencyException | InterruptedException | RawRepoException e) {
                         LOGGER.error("Caught exception during write", e);
                         throw new WebApplicationException("Caught exception during write", e);
                     }

@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Interceptors(StopwatchInterceptor.class)
@@ -148,54 +149,6 @@ public class RawRepoBean {
         }
     }
 
-    public List<String> getBibliographicRecordIdsForEnrichmentAgency(int commonAgencyId, int localAgencyId) throws RawRepoException {
-        List<String> res = new ArrayList<>();
-        String query = "SELECT common.bibliographicrecordid" +
-                "  FROM records AS common, records AS local" +
-                " WHERE common.agencyid=?" +
-                "   AND local.agencyid=?" +
-                "   AND common.bibliographicrecordid = local.bibliographicrecordid";
-
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, commonAgencyId);
-            preparedStatement.setInt(2, localAgencyId);
-
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                res.add(resultSet.getString(1));
-            }
-        } catch (SQLException ex) {
-            LOGGER.info("Caught exception: {}", ex);
-            throw new RawRepoException("Error during getBibliographicRecordIdsForEnrichmentAgency", ex);
-        }
-
-        return res;
-    }
-
-    public List<String> getBibliographicRecordIdsForLocalAgency(int localAgencyId) throws RawRepoException {
-        List<String> res = new ArrayList<>();
-        String query = "SELECT local.bibliographicrecordid" +
-                "  FROM records AS local" +
-                " WHERE local.agencyid=?";
-
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, localAgencyId);
-
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                res.add(resultSet.getString(1));
-            }
-        } catch (SQLException ex) {
-            LOGGER.info("Caught exception: {}", ex);
-            throw new RawRepoException("Error during getBibliographicRecordIdsForEnrichmentAgency", ex);
-        }
-
-        return res;
-    }
-
-
     public List<RecordItem> getDecodedContent(List<String> bibliographicRecordIds, Integer commonAgencyId, Integer localAgencyId, Params params) throws RawRepoException {
         List<RecordItem> res = new ArrayList<>();
         List<String> placeHolders = new ArrayList<>();
@@ -286,6 +239,37 @@ public class RawRepoBean {
         } catch (SQLException ex) {
             LOGGER.info("Caught exception: {}", ex);
             throw new RawRepoException("Error during getBibliographicRecordIdsForEnrichmentAgency", ex);
+        }
+
+        return res;
+    }
+
+    public HashMap<String, String> getMimeTypeForRecordIds(List<String> bibliographicRecordIds, int agencyId) throws SQLException {
+        HashMap<String, String> res = new HashMap<>();
+
+        List<String> placeHolders = new ArrayList<>();
+        for (int i = 0; i < bibliographicRecordIds.size(); i++) {
+            placeHolders.add("?");
+        }
+
+        String query = "SELECT bibliographicrecordid, mimetype FROM records ";
+        query += "       WHERE agencyid=? ";
+        query += "         AND bibliographicrecordid in (" + String.join(",", placeHolders) + ")";
+
+        int pos = 1;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(pos++, agencyId);
+
+            for (String bibliographicRecordId : bibliographicRecordIds) {
+                preparedStatement.setString(pos++, bibliographicRecordId);
+            }
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                res.put(resultSet.getString(1), resultSet.getString(2));
+            }
         }
 
         return res;

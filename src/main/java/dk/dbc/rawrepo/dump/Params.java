@@ -25,15 +25,6 @@ public class Params {
     private String modifiedTo;
     private String outputEncoding;
     private String outputFormat;
-    private int rowLimit;
-
-    public int getRowLimit() {
-        return rowLimit;
-    }
-
-    public void setRowLimit(int rowLimit) {
-        this.rowLimit = rowLimit;
-    }
 
     public List<Integer> getAgencies() {
         return agencies;
@@ -119,7 +110,6 @@ public class Params {
                 ", modifiedTo='" + modifiedTo + '\'' +
                 ", outputEncoding='" + outputEncoding + '\'' +
                 ", outputFormat='" + outputFormat + '\'' +
-                ", rowLimit=" + rowLimit +
                 '}';
     }
 
