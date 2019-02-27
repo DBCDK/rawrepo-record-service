@@ -43,7 +43,7 @@ public class DumpService {
 
     @Inject
     @ConfigProperty(name = "DUMP_THREAD_COUNT", defaultValue = "8")
-    private int THREAD_COUNT;
+    private int MAX_THREAD_COUNT;
 
     @Inject
     @ConfigProperty(name = "DUMP_SLICE_SIZE", defaultValue = "1000")
@@ -59,10 +59,43 @@ public class DumpService {
     private RawRepoBean rawRepoBean;
 
     // Outstanding issues
-    // TODO Look at second look class naming
     // TODO Implement Holdings functionality
-    // TODO Implement dry-run functionality to get row count
     // TODO Implement readme and create wrapper script
+
+    @POST
+    @Path("v1/dump/dryrun")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.TEXT_PLAIN})
+    public Response dumpLibraryRecordsDryRun(Params params) {
+        try {
+            List<ParamsValidationItem> paramsValidationItemList = params.validate(openAgency.getService());
+            if (paramsValidationItemList.size() > 0) {
+                ParamsValidation paramsValidation = new ParamsValidation();
+                paramsValidation.setErrors(paramsValidationItemList);
+                LOGGER.info("Validation errors: {}", paramsValidation);
+                return Response.status(400).entity(jsonbContext.marshall(paramsValidation)).build();
+            }
+        } catch (JSONBException ex) {
+            LOGGER.error("Caught unexpected exception", ex);
+            return Response.status(500).entity("Internal server error. Please see the server log.").build();
+        }
+
+        try {
+            int recordCount = 0;
+
+            for (Integer agencyId : params.getAgencies()) {
+                BibliographicIdResultSet bibliographicIdResultSet = new
+                        BibliographicIdResultSet(agencyId, params, SLICE_SIZE, rawRepoBean);
+
+                recordCount += bibliographicIdResultSet.size();
+            }
+
+            return Response.ok(recordCount).build();
+        } catch (RawRepoException ex) {
+            LOGGER.error("Caught unexpected exception", ex);
+            return Response.status(500).entity("Internal server error. Please see the server log.").build();
+        }
+    }
 
     @POST
     @Path("v1/dump")
@@ -79,8 +112,9 @@ public class DumpService {
                 LOGGER.info("Validation errors: {}", paramsValidation);
                 return Response.status(400).entity(jsonbContext.marshall(paramsValidation)).build();
             }
-        } catch (JSONBException e) {
-            e.printStackTrace();
+        } catch (JSONBException ex) {
+            LOGGER.error("Caught unexpected exception", ex);
+            return Response.status(500).entity("Internal server error. Please see the server log.").build();
         }
 
         LOGGER.info("Got request: {}", params);
@@ -99,8 +133,8 @@ public class DumpService {
 
                             LOGGER.info("Found {} records", bibliographicIdResultSet.size());
                             List<Callable<Boolean>> threadList = new ArrayList<>();
-                            int num = Math.min(bibliographicIdResultSet.size() / SLICE_SIZE + 1, THREAD_COUNT);
-                            for (int i = 0; i < num; i++) {
+                            int threadCount = Math.min(bibliographicIdResultSet.size() / SLICE_SIZE + 1, MAX_THREAD_COUNT);
+                            for (int i = 0; i < threadCount; i++) {
                                 if (agencyType == AgencyType.DBC) {
                                     threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet, recordByteWriter, agencyId, params));
                                 } else if (agencyType == AgencyType.FBS) {
@@ -110,7 +144,7 @@ public class DumpService {
                                 }
 
                             }
-                            LOGGER.info("{} MergerThreads has been started", THREAD_COUNT);
+                            LOGGER.info("{} MergerThreads has been started", MAX_THREAD_COUNT);
                             executor.invokeAll(threadList);
                         }
                     } catch (OpenAgencyException | InterruptedException | RawRepoException e) {
