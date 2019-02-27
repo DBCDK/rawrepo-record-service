@@ -8,6 +8,7 @@ package dk.dbc.rawrepo.dump;
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.openagency.client.OpenAgencyException;
+import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.dao.RawRepoBean;
 import dk.dbc.util.Timed;
@@ -105,11 +106,9 @@ public class DumpService {
                             LOGGER.info("{} MergerThreads has been started", THREAD_COUNT);
                             executor.invokeAll(threadList);
                         }
-                    } catch (OpenAgencyException e) {
+                    } catch (OpenAgencyException | InterruptedException | DumpException | RawRepoException e) {
                         LOGGER.error("Caught exception during write", e);
                         throw new WebApplicationException("Caught exception during write", e);
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
                 }
             };

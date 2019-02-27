@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -104,8 +103,7 @@ public class MergerThreadNew implements Callable<Boolean> {
             }
 
             return true;
-        } catch (SQLException | MarcXMergerException | IOException | MarcReaderException | MarcWriterException |
-                JSONBException ex) {
+        } catch (MarcXMergerException | IOException | MarcReaderException | MarcWriterException | JSONBException ex) {
             LOGGER.error("Caught exception while merging record: ", ex);
         }
 
