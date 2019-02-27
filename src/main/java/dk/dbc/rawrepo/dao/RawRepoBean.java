@@ -198,9 +198,6 @@ public class RawRepoBean {
 
     public List<RecordItem> getDecodedContent(List<String> bibliographicRecordIds, Integer commonAgencyId, Integer localAgencyId, Params params) throws RawRepoException {
         List<RecordItem> res = new ArrayList<>();
-        LOGGER.info("Input commonAgencyId: {}", commonAgencyId);
-        LOGGER.info("Input localAgencyId: {}", localAgencyId);
-        LOGGER.info("Input bibliographicRecordIds: {}", bibliographicRecordIds);
         List<String> placeHolders = new ArrayList<>();
         for (int i = 0; i < bibliographicRecordIds.size(); i++) {
             placeHolders.add("?");
@@ -228,8 +225,6 @@ public class RawRepoBean {
         query += "       AND local.bibliographicrecordid in (" + String.join(",", placeHolders) + ")";
 
         RecordStatus recordStatus = RecordStatus.fromString(params.getRecordStatus());
-
-        LOGGER.info("Final SQL: {}", query);
 
         if (recordStatus == RecordStatus.DELETED) {
             query += "   AND common.deleted = 't'";
