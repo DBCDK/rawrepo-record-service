@@ -207,7 +207,7 @@ public class RecordCollectionService {
             LOGGER.error("Record not found", ex);
             return Response.status(Response.Status.NOT_FOUND).build();
         } finally {
-            LOGGER.info("vi/records/bulk");
+            LOGGER.info("v1/records/bulk");
         }
     }
 
@@ -251,7 +251,7 @@ public class RecordCollectionService {
             LOGGER.error("Exception during getRecordsBulk", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
-            LOGGER.info("vi/records/bulk");
+            LOGGER.info("v2/records/bulk");
         }
     }
 
