@@ -2,15 +2,11 @@ package dk.dbc.rawrepo.dump;
 
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.dao.RawRepoBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class BibliographicIdResultSet {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BibliographicIdResultSet.class);
-
     private List<String> bibliographicRecordIdList;
     private int sliceSize;
     private int index;
