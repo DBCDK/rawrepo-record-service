@@ -1,5 +1,6 @@
 {
   "appName": "rawrepo-record-service",
+  "profiles": ["long-running-requests"],
   "jdbc": {
     "jdbc/rawrepo": {
       "url": "${DB_URL}"
