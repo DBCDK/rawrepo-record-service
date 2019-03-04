@@ -1,4 +1,4 @@
-FROM docker.dbc.dk/payara5-micro:long-running-requests-profile-1
+FROM docker.dbc.dk/payara5-micro:latest
 
 LABEL DB_URL="Full connection string for the rawrepo database. Format is 'username:pass@dbserver/dbname'. (Required)"
 LABEL OPENAGENCY_URL="URL to OpenAgency endpoint"
