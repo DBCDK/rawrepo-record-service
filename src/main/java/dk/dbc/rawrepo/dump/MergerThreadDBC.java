@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 public class MergerThreadDBC implements Callable<Boolean> {
 
@@ -41,7 +43,9 @@ public class MergerThreadDBC implements Callable<Boolean> {
             byte[] result, common, local;
 
             do {
-                bibliographicRecordIdList = recordSet.next();
+                bibliographicRecordIdList = recordSet.next().entrySet().stream()
+                        .map(Map.Entry::getKey)
+                        .collect(Collectors.toList());
 
                 if (bibliographicRecordIdList.size() > 0) {
                     List<RecordItem> recordItemList = bean.getDecodedContent(bibliographicRecordIdList, agencyId, 191919, params);
@@ -53,7 +57,7 @@ public class MergerThreadDBC implements Callable<Boolean> {
                         writer.write(result);
                     }
                 }
-            } while (bibliographicRecordIdList.size() > 0);
+            } while (recordSet.hasNext());
 
             return true;
         } catch (MarcXMergerException | IOException | MarcReaderException | MarcWriterException | JSONBException ex) {

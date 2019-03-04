@@ -9,6 +9,7 @@ import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.openagency.client.OpenAgencyException;
 import dk.dbc.rawrepo.RawRepoException;
+import dk.dbc.rawrepo.dao.HoldingsItemsBean;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.dao.RawRepoBean;
 import dk.dbc.util.Timed;
@@ -31,6 +32,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.OutputStream;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -58,8 +60,10 @@ public class DumpService {
     @EJB
     private RawRepoBean rawRepoBean;
 
+    @EJB
+    private HoldingsItemsBean holdingsItemsBean;
+
     // Outstanding issues
-    // TODO Implement Holdings functionality
     // TODO Implement readme and create wrapper script
 
     @POST
@@ -84,14 +88,16 @@ public class DumpService {
             int recordCount = 0;
 
             for (Integer agencyId : params.getAgencies()) {
+                AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
+
                 BibliographicIdResultSet bibliographicIdResultSet = new
-                        BibliographicIdResultSet(agencyId, params, SLICE_SIZE, rawRepoBean);
+                        BibliographicIdResultSet(agencyId, agencyType, params, SLICE_SIZE, rawRepoBean, holdingsItemsBean);
 
                 recordCount += bibliographicIdResultSet.size();
             }
 
             return Response.ok(recordCount).build();
-        } catch (RawRepoException ex) {
+        } catch (RawRepoException | OpenAgencyException | SQLException ex) {
             LOGGER.error("Caught unexpected exception", ex);
             return Response.status(500).entity("Internal server error. Please see the server log.").build();
         }
@@ -129,7 +135,7 @@ public class DumpService {
                             AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
                             LOGGER.info("Opening connection and RecordResultSet...");
                             BibliographicIdResultSet bibliographicIdResultSet = new
-                                    BibliographicIdResultSet(agencyId, params, SLICE_SIZE, rawRepoBean);
+                                    BibliographicIdResultSet(agencyId, agencyType, params, SLICE_SIZE, rawRepoBean, holdingsItemsBean);
 
                             LOGGER.info("Found {} records", bibliographicIdResultSet.size());
                             List<Callable<Boolean>> threadList = new ArrayList<>();
@@ -142,12 +148,11 @@ public class DumpService {
                                 } else {
                                     threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet, recordByteWriter, agencyId, params));
                                 }
-
                             }
                             LOGGER.info("{} MergerThreads has been started", MAX_THREAD_COUNT);
                             executor.invokeAll(threadList);
                         }
-                    } catch (OpenAgencyException | InterruptedException | RawRepoException e) {
+                    } catch (OpenAgencyException | InterruptedException | RawRepoException | SQLException e) {
                         LOGGER.error("Caught exception during write", e);
                         throw new WebApplicationException("Caught exception during write", e);
                     }

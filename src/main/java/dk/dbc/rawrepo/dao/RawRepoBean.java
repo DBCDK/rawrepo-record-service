@@ -33,8 +33,7 @@ import java.util.List;
 public class RawRepoBean {
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(RawRepoBean.class);
 
-    private static final String QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY = "SELECT bibliographicrecordid FROM records WHERE agencyid=? AND deleted='f'";
-    private static final String QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL = "SELECT bibliographicrecordid FROM records WHERE agencyid=?";
+    private static final String QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL = "SELECT bibliographicrecordid, mimetype FROM records WHERE agencyid=?";
     private static final String QUERY_AGENCIES = "SELECT DISTINCT(agencyid) FROM records";
     private static final String SET_SERVER_URL_CONFIGURATION = "INSERT INTO configurations (key, value) VALUES (?, ?) ON CONFLICT (key) DO NOTHING";
 
@@ -42,11 +41,19 @@ public class RawRepoBean {
     private DataSource dataSource;
 
     @Timed
-    public List<String> getBibliographicRecordIdForAgency(int agencyId, boolean allowDeleted) throws RawRepoException {
+    public HashMap<String, String> getBibliographicRecordIdForAgency(int agencyId, RecordStatus recordStatus) throws RawRepoException {
         try {
-            ArrayList<String> ret = new ArrayList<>();
+            HashMap<String, String> ret = new HashMap<>();
 
-            String query = allowDeleted ? QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL : QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY;
+            String query = QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL;
+
+            if (recordStatus == RecordStatus.DELETED) {
+                query += " AND deleted = 't'";
+            }
+
+            if (recordStatus == RecordStatus.ACTIVE) {
+                query += " AND deleted = 'f'";
+            }
 
             try (Connection connection = dataSource.getConnection();
                  PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -54,7 +61,9 @@ public class RawRepoBean {
                 try (ResultSet resultSet = stmt.executeQuery()) {
                     while (resultSet.next()) {
                         String bibliographicRecordId = resultSet.getString(1);
-                        ret.add(bibliographicRecordId);
+                        String mimeType = resultSet.getString(2);
+
+                        ret.put(bibliographicRecordId, mimeType);
                     }
                 }
             }
@@ -66,11 +75,19 @@ public class RawRepoBean {
     }
 
     @Timed
-    public List<String> getBibliographicRecordIdForAgencyInterval(int agencyId, boolean allowDeleted, String createdBefore, String createdAfter, String modifiedBefore, String modifiedAfter) throws RawRepoException {
+    public HashMap<String, String> getBibliographicRecordIdForAgencyInterval(int agencyId, RecordStatus recordStatus, String createdBefore, String createdAfter, String modifiedBefore, String modifiedAfter) throws RawRepoException {
         try {
-            ArrayList<String> ret = new ArrayList<>();
+            HashMap<String, String> ret = new HashMap<>();
 
-            String query = allowDeleted ? QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL : QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY;
+            String query = QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL;
+
+            if (recordStatus == RecordStatus.DELETED) {
+                query += " AND deleted = 't'";
+            }
+
+            if (recordStatus == RecordStatus.ACTIVE) {
+                query += " AND deleted = 'f'";
+            }
 
             if (hasValue(createdBefore)) {
                 query += " AND created < ?";
@@ -103,7 +120,9 @@ public class RawRepoBean {
                 try (ResultSet resultSet = stmt.executeQuery()) {
                     while (resultSet.next()) {
                         String bibliographicRecordId = resultSet.getString(1);
-                        ret.add(bibliographicRecordId);
+                        String mimeType = resultSet.getString(2);
+
+                        ret.put(bibliographicRecordId, mimeType);
                     }
                 }
             }
@@ -180,11 +199,11 @@ public class RawRepoBean {
         RecordStatus recordStatus = RecordStatus.fromString(params.getRecordStatus());
 
         if (recordStatus == RecordStatus.DELETED) {
-            query += "   AND common.deleted = 't'";
+            query += "   AND local.deleted = 't'";
         }
 
         if (recordStatus == RecordStatus.ACTIVE) {
-            query += "   AND common.deleted = 'f'";
+            query += "   AND local.deleted = 'f'";
         }
 
         if (params.getCreatedFrom() != null) {
@@ -239,37 +258,6 @@ public class RawRepoBean {
         } catch (SQLException ex) {
             LOGGER.info("Caught exception: {}", ex);
             throw new RawRepoException("Error during getBibliographicRecordIdsForEnrichmentAgency", ex);
-        }
-
-        return res;
-    }
-
-    public HashMap<String, String> getMimeTypeForRecordIds(List<String> bibliographicRecordIds, int agencyId) throws SQLException {
-        HashMap<String, String> res = new HashMap<>();
-
-        List<String> placeHolders = new ArrayList<>();
-        for (int i = 0; i < bibliographicRecordIds.size(); i++) {
-            placeHolders.add("?");
-        }
-
-        String query = "SELECT bibliographicrecordid, mimetype FROM records ";
-        query += "       WHERE agencyid=? ";
-        query += "         AND bibliographicrecordid in (" + String.join(",", placeHolders) + ")";
-
-        int pos = 1;
-
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(pos++, agencyId);
-
-            for (String bibliographicRecordId : bibliographicRecordIds) {
-                preparedStatement.setString(pos++, bibliographicRecordId);
-            }
-
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                res.put(resultSet.getString(1), resultSet.getString(2));
-            }
         }
 
         return res;
