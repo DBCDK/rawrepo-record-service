@@ -230,7 +230,7 @@ public class RecordCollectionService {
                         final OutputStreamRecordWriter writer = OutputStreamWriterUtil.getWriter(outputFormat, out, outputEncoding);
                         final List<Callable<Boolean>> threadList = new ArrayList<>();
                         for (int i = 0; i < THREAD_COUNT; i++) {
-                            threadList.add(new dfg(recordIdCollectionDTO, writer, allowDeleted, excludeDBCFields, useParentAgency));
+                            threadList.add(new BulkMergeThread(recordIdCollectionDTO, writer, allowDeleted, excludeDBCFields, useParentAgency));
                         }
                         LOGGER.info("{} MergerThreads has been started", THREAD_COUNT);
                         executor.invokeAll(threadList);
@@ -253,14 +253,14 @@ public class RecordCollectionService {
         }
     }
 
-    private class dfg implements Callable<Boolean> {
+    private class BulkMergeThread implements Callable<Boolean> {
         private RecordIdCollectionDTO recordIdCollectionDTO;
         private OutputStreamRecordWriter writer;
         private boolean allowDeleted;
         private boolean excludeDBCFields;
         private boolean useParentAgency;
 
-        public dfg(RecordIdCollectionDTO recordIdCollectionDTO, OutputStreamRecordWriter writer, boolean allowDeleted, boolean excludeDBCFields, boolean useParentAgency) {
+        public BulkMergeThread(RecordIdCollectionDTO recordIdCollectionDTO, OutputStreamRecordWriter writer, boolean allowDeleted, boolean excludeDBCFields, boolean useParentAgency) {
             this.recordIdCollectionDTO = recordIdCollectionDTO;
             this.writer = writer;
             this.allowDeleted = allowDeleted;
