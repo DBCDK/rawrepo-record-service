@@ -37,12 +37,12 @@ public class BibliographicIdResultSet {
 
             Set<String> localBibliographicRecordIds = rawrepoRecordMap.entrySet().stream()
                     .filter(f -> "text/marcxchange".equals(f.getValue()))
-                    .map(Map.Entry::getValue)
+                    .map(Map.Entry::getKey)
                     .collect(Collectors.toSet());
 
             Set<String> enrichmentBibliographicRecordIds = rawrepoRecordMap.entrySet().stream()
                     .filter(f -> "text/enrichment+marcxchange".equals(f.getValue()))
-                    .map(Map.Entry::getValue)
+                    .map(Map.Entry::getKey)
                     .collect(Collectors.toSet());
 
             // If there are local records with holdings but local records are not included those local records should be used anyway
