@@ -48,6 +48,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -222,16 +223,19 @@ public class RecordCollectionService {
                                      @DefaultValue("UTF-8") @QueryParam("output-encoding") String outputEncoding) {
         try {
             final RecordIdCollectionDTO recordIdCollectionDTO = jsonbContext.unmarshall(request, RecordIdCollectionDTO.class);
-            recordIdCollectionDTO.initialize();
+
             final StreamingOutput output = new StreamingOutput() {
                 @Override
                 public void write(OutputStream out) throws WebApplicationException {
                     try {
                         final OutputStreamRecordWriter writer = OutputStreamWriterUtil.getWriter(outputFormat, out, outputEncoding);
                         final List<Callable<Boolean>> threadList = new ArrayList<>();
+                        final Iterator<RecordIdDTO> iterator = recordIdCollectionDTO.getRecordIds().iterator();
+
                         for (int i = 0; i < THREAD_COUNT; i++) {
-                            threadList.add(new BulkMergeThread(recordIdCollectionDTO, writer, allowDeleted, excludeDBCFields, useParentAgency));
+                            threadList.add(new BulkMergeThread(iterator, writer, allowDeleted, excludeDBCFields, useParentAgency));
                         }
+
                         LOGGER.info("{} MergerThreads has been started", THREAD_COUNT);
                         executor.invokeAll(threadList);
                     } catch (InterruptedException e) {
@@ -254,14 +258,14 @@ public class RecordCollectionService {
     }
 
     private class BulkMergeThread implements Callable<Boolean> {
-        private RecordIdCollectionDTO recordIdCollectionDTO;
-        private OutputStreamRecordWriter writer;
-        private boolean allowDeleted;
-        private boolean excludeDBCFields;
-        private boolean useParentAgency;
+        private final Iterator<RecordIdDTO> iterator;
+        private final OutputStreamRecordWriter writer;
+        private final boolean allowDeleted;
+        private final boolean excludeDBCFields;
+        private final boolean useParentAgency;
 
-        public BulkMergeThread(RecordIdCollectionDTO recordIdCollectionDTO, OutputStreamRecordWriter writer, boolean allowDeleted, boolean excludeDBCFields, boolean useParentAgency) {
-            this.recordIdCollectionDTO = recordIdCollectionDTO;
+        public BulkMergeThread(Iterator<RecordIdDTO> iterator, OutputStreamRecordWriter writer, boolean allowDeleted, boolean excludeDBCFields, boolean useParentAgency) {
+            this.iterator = iterator;
             this.writer = writer;
             this.allowDeleted = allowDeleted;
             this.excludeDBCFields = excludeDBCFields;
@@ -273,7 +277,13 @@ public class RecordCollectionService {
             RecordIdDTO idDTO;
 
             do {
-                idDTO = recordIdCollectionDTO.next();
+                synchronized (iterator) {
+                    if (iterator.hasNext()) {
+                        idDTO = iterator.next();
+                    } else {
+                        idDTO = null;
+                    }
+                }
 
                 if (idDTO != null) {
                     MarcRecord marcRecord = marcRecordBean.getMarcRecordMerged(idDTO.getBibliographicRecordId(), idDTO.getAgencyId(), allowDeleted, excludeDBCFields, useParentAgency);
