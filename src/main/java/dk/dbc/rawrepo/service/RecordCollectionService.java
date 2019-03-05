@@ -9,7 +9,6 @@ import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
-import dk.dbc.openagency.client.OpenAgencyException;
 import dk.dbc.rawrepo.MarcRecordBean;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.dto.RecordCollectionDTO;
@@ -19,10 +18,9 @@ import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
-import dk.dbc.rawrepo.output.OutputStreamJsonRecordWriter;
-import dk.dbc.rawrepo.output.OutputStreamLineRecordWriter;
-import dk.dbc.rawrepo.output.OutputStreamMarcXchangeRecordWriter;
+import dk.dbc.rawrepo.exception.WebApplicationInvalidInputException;
 import dk.dbc.rawrepo.output.OutputStreamRecordWriter;
+import dk.dbc.rawrepo.output.OutputStreamWriterUtil;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -229,25 +227,25 @@ public class RecordCollectionService {
                 @Override
                 public void write(OutputStream out) throws WebApplicationException {
                     try {
-                        final OutputStreamRecordWriter writer = getWriter(outputFormat, out, outputEncoding);
+                        final OutputStreamRecordWriter writer = OutputStreamWriterUtil.getWriter(outputFormat, out, outputEncoding);
                         final List<Callable<Boolean>> threadList = new ArrayList<>();
                         for (int i = 0; i < THREAD_COUNT; i++) {
                             threadList.add(new dfg(recordIdCollectionDTO, writer, allowDeleted, excludeDBCFields, useParentAgency));
                         }
                         LOGGER.info("{} MergerThreads has been started", THREAD_COUNT);
                         executor.invokeAll(threadList);
-
-                    } catch (OpenAgencyException e) {
+                    } catch (InterruptedException e) {
                         LOGGER.error("Caught exception during write", e);
                         throw new WebApplicationException("Caught exception during write", e);
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
                 }
             };
 
             return Response.ok(output).build();
-        } catch (Exception ex) {
+        } catch (WebApplicationInvalidInputException ex) {
+            LOGGER.error("Invalid input", ex);
+            return Response.status(400).entity("Invalid input").build();
+        } catch (WebApplicationException | JSONBException ex) {
             LOGGER.error("Exception during getRecordsBulk", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
@@ -286,22 +284,6 @@ public class RecordCollectionService {
 
             return true;
         }
-    }
-
-    private static OutputStreamRecordWriter getWriter(String type, OutputStream stream, String encoding) throws Exception {
-        if (type.equalsIgnoreCase("LINE")) {
-            return new OutputStreamLineRecordWriter(stream, encoding);
-        }
-
-        if (type.equalsIgnoreCase("JSON")) {
-            return new OutputStreamJsonRecordWriter(stream, encoding);
-        }
-
-        if (type.equalsIgnoreCase("MARCXCHANGE")) {
-            return new OutputStreamMarcXchangeRecordWriter(stream, encoding);
-        }
-
-        throw new Exception("Unknown writer type");
     }
 
 }
