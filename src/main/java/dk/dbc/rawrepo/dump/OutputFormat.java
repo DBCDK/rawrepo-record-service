@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum OutputFormat {
-    MARCXHANGE("MARCXHANGE"), LINE("LINE"), JSON("JSON");
+    MARCXHANGE("MARCXHANGE"), LINE("LINE"), LINE_CONCAT("LINE_CONCAT"), JSON("JSON"), ISO("ISO");
 
     private String value;
 
