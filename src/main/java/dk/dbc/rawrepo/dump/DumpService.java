@@ -149,7 +149,7 @@ public class DumpService {
                                     threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet, recordByteWriter, agencyId, params));
                                 }
                             }
-                            LOGGER.info("{} MergerThreads has been started", MAX_THREAD_COUNT);
+                            LOGGER.info("{} MergerThreads has been started", threadCount);
                             executor.invokeAll(threadList);
                         }
                     } catch (OpenAgencyException | InterruptedException | RawRepoException | SQLException e) {
