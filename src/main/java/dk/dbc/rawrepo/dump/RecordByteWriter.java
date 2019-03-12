@@ -11,7 +11,6 @@ import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marc.writer.DanMarc2LineFormatWriter;
 import dk.dbc.marc.writer.Iso2709Writer;
-import dk.dbc.marc.writer.LineFormatWriter;
 import dk.dbc.marc.writer.MarcWriterException;
 import dk.dbc.rawrepo.dto.ContentDTO;
 import dk.dbc.rawrepo.dto.RecordDTOMapper;
@@ -27,7 +26,6 @@ public class RecordByteWriter {
 
     private final JSONBContext jsonbContext = new JSONBContext();
     private final DanMarc2LineFormatWriter danMarc2LineFormatWriter = new DanMarc2LineFormatWriter();
-    private final LineFormatWriter lineFormatWriter = new LineFormatWriter();
     private final Iso2709Writer iso2709Writer = new Iso2709Writer();
 
     public RecordByteWriter(OutputStream outputStream, Params params) {
@@ -55,12 +53,6 @@ public class RecordByteWriter {
                 synchronized (this) {
                     outputStream.write(data);
                     outputStream.write("\n".getBytes());
-                }
-                break;
-            case LINE_CONCAT:
-                MarcRecord recordLineConcat = RecordObjectMapper.contentToMarcRecord(data);
-                synchronized (this) {
-                    outputStream.write(lineFormatWriter.write(recordLineConcat, Charset.forName(params.getOutputEncoding())));
                 }
                 break;
             case ISO:
