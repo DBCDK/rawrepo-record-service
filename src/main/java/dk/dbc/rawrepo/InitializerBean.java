@@ -1,5 +1,9 @@
-package dk.dbc.rawrepo;
+/*
+ * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
+ *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
+ */
 
+package dk.dbc.rawrepo;
 
 import dk.dbc.rawrepo.dao.RawRepoBean;
 import org.eclipse.microprofile.config.inject.ConfigProperty;

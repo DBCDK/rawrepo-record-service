@@ -79,13 +79,9 @@ public class MarcRecordBean {
     }
 
     protected RawRepoDAO createDAO(Connection conn) throws RawRepoException {
-        try {
-            RawRepoDAO.Builder rawRepoBuilder = RawRepoDAO.builder(conn);
-            rawRepoBuilder.relationHints(relationHints);
-            return rawRepoBuilder.build();
-        } finally {
-            LOGGER.info("rawrepo.createDAO");
-        }
+        RawRepoDAO.Builder rawRepoBuilder = RawRepoDAO.builder(conn);
+        rawRepoBuilder.relationHints(relationHints);
+        return rawRepoBuilder.build();
     }
 
     @PostConstruct
@@ -258,7 +254,7 @@ public class MarcRecordBean {
                 return rawRecord;
             } catch (RawRepoExceptionRecordNotFound ex) {
                 return null;
-            }catch (RawRepoException ex) {
+            } catch (RawRepoException ex) {
                 conn.rollback();
                 LOGGER.error(ex.getMessage(), ex);
                 throw new InternalServerException(ex.getMessage(), ex);
@@ -452,7 +448,7 @@ public class MarcRecordBean {
                 }
 
                 return marcRecords;
-            }catch (RawRepoExceptionRecordNotFound ex) {
+            } catch (RawRepoExceptionRecordNotFound ex) {
                 LOGGER.error("Record not found", ex);
                 throw new RecordNotFoundException("Posten '" + bibliographicRecordId + ":" + agencyId + "' blev ikke fundet");
             } catch (RawRepoException ex) {

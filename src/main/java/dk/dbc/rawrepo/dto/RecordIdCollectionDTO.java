@@ -8,8 +8,7 @@ package dk.dbc.rawrepo.dto;
 import java.util.List;
 
 public class RecordIdCollectionDTO {
-
-    List<RecordIdDTO> recordIds;
+    private List<RecordIdDTO> recordIds;
 
     public List<RecordIdDTO> getRecordIds() {
         return recordIds;
