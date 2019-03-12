@@ -14,39 +14,6 @@ void notifyOfBuildStatus(final String buildStatus) {
     )
 }
 
-void deploy(String deployEnvironment) {
-    dir("deploy") {
-        git(url: "gitlab@git-platform.dbc.dk:metascrum/deploy.git", credentialsId: "gitlab-meta")
-    }
-    sh """
-        bash -c '
-            virtualenv -p python3 .
-            source bin/activate
-            pip3 install --upgrade pip
-            pip3 install -U -e \"git+https://github.com/DBCDK/mesos-tools.git#egg=mesos-tools\"
-            marathon-config-producer rawrepo-record-service-${deployEnvironment} --root deploy/marathon --template-keys DOCKER_TAG=${DOCKER_IMAGE_VERSION} -o rawrepo-record-service-${deployEnvironment}.json
-            marathon-deployer -a ${MARATHON_TOKEN} -b https://mcp1.dbc.dk:8443 deploy rawrepo-record-service-${deployEnvironment}.json
-        '
-	"""
-}
-
-void notifyOfdeploy(final String server, final String recipient) {
-    final String subject = "${env.JOB_NAME} has been deployed to ${server}"
-    final String details = """
-    <p>Team: MetaScrum</p>
-    <p>Server: mesos</p>
-    <p>Komponent: Rawrepo Record Service</p>
-    <p>${env.JOB_NAME} - Build # ${env.BUILD_NUMBER}</p>
-    <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.BUILD_URL}</a>&QUOT; to view the results.</p>
-    """
-    emailext(
-        subject: "$subject",
-        body: "$details",
-        mimeType: "text/html",
-        to: "$recipient"
-    )
-}
-
 pipeline {
     agent { label workerNode }
 
@@ -64,6 +31,7 @@ pipeline {
 
     environment {
         MARATHON_TOKEN = credentials("METASCRUM_MARATHON_TOKEN")
+        DOCKER_IMAGE_NAME = "docker-io.dbc.dk/rawrepo-record-service"
         DOCKER_IMAGE_VERSION = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
         DOCKER_IMAGE_DIT_VERSION = "DIT-${env.BUILD_NUMBER}"
     }
@@ -100,54 +68,14 @@ pipeline {
             }
             steps {
                 script {
-                    def image = docker.build("docker-io.dbc.dk/rawrepo-record-service:${DOCKER_IMAGE_VERSION}")
+                    def image = docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}")
                     image.push()
-                }
-            }
-        }
 
-        stage("Docker build DIT") {
-            when {
-                expression {
-                    currentBuild.result == null || currentBuild.result == 'SUCCESS' && env.BRANCH_NAME == 'develop'
-                }
-            }
-            steps {
-                script {
-                    def image = docker.build("docker-io.dbc.dk/rawrepo-record-service:${DOCKER_IMAGE_DIT_VERSION}")
-                    image.push()
-                }
-            }
-        }
-
-        stage("Deploy to staging") {
-            when {
-                expression {
-                    (currentBuild.result == null || currentBuild.result == 'SUCCESS') && env.BRANCH_NAME == 'develop'
-                }
-            }
-            steps {
-                script {
-                    lock('meta-rawrepo-record-service-deploy-staging') {
-                        deploy("basismig")
-                        deploy("fbstest")
-                    }
-                }
-            }
-        }
-
-        stage("Deploy to prod") {
-            when {
-                expression {
-                    (currentBuild.result == null || currentBuild.result == 'SUCCESS') && env.BRANCH_NAME == 'master'
-                }
-            }
-            steps {
-                script {
-                    lock('meta-rawrepo-record-service-deploy-prod') {
-                        deploy("boblebad")
-                        deploy("cisterne")
-                        notifyOfdeploy("prod", "it-change@dbc.dk")
+                    if (env.BRANCH_NAME == 'master') {
+                        sh """
+                            docker tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION} ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_DIT_VERSION}
+                            docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_DIT_VERSION}
+                        """
                     }
                 }
             }
