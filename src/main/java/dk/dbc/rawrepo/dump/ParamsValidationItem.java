@@ -33,4 +33,12 @@ public class ParamsValidationItem {
     public void setMessage(String message) {
         this.message = message;
     }
+
+    @Override
+    public String toString() {
+        return "ParamsValidationItem{" +
+                "fieldName='" + fieldName + '\'' +
+                ", message='" + message + '\'' +
+                '}';
+    }
 }
