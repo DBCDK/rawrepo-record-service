@@ -49,7 +49,7 @@ public class RecordByteWriter {
                     outputStream.write(danMarc2LineFormatWriter.write(recordLine, Charset.forName(params.getOutputEncoding())));
                 }
                 break;
-            case MARCXHANGE:
+            case XML:
                 synchronized (this) {
                     outputStream.write(data);
                     outputStream.write("\n".getBytes());
