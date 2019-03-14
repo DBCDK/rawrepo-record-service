@@ -31,6 +31,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -132,6 +133,7 @@ public class DumpService {
                     try {
                         for (Integer agencyId : params.getAgencies()) {
                             RecordByteWriter recordByteWriter = new RecordByteWriter(out, params);
+                            recordByteWriter.writeHeader();
                             AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
                             LOGGER.info("Opening connection and RecordResultSet...");
                             BibliographicIdResultSet bibliographicIdResultSet = new
@@ -151,8 +153,9 @@ public class DumpService {
                             }
                             LOGGER.info("{} MergerThreads has been started", threadCount);
                             executor.invokeAll(threadList);
+                            recordByteWriter.writeFooter();
                         }
-                    } catch (OpenAgencyException | InterruptedException | RawRepoException | SQLException e) {
+                    } catch (OpenAgencyException | InterruptedException | RawRepoException | SQLException | IOException e) {
                         LOGGER.error("Caught exception during write", e);
                         throw new WebApplicationException("Caught exception during write", e);
                     }
