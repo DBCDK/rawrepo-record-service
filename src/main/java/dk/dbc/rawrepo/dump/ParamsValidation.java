@@ -18,4 +18,11 @@ public class ParamsValidation {
     public void setErrors(List<ParamsValidationItem> errors) {
         this.errors = errors;
     }
+
+    @Override
+    public String toString() {
+        return "ParamsValidation{" +
+                "errors=" + errors +
+                '}';
+    }
 }
