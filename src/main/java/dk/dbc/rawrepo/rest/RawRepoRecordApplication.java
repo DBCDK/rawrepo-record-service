@@ -7,6 +7,7 @@ package dk.dbc.rawrepo.rest;
 
 import dk.dbc.rawrepo.dump.DumpService;
 import dk.dbc.rawrepo.service.AgencyService;
+import dk.dbc.rawrepo.service.LandingPage;
 import dk.dbc.rawrepo.service.RecordCollectionService;
 import dk.dbc.rawrepo.service.RecordService;
 import org.slf4j.Logger;
@@ -30,6 +31,7 @@ public class RawRepoRecordApplication extends Application {
         classes.add(RecordCollectionService.class);
         classes.add(AgencyService.class);
         classes.add(DumpService.class);
+        classes.add(LandingPage.class);
 
         for (Class<?> clazz : classes) {
             LOGGER.info("Registered {} resource", clazz.getName());
