@@ -81,6 +81,12 @@ public class RecordByteWriter {
                     outputStream.write(danMarc2LineFormatWriter.write(marcRecord, Charset.forName(params.getOutputEncoding())));
                 }
                 break;
+            case LINE_XML:
+                synchronized (this) {
+                    outputStream.write(data);
+                    outputStream.write("\n".getBytes());
+                }
+                break;
             case XML:
                 marcRecord = RecordObjectMapper.contentToMarcRecord(data);
                 recordBytes = marcXchangeV1Writer.write(marcRecord, Charset.forName(params.getOutputEncoding()));
