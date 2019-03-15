@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum OutputFormat {
-    XML("XML"), LINE("LINE"), JSON("JSON"), ISO("ISO");
+    XML("XML"), LINE("LINE"), JSON("JSON"), ISO("ISO"), LINE_XML("LINE_XML");
 
     private String value;
 
