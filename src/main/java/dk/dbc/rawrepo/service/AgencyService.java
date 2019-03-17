@@ -12,6 +12,7 @@ import dk.dbc.rawrepo.dao.RawRepoBean;
 import dk.dbc.rawrepo.dto.AgencyCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
+import dk.dbc.rawrepo.dump.RecordStatus;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
@@ -30,6 +31,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 @Interceptors({StopwatchInterceptor.class})
@@ -81,12 +83,14 @@ public class AgencyService {
         String res;
 
         try {
-            List<String> bibliographicRecordIdList;
+            HashMap<String,String> bibliographicRecordIdList;
+
+            RecordStatus recordStatus = allowDeleted ? RecordStatus.ALL : RecordStatus.ACTIVE;
 
             if (createdBefore == null && createdAfter == null &&  modifiedBefore == null && modifiedAfter == null) {
-                bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgency(agencyId, allowDeleted);
+                bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgency(agencyId, recordStatus);
             } else {
-                bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgencyInterval(agencyId, allowDeleted, createdBefore, createdAfter, modifiedBefore, modifiedAfter);
+                bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgencyInterval(agencyId, recordStatus, createdBefore, createdAfter, modifiedBefore, modifiedAfter);
             }
 
             final RecordIdCollectionDTO dto = new RecordIdCollectionDTO();
@@ -99,7 +103,7 @@ public class AgencyService {
                 returnAgencyId = 191919;
             }
 
-            for (String bibliographicRecordId : bibliographicRecordIdList) {
+            for (String bibliographicRecordId : bibliographicRecordIdList.keySet()) {
                 dto.getRecordIds().add(new RecordIdDTO(bibliographicRecordId, returnAgencyId));
             }
 

@@ -6,6 +6,9 @@
 package dk.dbc.rawrepo.dao;
 
 import dk.dbc.rawrepo.RawRepoException;
+import dk.dbc.rawrepo.dump.Params;
+import dk.dbc.rawrepo.dump.RecordItem;
+import dk.dbc.rawrepo.dump.RecordStatus;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
@@ -20,7 +23,9 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Interceptors(StopwatchInterceptor.class)
@@ -28,8 +33,7 @@ import java.util.List;
 public class RawRepoBean {
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(RawRepoBean.class);
 
-    private static final String QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY = "SELECT bibliographicrecordid FROM records WHERE agencyid=? AND deleted='f'";
-    private static final String QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL = "SELECT bibliographicrecordid FROM records WHERE agencyid=?";
+    private static final String QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL = "SELECT bibliographicrecordid, mimetype FROM records WHERE agencyid=?";
     private static final String QUERY_AGENCIES = "SELECT DISTINCT(agencyid) FROM records";
     private static final String SET_SERVER_URL_CONFIGURATION = "INSERT INTO configurations (key, value) VALUES (?, ?) ON CONFLICT (key) DO NOTHING";
 
@@ -37,11 +41,19 @@ public class RawRepoBean {
     private DataSource dataSource;
 
     @Timed
-    public List<String> getBibliographicRecordIdForAgency(int agencyId, boolean allowDeleted) throws RawRepoException {
+    public HashMap<String, String> getBibliographicRecordIdForAgency(int agencyId, RecordStatus recordStatus) throws RawRepoException {
         try {
-            ArrayList<String> ret = new ArrayList<>();
+            HashMap<String, String> ret = new HashMap<>();
 
-            String query = allowDeleted ? QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL : QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY;
+            String query = QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL;
+
+            if (recordStatus == RecordStatus.DELETED) {
+                query += " AND deleted = 't'";
+            }
+
+            if (recordStatus == RecordStatus.ACTIVE) {
+                query += " AND deleted = 'f'";
+            }
 
             try (Connection connection = dataSource.getConnection();
                  PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -49,7 +61,9 @@ public class RawRepoBean {
                 try (ResultSet resultSet = stmt.executeQuery()) {
                     while (resultSet.next()) {
                         String bibliographicRecordId = resultSet.getString(1);
-                        ret.add(bibliographicRecordId);
+                        String mimeType = resultSet.getString(2);
+
+                        ret.put(bibliographicRecordId, mimeType);
                     }
                 }
             }
@@ -61,11 +75,19 @@ public class RawRepoBean {
     }
 
     @Timed
-    public List<String> getBibliographicRecordIdForAgencyInterval(int agencyId, boolean allowDeleted, String createdBefore, String createdAfter, String modifiedBefore, String modifiedAfter) throws RawRepoException {
+    public HashMap<String, String> getBibliographicRecordIdForAgencyInterval(int agencyId, RecordStatus recordStatus, String createdBefore, String createdAfter, String modifiedBefore, String modifiedAfter) throws RawRepoException {
         try {
-            ArrayList<String> ret = new ArrayList<>();
+            HashMap<String, String> ret = new HashMap<>();
 
-            String query = allowDeleted ? QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL : QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY;
+            String query = QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL;
+
+            if (recordStatus == RecordStatus.DELETED) {
+                query += " AND deleted = 't'";
+            }
+
+            if (recordStatus == RecordStatus.ACTIVE) {
+                query += " AND deleted = 'f'";
+            }
 
             if (hasValue(createdBefore)) {
                 query += " AND created < ?";
@@ -98,7 +120,9 @@ public class RawRepoBean {
                 try (ResultSet resultSet = stmt.executeQuery()) {
                     while (resultSet.next()) {
                         String bibliographicRecordId = resultSet.getString(1);
-                        ret.add(bibliographicRecordId);
+                        String mimeType = resultSet.getString(2);
+
+                        ret.put(bibliographicRecordId, mimeType);
                     }
                 }
             }
@@ -130,7 +154,7 @@ public class RawRepoBean {
         }
     }
 
-    public void setConfigurations(String key, String value) throws RawRepoException{
+    public void setConfigurations(String key, String value) throws RawRepoException {
         try {
             try (Connection connection = dataSource.getConnection();
                  PreparedStatement stmt = connection.prepareStatement(SET_SERVER_URL_CONFIGURATION)) {
@@ -142,6 +166,101 @@ public class RawRepoBean {
             LOGGER.info("Caught exception: {}", ex);
             throw new RawRepoException("Error updating configurations", ex);
         }
+    }
+
+    public List<RecordItem> getDecodedContent(List<String> bibliographicRecordIds, Integer commonAgencyId, Integer localAgencyId, Params params) throws RawRepoException {
+        List<RecordItem> res = new ArrayList<>();
+        List<String> placeHolders = new ArrayList<>();
+        for (int i = 0; i < bibliographicRecordIds.size(); i++) {
+            placeHolders.add("?");
+        }
+
+        String query;
+
+        // Local record
+        if (commonAgencyId == null) {
+            query = " SELECT local.bibliographicrecordid, " +
+                    "        null, " +
+                    "        convert_from(decode(local.content, 'base64'), 'UTF-8')" +
+                    "   FROM records as local" +
+                    "  WHERE local.agencyid=?";
+        } else { // Enrichment record
+            query = " SELECT common.bibliographicrecordid, " +
+                    "        convert_from(decode(common.content, 'base64'), 'UTF-8')," +
+                    "        convert_from(decode(local.content, 'base64'), 'UTF-8')" +
+                    "   FROM records as common, records as local" +
+                    "  WHERE common.agencyid=?" +
+                    "    AND local.agencyid=?" +
+                    "    AND common.bibliographicrecordid = local.bibliographicrecordid";
+        }
+
+        query += "       AND local.bibliographicrecordid in (" + String.join(",", placeHolders) + ")";
+
+        RecordStatus recordStatus = RecordStatus.fromString(params.getRecordStatus());
+
+        if (recordStatus == RecordStatus.DELETED) {
+            query += "   AND local.deleted = 't'";
+        }
+
+        if (recordStatus == RecordStatus.ACTIVE) {
+            query += "   AND local.deleted = 'f'";
+        }
+
+        if (params.getCreatedFrom() != null) {
+            query += "   AND local.created < ? ::timestamp AT TIME ZONE 'CET'";
+        }
+
+        if (params.getCreatedTo() != null) {
+            query += "   AND local.created >= ? ::timestamp AT TIME ZONE 'CET'";
+        }
+
+        if (params.getModifiedFrom() != null) {
+            query += "   AND local.modified < ? ::timestamp AT TIME ZONE 'CET'";
+        }
+
+        if (params.getModifiedTo() != null) {
+            query += "   AND local.modified >= ? ::timestamp AT TIME ZONE 'CET'";
+        }
+
+        int pos = 1;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            if (commonAgencyId != null) {
+                preparedStatement.setInt(pos++, commonAgencyId);
+            }
+            preparedStatement.setInt(pos++, localAgencyId);
+
+            for (String bibliographicRecordId : bibliographicRecordIds) {
+                preparedStatement.setString(pos++, bibliographicRecordId);
+            }
+
+            if (params.getCreatedFrom() != null) {
+                preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getCreatedFrom()));
+            }
+
+            if (params.getCreatedTo() != null) {
+                preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getCreatedTo()));
+            }
+
+            if (params.getModifiedFrom() != null) {
+                preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getModifiedFrom()));
+            }
+
+            if (params.getModifiedTo() != null) {
+                preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getModifiedFrom()));
+            }
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                res.add(new RecordItem(resultSet.getString(1), resultSet.getBytes(2), resultSet.getBytes(3)));
+            }
+        } catch (SQLException ex) {
+            LOGGER.info("Caught exception: {}", ex);
+            throw new RawRepoException("Error during getBibliographicRecordIdsForEnrichmentAgency", ex);
+        }
+
+        return res;
     }
 
     private boolean hasValue(String s) {
