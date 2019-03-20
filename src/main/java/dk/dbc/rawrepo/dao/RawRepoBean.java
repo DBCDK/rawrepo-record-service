@@ -19,7 +19,6 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -90,19 +89,19 @@ public class RawRepoBean {
             }
 
             if (hasValue(createdBefore)) {
-                query += " AND created < ?";
+                query += " AND created < ? ::timestamp AT TIME ZONE 'CET'";
             }
 
             if (hasValue(createdAfter)) {
-                query += " AND created >= ?";
+                query += " AND created >= ? ::timestamp AT TIME ZONE 'CET'";
             }
 
             if (hasValue(modifiedBefore)) {
-                query += " AND modified < ?";
+                query += " AND modified < ? ::timestamp AT TIME ZONE 'CET'";
             }
 
             if (hasValue(modifiedAfter)) {
-                query += " AND modified >= ?";
+                query += " AND modified >= ? ::timestamp AT TIME ZONE 'CET'";
             }
 
             try (Connection connection = dataSource.getConnection();
@@ -110,13 +109,13 @@ public class RawRepoBean {
                 int i = 0;
                 stmt.setInt(++i, agencyId);
                 if (hasValue(createdBefore))
-                    stmt.setDate(++i, Date.valueOf(createdBefore));
+                    stmt.setTimestamp(++i, Timestamp.valueOf(createdBefore));
                 if (hasValue(createdAfter))
-                    stmt.setDate(++i, Date.valueOf(createdAfter));
+                    stmt.setTimestamp(++i, Timestamp.valueOf(createdAfter));
                 if (hasValue(modifiedBefore))
-                    stmt.setDate(++i, Date.valueOf(modifiedBefore));
+                    stmt.setTimestamp(++i, Timestamp.valueOf(modifiedBefore));
                 if (hasValue(modifiedAfter))
-                    stmt.setDate(++i, Date.valueOf(modifiedAfter));
+                    stmt.setTimestamp(++i, Timestamp.valueOf(modifiedAfter));
                 try (ResultSet resultSet = stmt.executeQuery()) {
                     while (resultSet.next()) {
                         String bibliographicRecordId = resultSet.getString(1);
@@ -196,32 +195,6 @@ public class RawRepoBean {
 
         query += "       AND local.bibliographicrecordid in (" + String.join(",", placeHolders) + ")";
 
-        RecordStatus recordStatus = RecordStatus.fromString(params.getRecordStatus());
-
-        if (recordStatus == RecordStatus.DELETED) {
-            query += "   AND local.deleted = 't'";
-        }
-
-        if (recordStatus == RecordStatus.ACTIVE) {
-            query += "   AND local.deleted = 'f'";
-        }
-
-        if (params.getCreatedFrom() != null) {
-            query += "   AND local.created < ? ::timestamp AT TIME ZONE 'CET'";
-        }
-
-        if (params.getCreatedTo() != null) {
-            query += "   AND local.created >= ? ::timestamp AT TIME ZONE 'CET'";
-        }
-
-        if (params.getModifiedFrom() != null) {
-            query += "   AND local.modified < ? ::timestamp AT TIME ZONE 'CET'";
-        }
-
-        if (params.getModifiedTo() != null) {
-            query += "   AND local.modified >= ? ::timestamp AT TIME ZONE 'CET'";
-        }
-
         int pos = 1;
 
         try (Connection connection = dataSource.getConnection();
@@ -233,22 +206,6 @@ public class RawRepoBean {
 
             for (String bibliographicRecordId : bibliographicRecordIds) {
                 preparedStatement.setString(pos++, bibliographicRecordId);
-            }
-
-            if (params.getCreatedFrom() != null) {
-                preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getCreatedFrom()));
-            }
-
-            if (params.getCreatedTo() != null) {
-                preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getCreatedTo()));
-            }
-
-            if (params.getModifiedFrom() != null) {
-                preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getModifiedFrom()));
-            }
-
-            if (params.getModifiedTo() != null) {
-                preparedStatement.setTimestamp(pos++, Timestamp.valueOf(params.getModifiedFrom()));
             }
 
             ResultSet resultSet = preparedStatement.executeQuery();

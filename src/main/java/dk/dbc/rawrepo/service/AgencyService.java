@@ -38,7 +38,7 @@ import java.util.List;
 @Stateless
 @Path("api")
 public class AgencyService {
-    private static final XLogger LOGGER = XLoggerFactory.getXLogger(RecordService.class);
+    private static final XLogger LOGGER = XLoggerFactory.getXLogger(AgencyService.class);
     private final JSONBContext jsonbContext = new JSONBContext();
     private final List<Integer> DBC_AGENCIES = Arrays.asList(870970, 870971, 870979);
 
@@ -90,6 +90,23 @@ public class AgencyService {
             if (createdBefore == null && createdAfter == null &&  modifiedBefore == null && modifiedAfter == null) {
                 bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgency(agencyId, recordStatus);
             } else {
+                // The created and modified fields are timestamps. So if only the date is set then add time
+                if (createdBefore != null && createdBefore.length() == 10) {
+                    createdBefore = createdBefore + " 23:59:59";
+                }
+
+                if (createdAfter != null && createdAfter.length() == 10) {
+                    createdAfter = createdAfter + " 00:00:00";
+                }
+
+                if (modifiedBefore != null && modifiedBefore.length() == 10) {
+                    modifiedBefore = modifiedBefore + " 23:59:59";
+                }
+
+                if (modifiedAfter != null && modifiedAfter.length() == 10) {
+                    modifiedAfter = modifiedAfter + " 00:00:00";
+                }
+
                 bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgencyInterval(agencyId, recordStatus, createdBefore, createdAfter, modifiedBefore, modifiedAfter);
             }
 
