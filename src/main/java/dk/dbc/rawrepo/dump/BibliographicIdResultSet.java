@@ -5,11 +5,6 @@
 
 package dk.dbc.rawrepo.dump;
 
-import dk.dbc.rawrepo.RawRepoException;
-import dk.dbc.rawrepo.dao.HoldingsItemsBean;
-import dk.dbc.rawrepo.dao.RawRepoBean;
-
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,29 +18,18 @@ public class BibliographicIdResultSet {
     private int sliceSize;
     private int index;
 
-
-    public BibliographicIdResultSet(int agencyId, AgencyType agencyType, Params params, int sliceSize, RawRepoBean rawRepoBean, HoldingsItemsBean holdingsItemsBean) throws RawRepoException, SQLException {
+    public BibliographicIdResultSet(Params params, int sliceSize, HashMap<String, String> records, HashMap<String, String> holdings) {
         this.sliceSize = sliceSize;
 
-        HashMap<String, String> rawrepoRecordMap;
+        if (holdings != null) {
+            Set<String> bibliographicRecordIdWithHoldings = holdings.keySet();
 
-        if (params.getCreatedTo() == null && params.getCreatedFrom() == null && params.getModifiedTo() == null && params.getModifiedFrom() == null) {
-            rawrepoRecordMap = rawRepoBean.getBibliographicRecordIdForAgency(agencyId, RecordStatus.fromString(params.getRecordStatus()));
-        } else {
-            rawrepoRecordMap = rawRepoBean.getBibliographicRecordIdForAgencyInterval(agencyId, RecordStatus.fromString(params.getRecordStatus()), params.getCreatedTo(), params.getCreatedFrom(), params.getModifiedTo(), params.getModifiedFrom());
-        }
-
-        if (AgencyType.FBS == agencyType && params.getRecordType().contains(RecordType.HOLDINGS.toString())) {
-            HashMap<String, String> holdingsRecordMap = holdingsItemsBean.getRecordIdsWithHolding(agencyId);
-
-            Set<String> bibliographicRecordIdWithHoldings = holdingsRecordMap.keySet();
-
-            Set<String> localBibliographicRecordIds = rawrepoRecordMap.entrySet().stream()
+            Set<String> localBibliographicRecordIds = records.entrySet().stream()
                     .filter(f -> "text/marcxchange".equals(f.getValue()))
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toSet());
 
-            Set<String> enrichmentBibliographicRecordIds = rawrepoRecordMap.entrySet().stream()
+            Set<String> enrichmentBibliographicRecordIds = records.entrySet().stream()
                     .filter(f -> "text/enrichment+marcxchange".equals(f.getValue()))
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toSet());
@@ -55,7 +39,7 @@ public class BibliographicIdResultSet {
                 // Find set of ids of local records without holdings
                 localBibliographicRecordIds.removeAll(bibliographicRecordIdWithHoldings);
                 // Remove those records without holdings from the rawrepo record set
-                rawrepoRecordMap.keySet().removeAll(localBibliographicRecordIds);
+                records.keySet().removeAll(localBibliographicRecordIds);
             }
 
             // If there are enrichments with holdings but enrichments are not included those enrichments should be used anyway
@@ -63,16 +47,16 @@ public class BibliographicIdResultSet {
                 // Find set of enrichments without holdings
                 enrichmentBibliographicRecordIds.removeAll(bibliographicRecordIdWithHoldings);
                 // Remove those enrichments without holdings from the rawrepo record set
-                rawrepoRecordMap.keySet().removeAll(enrichmentBibliographicRecordIds);
+                records.keySet().removeAll(enrichmentBibliographicRecordIds);
             }
 
             // Remove all holdings ids where there is a local or enrichment record
-            holdingsRecordMap.keySet().removeAll(rawrepoRecordMap.keySet());
+            holdings.keySet().removeAll(records.keySet());
 
-            this.bibliographicRecordIdList.putAll(holdingsRecordMap);
+            this.bibliographicRecordIdList.putAll(holdings);
         }
 
-        this.bibliographicRecordIdList.putAll(rawrepoRecordMap);
+        this.bibliographicRecordIdList.putAll(records);
     }
 
     public int size() {

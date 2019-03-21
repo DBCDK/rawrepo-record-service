@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -86,21 +87,33 @@ public class DumpService {
         }
 
         try {
-            int recordCount = 0;
+            StreamingOutput output = new StreamingOutput() {
+                @Override
+                public void write(OutputStream out) throws WebApplicationException {
+                    try {
+                        for (Integer agencyId : params.getAgencies()) {
+                            AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
+                            HashMap<String, String> record = getRecords(agencyId, params);
+                            HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params);
 
-            for (Integer agencyId : params.getAgencies()) {
-                AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
+                            BibliographicIdResultSet bibliographicIdResultSet = new
+                                    BibliographicIdResultSet(params, SLICE_SIZE, record, holdings);
 
-                BibliographicIdResultSet bibliographicIdResultSet = new
-                        BibliographicIdResultSet(agencyId, agencyType, params, SLICE_SIZE, rawRepoBean, holdingsItemsBean);
+                            out.write(String.format("%s: %s%n", agencyId, bibliographicIdResultSet.size()).getBytes());
+                        }
+                    } catch (OpenAgencyException | RawRepoException | SQLException | IOException e) {
+                        LOGGER.error("Caught exception during write", e);
+                        throw new WebApplicationException("Caught exception during write", e);
+                    }
+                }
+            };
 
-                recordCount += bibliographicIdResultSet.size();
-            }
-
-            return Response.ok(recordCount).build();
-        } catch (RawRepoException | OpenAgencyException | SQLException ex) {
+            return Response.ok(output).build();
+        } catch (WebApplicationException ex) {
             LOGGER.error("Caught unexpected exception", ex);
             return Response.status(500).entity("Internal server error. Please see the server log.").build();
+        } finally {
+            LOGGER.info("v1/dump");
         }
     }
 
@@ -135,9 +148,12 @@ public class DumpService {
                             RecordByteWriter recordByteWriter = new RecordByteWriter(out, params);
                             recordByteWriter.writeHeader();
                             AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
+                            HashMap<String, String> record = getRecords(agencyId, params);
+                            HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params);
+
                             LOGGER.info("Opening connection and RecordResultSet...");
                             BibliographicIdResultSet bibliographicIdResultSet = new
-                                    BibliographicIdResultSet(agencyId, agencyType, params, SLICE_SIZE, rawRepoBean, holdingsItemsBean);
+                                    BibliographicIdResultSet(params, SLICE_SIZE, record, holdings);
 
                             LOGGER.info("Found {} records", bibliographicIdResultSet.size());
                             List<Callable<Boolean>> threadList = new ArrayList<>();
@@ -179,6 +195,30 @@ public class DumpService {
         String res = "Not yet implemented";
 
         return Response.ok(res).build();
+    }
+
+
+    private HashMap<String, String> getRecords(int agencyId, Params params) throws RawRepoException {
+        HashMap<String, String> rawrepoRecordMap;
+
+        if (params.getCreatedTo() == null && params.getCreatedFrom() == null && params.getModifiedTo() == null && params.getModifiedFrom() == null) {
+            rawrepoRecordMap = rawRepoBean.getBibliographicRecordIdForAgency(agencyId, RecordStatus.fromString(params.getRecordStatus()));
+        } else {
+            rawrepoRecordMap = rawRepoBean.getBibliographicRecordIdForAgencyInterval(agencyId, RecordStatus.fromString(params.getRecordStatus()), params.getCreatedTo(), params.getCreatedFrom(), params.getModifiedTo(), params.getModifiedFrom());
+        }
+
+        return rawrepoRecordMap;
+    }
+
+
+    private HashMap<String, String> getHoldings(int agencyId, AgencyType agencyType, Params params) throws SQLException {
+        HashMap<String, String> holdings = null;
+
+        if (AgencyType.FBS == agencyType && params.getRecordType().contains(RecordType.HOLDINGS.toString())) {
+            holdings = holdingsItemsBean.getRecordIdsWithHolding(agencyId);
+        }
+
+        return holdings;
     }
 
 }
