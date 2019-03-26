@@ -25,7 +25,9 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Interceptors(StopwatchInterceptor.class)
 @Stateless
@@ -164,6 +166,45 @@ public class RawRepoBean {
         } catch (SQLException ex) {
             LOGGER.info("Caught exception: {}", ex);
             throw new RawRepoException("Error updating configurations", ex);
+        }
+    }
+
+    public Set<String> getRawrepoRecordsIdsWithHoldings(Set<String> bibliographicRecordIds, int agencyId) throws RawRepoException {
+        Set<String> res = new HashSet<>();
+        List<String> placeHolders = new ArrayList<>();
+        for (int i = 0; i < bibliographicRecordIds.size(); i++) {
+            placeHolders.add("?");
+        }
+
+        String query = "SELECT bibliographicrecordid" +
+                "         FROM records " +
+                "        WHERE bibliographicrecordid IN (" + String.join(",", placeHolders) + ")" +
+                "          AND agencyid in (870970, ?)";
+
+        int pos = 1;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            for (String bibliographicRecordId : bibliographicRecordIds) {
+                preparedStatement.setString(pos++, bibliographicRecordId);
+            }
+
+            preparedStatement.setInt(pos++, agencyId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+
+            while (resultSet.next()) {
+                res.add(resultSet.getString(1));
+            }
+
+            LOGGER.info("Found {} holdings item records in rawrepo", res.size());
+
+            return res;
+        } catch (SQLException ex) {
+            LOGGER.info("Caught exception: {}", ex);
+            throw new RawRepoException("Error during getBibliographicRecordIdsForEnrichmentAgency", ex);
         }
     }
 
