@@ -193,8 +193,6 @@ public class RawRepoBean {
             preparedStatement.setInt(pos++, agencyId);
 
             ResultSet resultSet = preparedStatement.executeQuery();
-            resultSet.next();
-
             while (resultSet.next()) {
                 res.add(resultSet.getString(1));
             }
