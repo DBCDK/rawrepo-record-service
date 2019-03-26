@@ -37,6 +37,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 @Stateless
@@ -211,11 +212,17 @@ public class DumpService {
     }
 
 
-    private HashMap<String, String> getHoldings(int agencyId, AgencyType agencyType, Params params) throws SQLException {
+    private HashMap<String, String> getHoldings(int agencyId, AgencyType agencyType, Params params) throws SQLException, RawRepoException {
         HashMap<String, String> holdings = null;
 
         if (AgencyType.FBS == agencyType && params.getRecordType().contains(RecordType.HOLDINGS.toString())) {
             holdings = holdingsItemsBean.getRecordIdsWithHolding(agencyId);
+
+            // There can be holdings on things not present in rawrepo. So to get a more exact list we need to check
+            // which ids actually exists
+            Set<String> rawrepoRecordsIdsWithHoldings = rawRepoBean.getRawrepoRecordsIdsWithHoldings(holdings.keySet(), agencyId);
+
+            holdings.keySet().retainAll(rawrepoRecordsIdsWithHoldings);
         }
 
         return holdings;
