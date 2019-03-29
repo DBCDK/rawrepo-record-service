@@ -90,7 +90,25 @@ public class RecordDTOMapper {
                 DataField dataField = (DataField) field;
                 FieldDTO fieldDTO = new FieldDTO();
                 fieldDTO.setName(dataField.getTag());
-                fieldDTO.setIndicators("" + dataField.getInd1() + dataField.getInd2() + dataField.getInd2());
+
+                String indicators = "";
+                if ( dataField.getInd1() != null) {
+                    indicators +=  dataField.getInd1();
+                } else {
+                    indicators +=  " ";
+                }
+
+                if ( dataField.getInd2() != null) {
+                    indicators +=  dataField.getInd2();
+                } else {
+                    indicators +=  " ";
+                }
+
+                if ( dataField.getInd3() != null) {
+                    indicators +=  dataField.getInd3();
+                }
+
+                fieldDTO.setIndicators(indicators);
 
                 List<SubfieldDTO> subfieldDTOList = new ArrayList<>();
 
