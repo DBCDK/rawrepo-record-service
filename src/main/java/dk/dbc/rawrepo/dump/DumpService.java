@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 @Stateless
 @Path("api")
@@ -169,12 +170,15 @@ public class DumpService {
                                 }
                             }
                             LOGGER.info("{} MergerThreads has been started", threadCount);
-                            executor.invokeAll(threadList);
+                            executor.invokeAny(threadList);
                             recordByteWriter.writeFooter();
                         }
-                    } catch (OpenAgencyException | InterruptedException | RawRepoException | SQLException | IOException e) {
-                        LOGGER.error("Caught exception during write", e);
-                        throw new WebApplicationException("Caught exception during write", e);
+                    } catch (OpenAgencyException | InterruptedException | RawRepoException | SQLException | IOException ex) {
+                        LOGGER.error("Caught exception during write", ex);
+                        throw new WebApplicationException("Caught exception during write", ex);
+                    } catch (ExecutionException ex) {
+                        LOGGER.error("Caught ExecutionException during write");
+                        throw new WebApplicationException(ex.getMessage(), ex);
                     }
                 }
             };
