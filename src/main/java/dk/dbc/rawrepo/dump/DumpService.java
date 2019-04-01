@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Stateless
 @Path("api")
@@ -97,7 +98,7 @@ public class DumpService {
                             HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params);
 
                             BibliographicIdResultSet bibliographicIdResultSet = new
-                                    BibliographicIdResultSet(params, SLICE_SIZE, record, holdings);
+                                    BibliographicIdResultSet(params, agencyType, SLICE_SIZE, record, holdings);
 
                             out.write(String.format("%s: %s%n", agencyId, bibliographicIdResultSet.size()).getBytes());
                         }
@@ -153,7 +154,7 @@ public class DumpService {
 
                             LOGGER.info("Opening connection and RecordResultSet...");
                             BibliographicIdResultSet bibliographicIdResultSet = new
-                                    BibliographicIdResultSet(params, SLICE_SIZE, record, holdings);
+                                    BibliographicIdResultSet(params, agencyType, SLICE_SIZE, record, holdings);
 
                             LOGGER.info("Found {} records", bibliographicIdResultSet.size());
                             List<Callable<Boolean>> threadList = new ArrayList<>();
@@ -168,15 +169,19 @@ public class DumpService {
                                 }
                             }
                             LOGGER.info("{} MergerThreads has been started", threadCount);
-                            executor.invokeAny(threadList);
+                            List<Future<Boolean>> futures = executor.invokeAll(threadList);
+                            for (Future f : futures) {
+                                try {
+                                    f.get(); // We don't care about the result, we just want to see if there was an exception during execution
+                                } catch (ExecutionException e) {
+                                    throw new WebApplicationException(e.getMessage(), e);
+                                }
+                            }
                             recordByteWriter.writeFooter();
                         }
                     } catch (OpenAgencyException | InterruptedException | RawRepoException | SQLException | IOException ex) {
                         LOGGER.error("Caught exception during write", ex);
                         throw new WebApplicationException("Caught exception during write", ex);
-                    } catch (ExecutionException ex) {
-                        LOGGER.error("Caught ExecutionException during write");
-                        throw new WebApplicationException(ex.getMessage(), ex);
                     }
                 }
             };

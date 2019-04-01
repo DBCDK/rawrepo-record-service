@@ -54,7 +54,7 @@ public class BibliographicIdResultSetTest {
         params.setAgencies(Arrays.asList(870970));
         params.setRecordStatus(RecordStatus.ALL.toString());
 
-        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, 2, rawrepoRecordIdsFor870970, null);
+        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.DBC, 2, rawrepoRecordIdsFor870970, null);
 
         Assert.assertThat(resultSet.size(), is(5));
         Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
@@ -76,7 +76,7 @@ public class BibliographicIdResultSetTest {
         params.setAgencies(Arrays.asList(870970));
         params.setRecordStatus(RecordStatus.ALL.toString());
 
-        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, 10, rawrepoRecordIdsFor870970, null);
+        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.DBC, 10, rawrepoRecordIdsFor870970, null);
 
         Assert.assertThat(resultSet.size(), is(5));
         Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
@@ -94,7 +94,7 @@ public class BibliographicIdResultSetTest {
         params.setAgencies(Arrays.asList(870970));
         params.setRecordStatus(RecordStatus.ALL.toString());
 
-        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, 5, rawrepoRecordIdsFor870970, null);
+        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.DBC, 5, rawrepoRecordIdsFor870970, null);
 
         Assert.assertThat(resultSet.size(), is(5));
         Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
@@ -112,7 +112,7 @@ public class BibliographicIdResultSetTest {
         params.setAgencies(Arrays.asList(870970));
         params.setRecordStatus(RecordStatus.ALL.toString());
 
-        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, 2, new HashMap<>(), null);
+        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.DBC, 2, new HashMap<>(), null);
 
         Assert.assertThat(resultSet.size(), is(0));
     }
@@ -126,7 +126,7 @@ public class BibliographicIdResultSetTest {
         params.getRecordType().add(RecordType.HOLDINGS.toString());
         params.setRecordStatus(RecordStatus.ALL.toString());
 
-        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, 2, rawrepoRecordIdsFor710100, holdingsRecordIdsFor710100);
+        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.FBS, 2, rawrepoRecordIdsFor710100, holdingsRecordIdsFor710100);
 
         Assert.assertThat(resultSet.size(), is(5));
         Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
@@ -150,7 +150,7 @@ public class BibliographicIdResultSetTest {
         params.getRecordType().add(RecordType.ENRICHMENT.toString());
         params.setRecordStatus(RecordStatus.ALL.toString());
 
-        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, 2, rawrepoRecordIdsFor710100, null);
+        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.FBS, 2, rawrepoRecordIdsFor710100, null);
 
         Assert.assertThat(resultSet.size(), is(4));
         Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
@@ -171,7 +171,7 @@ public class BibliographicIdResultSetTest {
         params.getRecordType().add(RecordType.HOLDINGS.toString());
         params.setRecordStatus(RecordStatus.ALL.toString());
 
-        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, 2, rawrepoRecordIdsFor710100, holdingsRecordIdsFor710100);
+        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.FBS, 2, rawrepoRecordIdsFor710100, holdingsRecordIdsFor710100);
 
         Assert.assertThat(resultSet.size(), is(4));
         Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
@@ -192,7 +192,7 @@ public class BibliographicIdResultSetTest {
         params.getRecordType().add(RecordType.HOLDINGS.toString());
         params.setRecordStatus(RecordStatus.ALL.toString());
 
-        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, 2, rawrepoRecordIdsFor710100, holdingsRecordIdsFor710100);
+        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.FBS, 2, rawrepoRecordIdsFor710100, holdingsRecordIdsFor710100);
 
         Assert.assertThat(resultSet.size(), is(4));
         Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
@@ -212,7 +212,7 @@ public class BibliographicIdResultSetTest {
         params.getRecordType().add(RecordType.HOLDINGS.toString());
         params.setRecordStatus(RecordStatus.ALL.toString());
 
-        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, 3, rawrepoRecordIdsFor710100, holdingsRecordIdsFor710100);
+        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.FBS, 3, rawrepoRecordIdsFor710100, holdingsRecordIdsFor710100);
 
         Assert.assertThat(resultSet.size(), is(3));
         Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
