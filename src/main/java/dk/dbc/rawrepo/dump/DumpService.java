@@ -66,9 +66,6 @@ public class DumpService {
     @EJB
     private HoldingsItemsBean holdingsItemsBean;
 
-    // Outstanding issues
-    // TODO Implement readme and create wrapper script
-
     @POST
     @Path("v1/dump/dryrun")
     @Consumes({MediaType.APPLICATION_JSON})
