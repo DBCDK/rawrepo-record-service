@@ -12,7 +12,6 @@ import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.dao.HoldingsItemsBean;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.dao.RawRepoBean;
-import dk.dbc.util.Timed;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,6 @@ import javax.ejb.Stateless;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -191,17 +189,6 @@ public class DumpService {
             LOGGER.info("v1/dump");
         }
     }
-
-    @GET
-    @Path("v1/dump/readme")
-    @Produces({MediaType.TEXT_PLAIN})
-    @Timed
-    public Response readMe() {
-        String res = "Not yet implemented";
-
-        return Response.ok(res).build();
-    }
-
 
     private HashMap<String, String> getRecords(int agencyId, Params params) throws RawRepoException {
         HashMap<String, String> rawrepoRecordMap;
