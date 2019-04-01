@@ -109,12 +109,14 @@ public class DumpService {
                 }
             };
 
+            LOGGER.info("Dryrun complete");
+
             return Response.ok(output).build();
         } catch (WebApplicationException ex) {
             LOGGER.error("Caught unexpected exception", ex);
             return Response.status(500).entity("Internal server error. Please see the server log.").build();
         } finally {
-            LOGGER.info("v1/dump");
+            LOGGER.info("v1/dump/dryrun");
         }
     }
 
@@ -185,6 +187,8 @@ public class DumpService {
                     }
                 }
             };
+
+            LOGGER.info("Dump complete");
 
             return Response.ok(output).build();
         } catch (WebApplicationException ex) {
