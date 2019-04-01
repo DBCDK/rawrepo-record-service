@@ -18,21 +18,21 @@ public class BibliographicIdResultSet {
     private int sliceSize;
     private int index;
 
-    public BibliographicIdResultSet(Params params, int sliceSize, HashMap<String, String> records, HashMap<String, String> holdings) {
+    public BibliographicIdResultSet(Params params, AgencyType agencyType, int sliceSize, HashMap<String, String> records, HashMap<String, String> holdings) {
         this.sliceSize = sliceSize;
+
+        Set<String> localBibliographicRecordIds = records.entrySet().stream()
+                .filter(f -> "text/marcxchange".equals(f.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+
+        Set<String> enrichmentBibliographicRecordIds = records.entrySet().stream()
+                .filter(f -> "text/enrichment+marcxchange".equals(f.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
 
         if (holdings != null) {
             Set<String> bibliographicRecordIdWithHoldings = holdings.keySet();
-
-            Set<String> localBibliographicRecordIds = records.entrySet().stream()
-                    .filter(f -> "text/marcxchange".equals(f.getValue()))
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toSet());
-
-            Set<String> enrichmentBibliographicRecordIds = records.entrySet().stream()
-                    .filter(f -> "text/enrichment+marcxchange".equals(f.getValue()))
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toSet());
 
             // If there are local records with holdings but local records are not included those local records should be used anyway
             if (!params.getRecordType().contains(RecordType.LOCAL.toString())) {
@@ -54,6 +54,14 @@ public class BibliographicIdResultSet {
             holdings.keySet().removeAll(records.keySet());
 
             this.bibliographicRecordIdList.putAll(holdings);
+        } else if (agencyType == AgencyType.FBS){
+            if (!params.getRecordType().contains(RecordType.LOCAL.toString())) {
+                records.keySet().removeAll(localBibliographicRecordIds);
+            }
+
+            if (!params.getRecordType().contains(RecordType.ENRICHMENT.toString())) {
+                records.keySet().removeAll(enrichmentBibliographicRecordIds);
+            }
         }
 
         this.bibliographicRecordIdList.putAll(records);
