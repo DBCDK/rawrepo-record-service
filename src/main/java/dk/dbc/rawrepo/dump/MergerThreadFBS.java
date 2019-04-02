@@ -40,13 +40,13 @@ public class MergerThreadFBS implements Callable<Boolean> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MergerThreadFBS.class);
 
     private RawRepoBean bean;
-    private BibliographicIdResultSet recordSet;
+    private HashMap<String, String> recordSet;
     private RecordByteWriter writer;
     private int agencyId;
     private MarcXMerger merger;
     private Params params;
 
-    MergerThreadFBS(RawRepoBean bean, BibliographicIdResultSet recordSet, RecordByteWriter writer, int agencyId, Params params) {
+    MergerThreadFBS(RawRepoBean bean, HashMap<String, String> recordSet, RecordByteWriter writer, int agencyId, Params params) {
         this.bean = bean;
         this.recordSet = recordSet;
         this.writer = writer;
@@ -57,105 +57,99 @@ public class MergerThreadFBS implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws RawRepoException, MarcWriterException, JSONBException, IOException, MarcReaderException, MarcXMergerException {
-
-        HashMap<String, String> bibliographicRecordIdList;
         byte[] result, common, local;
 
-        do {
-            bibliographicRecordIdList = recordSet.next();
+        if (recordSet.size() > 0) {
+            List<String> marcXchangeBibliographicRecordIds = recordSet.entrySet()
+                    .stream()
+                    .filter(entry -> "text/marcxchange".equals(entry.getValue()))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
 
-            if (bibliographicRecordIdList.size() > 0) {
-                List<String> marcXchangeBibliographicRecordIds = bibliographicRecordIdList.entrySet()
-                        .stream()
-                        .filter(entry -> "text/marcxchange".equals(entry.getValue()))
-                        .map(Map.Entry::getKey)
-                        .collect(Collectors.toList());
+            List<String> enrichmentBibliographicRecordIds = recordSet.entrySet()
+                    .stream()
+                    .filter(entry -> "text/enrichment+marcxchange".equals(entry.getValue()))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
 
-                List<String> enrichmentBibliographicRecordIds = bibliographicRecordIdList.entrySet()
-                        .stream()
-                        .filter(entry -> "text/enrichment+marcxchange".equals(entry.getValue()))
-                        .map(Map.Entry::getKey)
-                        .collect(Collectors.toList());
+            List<String> bibliograhicRecordIdsWithHolding = recordSet.entrySet()
+                    .stream()
+                    .filter(entry -> "holdings".equals(entry.getValue()))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
 
-                List<String> bibliograhicRecordIdsWithHolding = bibliographicRecordIdList.entrySet()
-                        .stream()
-                        .filter(entry -> "holdings".equals(entry.getValue()))
-                        .map(Map.Entry::getKey)
-                        .collect(Collectors.toList());
+            LOGGER.info("Found the following records for agency {}: {} marcXchange records, {} enrichments and {} holdings", agencyId, marcXchangeBibliographicRecordIds.size(), enrichmentBibliographicRecordIds.size(), bibliograhicRecordIdsWithHolding.size());
 
-                LOGGER.info("Found the following records for agency {}: {} marcXchange records, {} enrichments and {} holdings", agencyId, marcXchangeBibliographicRecordIds.size(), enrichmentBibliographicRecordIds.size(), bibliograhicRecordIdsWithHolding.size());
-
-                // Handle local records
-                if (marcXchangeBibliographicRecordIds.size() > 0) {
-                    List<RecordItem> recordItemList = bean.getDecodedContent(marcXchangeBibliographicRecordIds, null, agencyId, params);
-                    for (RecordItem item : recordItemList) {
-                        if (item != null) {
-                            local = item.getLocal();
-                            result = local;
-                            try {
-                                writer.write(result);
-                            } catch (MarcReaderException ex) {
-                                final String msg = String.format("Failed to parse '%s:%s' because of %s", item.getBibliographicRecordId(), agencyId, ex.getMessage());
-                                LOGGER.error(msg);
-                                throw new MarcReaderException(msg);
-                            }
-                        }
-                    }
-                }
-
-                // Handle enrichments
-                if (enrichmentBibliographicRecordIds.size() > 0) {
-                    List<RecordItem> recordItemList = bean.getDecodedContent(enrichmentBibliographicRecordIds, 870970, agencyId, params);
-                    for (RecordItem item : recordItemList) {
-                        if (item != null) {
-                            common = item.getCommon();
-                            local = item.getLocal();
-
-                            result = merger.merge(common, local, true);
-                            try {
-                                writer.write(result);
-                            } catch (MarcReaderException ex) {
-                                final String msg = String.format("Failed to parse '%s:%s' because of %s", item.getBibliographicRecordId(), agencyId, ex.getMessage());
-                                LOGGER.error(msg);
-                                throw new MarcReaderException(msg);
-                            }
-                        }
-                    }
-                }
-
-                // Handle holdings
-                if (bibliograhicRecordIdsWithHolding.size() > 0) {
-                    List<RecordItem> recordItemList = bean.getDecodedContent(bibliograhicRecordIdsWithHolding, null, 870970, params);
-                    for (RecordItem item : recordItemList) {
-                        if (item != null) {
-                            local = item.getLocal();
-
-                            MarcXchangeV1Reader reader = new MarcXchangeV1Reader(new ByteArrayInputStream(local), Charset.forName("UTF-8"));
-                            MarcRecord record = reader.read();
-                            Optional<Field> field001 = record.getField(hasTag("001"));
-                            if (field001.isPresent()) {
-                                DataField dataField = (DataField) field001.get();
-                                for (SubField subField : dataField.getSubfields()) {
-                                    if ('b' == subField.getCode()) {
-                                        subField.setData(Integer.toString(agencyId));
-                                    }
-                                }
-                            }
-
-                            MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
-                            result = marcXchangeV1Writer.write(record, StandardCharsets.UTF_8);
-                            try {
-                                writer.write(result);
-                            } catch (MarcReaderException ex) {
-                                final String msg = String.format("Failed to parse '%s:%s' because of %s", item.getBibliographicRecordId(), agencyId, ex.getMessage());
-                                LOGGER.error(msg);
-                                throw new MarcReaderException(msg);
-                            }
+            // Handle local records
+            if (marcXchangeBibliographicRecordIds.size() > 0) {
+                List<RecordItem> recordItemList = bean.getDecodedContent(marcXchangeBibliographicRecordIds, null, agencyId, params);
+                for (RecordItem item : recordItemList) {
+                    if (item != null) {
+                        local = item.getLocal();
+                        result = local;
+                        try {
+                            writer.write(result);
+                        } catch (MarcReaderException ex) {
+                            final String msg = String.format("Failed to parse '%s:%s' because of %s", item.getBibliographicRecordId(), agencyId, ex.getMessage());
+                            LOGGER.error(msg);
+                            throw new MarcReaderException(msg);
                         }
                     }
                 }
             }
-        } while (recordSet.hasNext());
+
+            // Handle enrichments
+            if (enrichmentBibliographicRecordIds.size() > 0) {
+                List<RecordItem> recordItemList = bean.getDecodedContent(enrichmentBibliographicRecordIds, 870970, agencyId, params);
+                for (RecordItem item : recordItemList) {
+                    if (item != null) {
+                        common = item.getCommon();
+                        local = item.getLocal();
+
+                        result = merger.merge(common, local, true);
+                        try {
+                            writer.write(result);
+                        } catch (MarcReaderException ex) {
+                            final String msg = String.format("Failed to parse '%s:%s' because of %s", item.getBibliographicRecordId(), agencyId, ex.getMessage());
+                            LOGGER.error(msg);
+                            throw new MarcReaderException(msg);
+                        }
+                    }
+                }
+            }
+
+            // Handle holdings
+            if (bibliograhicRecordIdsWithHolding.size() > 0) {
+                List<RecordItem> recordItemList = bean.getDecodedContent(bibliograhicRecordIdsWithHolding, null, 870970, params);
+                for (RecordItem item : recordItemList) {
+                    if (item != null) {
+                        local = item.getLocal();
+
+                        MarcXchangeV1Reader reader = new MarcXchangeV1Reader(new ByteArrayInputStream(local), Charset.forName("UTF-8"));
+                        MarcRecord record = reader.read();
+                        Optional<Field> field001 = record.getField(hasTag("001"));
+                        if (field001.isPresent()) {
+                            DataField dataField = (DataField) field001.get();
+                            for (SubField subField : dataField.getSubfields()) {
+                                if ('b' == subField.getCode()) {
+                                    subField.setData(Integer.toString(agencyId));
+                                }
+                            }
+                        }
+
+                        MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
+                        result = marcXchangeV1Writer.write(record, StandardCharsets.UTF_8);
+                        try {
+                            writer.write(result);
+                        } catch (MarcReaderException ex) {
+                            final String msg = String.format("Failed to parse '%s:%s' because of %s", item.getBibliographicRecordId(), agencyId, ex.getMessage());
+                            LOGGER.error(msg);
+                            throw new MarcReaderException(msg);
+                        }
+                    }
+                }
+            }
+        }
 
         return true;
     }

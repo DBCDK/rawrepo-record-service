@@ -66,9 +66,6 @@ public class DumpService {
     @EJB
     private HoldingsItemsBean holdingsItemsBean;
 
-    // Outstanding issues
-    // TODO Implement readme and create wrapper script
-
     @POST
     @Path("v1/dump/dryrun")
     @Consumes({MediaType.APPLICATION_JSON})
@@ -95,7 +92,7 @@ public class DumpService {
                         for (Integer agencyId : params.getAgencies()) {
                             AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
                             HashMap<String, String> record = getRecords(agencyId, params);
-                            HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params);
+                            HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params, true);
 
                             BibliographicIdResultSet bibliographicIdResultSet = new
                                     BibliographicIdResultSet(params, agencyType, SLICE_SIZE, record, holdings);
@@ -109,12 +106,14 @@ public class DumpService {
                 }
             };
 
+            LOGGER.info("Dryrun complete");
+
             return Response.ok(output).build();
         } catch (WebApplicationException ex) {
             LOGGER.error("Caught unexpected exception", ex);
             return Response.status(500).entity("Internal server error. Please see the server log.").build();
         } finally {
-            LOGGER.info("v1/dump");
+            LOGGER.info("v1/dump/dryrun");
         }
     }
 
@@ -150,7 +149,7 @@ public class DumpService {
                             recordByteWriter.writeHeader();
                             AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
                             HashMap<String, String> record = getRecords(agencyId, params);
-                            HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params);
+                            HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params, false);
 
                             LOGGER.info("Opening connection and RecordResultSet...");
                             BibliographicIdResultSet bibliographicIdResultSet = new
@@ -158,25 +157,34 @@ public class DumpService {
 
                             LOGGER.info("Found {} records", bibliographicIdResultSet.size());
                             List<Callable<Boolean>> threadList = new ArrayList<>();
-                            int threadCount = Math.min(bibliographicIdResultSet.size() / SLICE_SIZE + 1, MAX_THREAD_COUNT);
-                            for (int i = 0; i < threadCount; i++) {
+
+                            int loopCount = 0;
+
+                            do {
+                                loopCount++;
+
                                 if (agencyType == AgencyType.DBC) {
-                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet, recordByteWriter, agencyId, params));
+                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params));
                                 } else if (agencyType == AgencyType.FBS) {
-                                    threadList.add(new MergerThreadFBS(rawRepoBean, bibliographicIdResultSet, recordByteWriter, agencyId, params));
+                                    threadList.add(new MergerThreadFBS(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params));
                                 } else {
-                                    threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet, recordByteWriter, agencyId, params));
+                                    threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params));
                                 }
-                            }
-                            LOGGER.info("{} MergerThreads has been started", threadCount);
-                            List<Future<Boolean>> futures = executor.invokeAll(threadList);
-                            for (Future f : futures) {
-                                try {
-                                    f.get(); // We don't care about the result, we just want to see if there was an exception during execution
-                                } catch (ExecutionException e) {
-                                    throw new WebApplicationException(e.getMessage(), e);
+
+                                // Execute the threads when either the outstanding thread count has reached max or it is the last loop
+                                if (loopCount % MAX_THREAD_COUNT == 0 || !bibliographicIdResultSet.hasNext()) {
+                                    List<Future<Boolean>> futures = executor.invokeAll(threadList);
+                                    for (Future f : futures) {
+                                        try {
+                                            f.get(); // We don't care about the result, we just want to see if there was an exception during execution
+                                        } catch (ExecutionException e) {
+                                            throw new WebApplicationException(e.getMessage(), e);
+                                        }
+                                    }
+                                    threadList = new ArrayList<>(); // Reset list to clean up old done threads
                                 }
-                            }
+                            } while (bibliographicIdResultSet.hasNext());
+
                             recordByteWriter.writeFooter();
                         }
                     } catch (OpenAgencyException | InterruptedException | RawRepoException | SQLException | IOException ex) {
@@ -185,6 +193,8 @@ public class DumpService {
                     }
                 }
             };
+
+            LOGGER.info("Dump complete");
 
             return Response.ok(output).build();
         } catch (WebApplicationException ex) {
@@ -208,17 +218,19 @@ public class DumpService {
     }
 
 
-    private HashMap<String, String> getHoldings(int agencyId, AgencyType agencyType, Params params) throws SQLException, RawRepoException {
+    private HashMap<String, String> getHoldings(int agencyId, AgencyType agencyType, Params params, boolean exactMatch) throws SQLException, RawRepoException {
         HashMap<String, String> holdings = null;
 
         if (AgencyType.FBS == agencyType && params.getRecordType().contains(RecordType.HOLDINGS.toString())) {
             holdings = holdingsItemsBean.getRecordIdsWithHolding(agencyId);
 
-            // There can be holdings on things not present in rawrepo. So to get a more exact list we need to check
-            // which ids actually exists
-            Set<String> rawrepoRecordsIdsWithHoldings = rawRepoBean.getRawrepoRecordsIdsWithHoldings(holdings.keySet(), agencyId);
+            if (exactMatch) {
+                // There can be holdings on things not present in rawrepo. So to get a more exact list we need to check
+                // which ids actually exists
+                Set<String> rawrepoRecordsIdsWithHoldings = rawRepoBean.getRawrepoRecordsIdsWithHoldings(holdings.keySet(), agencyId);
 
-            holdings.keySet().retainAll(rawrepoRecordsIdsWithHoldings);
+                holdings.keySet().retainAll(rawrepoRecordsIdsWithHoldings);
+            }
         }
 
         return holdings;
