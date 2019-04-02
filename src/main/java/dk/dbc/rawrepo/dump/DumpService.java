@@ -92,7 +92,7 @@ public class DumpService {
                         for (Integer agencyId : params.getAgencies()) {
                             AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
                             HashMap<String, String> record = getRecords(agencyId, params);
-                            HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params);
+                            HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params, true);
 
                             BibliographicIdResultSet bibliographicIdResultSet = new
                                     BibliographicIdResultSet(params, agencyType, SLICE_SIZE, record, holdings);
@@ -149,7 +149,7 @@ public class DumpService {
                             recordByteWriter.writeHeader();
                             AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
                             HashMap<String, String> record = getRecords(agencyId, params);
-                            HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params);
+                            HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params, false);
 
                             LOGGER.info("Opening connection and RecordResultSet...");
                             BibliographicIdResultSet bibliographicIdResultSet = new
@@ -168,14 +168,14 @@ public class DumpService {
                                 }
                             }
                             LOGGER.info("{} MergerThreads has been started", threadCount);
-                            List<Future<Boolean>> futures = executor.invokeAll(threadList);
-                            for (Future f : futures) {
-                                try {
-                                    f.get(); // We don't care about the result, we just want to see if there was an exception during execution
-                                } catch (ExecutionException e) {
-                                    throw new WebApplicationException(e.getMessage(), e);
-                                }
-                            }
+                                    List<Future<Boolean>> futures = executor.invokeAll(threadList);
+                                    for (Future f : futures) {
+                                        try {
+                                            f.get(); // We don't care about the result, we just want to see if there was an exception during execution
+                                        } catch (ExecutionException e) {
+                                            throw new WebApplicationException(e.getMessage(), e);
+                                        }
+                                    }
                             recordByteWriter.writeFooter();
                         }
                     } catch (OpenAgencyException | InterruptedException | RawRepoException | SQLException | IOException ex) {
@@ -209,17 +209,19 @@ public class DumpService {
     }
 
 
-    private HashMap<String, String> getHoldings(int agencyId, AgencyType agencyType, Params params) throws SQLException, RawRepoException {
+    private HashMap<String, String> getHoldings(int agencyId, AgencyType agencyType, Params params, boolean exactMatch) throws SQLException, RawRepoException {
         HashMap<String, String> holdings = null;
 
         if (AgencyType.FBS == agencyType && params.getRecordType().contains(RecordType.HOLDINGS.toString())) {
             holdings = holdingsItemsBean.getRecordIdsWithHolding(agencyId);
 
-            // There can be holdings on things not present in rawrepo. So to get a more exact list we need to check
-            // which ids actually exists
-            Set<String> rawrepoRecordsIdsWithHoldings = rawRepoBean.getRawrepoRecordsIdsWithHoldings(holdings.keySet(), agencyId);
+            if (exactMatch) {
+                // There can be holdings on things not present in rawrepo. So to get a more exact list we need to check
+                // which ids actually exists
+                Set<String> rawrepoRecordsIdsWithHoldings = rawRepoBean.getRawrepoRecordsIdsWithHoldings(holdings.keySet(), agencyId);
 
-            holdings.keySet().retainAll(rawrepoRecordsIdsWithHoldings);
+                holdings.keySet().retainAll(rawrepoRecordsIdsWithHoldings);
+            }
         }
 
         return holdings;
