@@ -157,17 +157,22 @@ public class DumpService {
 
                             LOGGER.info("Found {} records", bibliographicIdResultSet.size());
                             List<Callable<Boolean>> threadList = new ArrayList<>();
-                            int threadCount = Math.min(bibliographicIdResultSet.size() / SLICE_SIZE + 1, MAX_THREAD_COUNT);
-                            for (int i = 0; i < threadCount; i++) {
+
+                            int loopCount = 0;
+
+                            do {
+                                loopCount++;
+
                                 if (agencyType == AgencyType.DBC) {
-                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet, recordByteWriter, agencyId, params));
+                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params));
                                 } else if (agencyType == AgencyType.FBS) {
-                                    threadList.add(new MergerThreadFBS(rawRepoBean, bibliographicIdResultSet, recordByteWriter, agencyId, params));
+                                    threadList.add(new MergerThreadFBS(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params));
                                 } else {
-                                    threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet, recordByteWriter, agencyId, params));
+                                    threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params));
                                 }
-                            }
-                            LOGGER.info("{} MergerThreads has been started", threadCount);
+
+                                // Execute the threads when either the outstanding thread count has reached max or it is the last loop
+                                if (loopCount % MAX_THREAD_COUNT == 0 || !bibliographicIdResultSet.hasNext()) {
                                     List<Future<Boolean>> futures = executor.invokeAll(threadList);
                                     for (Future f : futures) {
                                         try {
@@ -176,6 +181,10 @@ public class DumpService {
                                             throw new WebApplicationException(e.getMessage(), e);
                                         }
                                     }
+                                    threadList = new ArrayList<>(); // Reset list to clean up old done threads
+                                }
+                            } while (bibliographicIdResultSet.hasNext());
+
                             recordByteWriter.writeFooter();
                         }
                     } catch (OpenAgencyException | InterruptedException | RawRepoException | SQLException | IOException ex) {
