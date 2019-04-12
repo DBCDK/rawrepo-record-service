@@ -61,9 +61,13 @@ fi
 rr_conn=`egrep rawrepo.jdbc.conn.url ${HOME}/.ocb-tools/testrun.properties | tr -d " " | cut -d"/" -f3-`
 rr_user=`egrep rawrepo.jdbc.conn.user ${HOME}/.ocb-tools/testrun.properties | tr -d " " | cut -d"=" -f2`
 rr_pass=`egrep rawrepo.jdbc.conn.passwd ${HOME}/.ocb-tools/testrun.properties | tr -d " " | cut -d"=" -f2`
+holdings_conn=`egrep holdings.jdbc.conn.url ${HOME}/.ocb-tools/testrun.properties | tr -d " " | cut -d"/" -f3-`
+holdings_user=`egrep holdings.jdbc.conn.user ${HOME}/.ocb-tools/testrun.properties | tr -d " " | cut -d"=" -f2`
+holdings_pass=`egrep holdings.jdbc.conn.passwd ${HOME}/.ocb-tools/testrun.properties | tr -d " " | cut -d"=" -f2`
 echo "Starting container"
 container_id=`docker run -it ${detached} -p ${port}:8080 \
         -e RAWREPO_URL="${rr_user}:${rr_pass}@${rr_conn}" \
+        -e HOLDINGS_URL="${holdings_user}:${holdings_pass}@${holdings_conn}" \
 		-e OPENAGENCY_URL="http://openagency.addi.dk/test_2.34/" \
 		-e INSTANCE_NAME="${package}_${USER}_dev" \
 		-e ADD_JVM_ARGS="-Xms2g" \
