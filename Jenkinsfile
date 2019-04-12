@@ -23,6 +23,8 @@ pipeline {
 
     triggers {
         pollSCM("H/03 * * * *")
+        upstream(upstreamProjects: "Docker-base-python3",
+                threshold: hudson.model.Result.SUCCESS)
     }
 
     options {
@@ -73,7 +75,9 @@ pipeline {
 
                     if (env.BRANCH_NAME == 'master') {
                         sh """
-                            docker tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION} ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_DIT_VERSION}
+                            docker tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION} ${DOCKER_IMAGE_NAME}:${
+                            DOCKER_IMAGE_DIT_VERSION
+                        }
                             docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_DIT_VERSION}
                         """
                     }
