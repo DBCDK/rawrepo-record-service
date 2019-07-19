@@ -1,0 +1,6 @@
+echo "### cleaning rawrepo-record-service project ###"
+
+mvn clean
+git pull --ff-only
+docker rm -f rawrepo-record-service &>/dev/null || true
+exit 0

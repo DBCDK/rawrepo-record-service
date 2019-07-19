@@ -1,0 +1,13 @@
+case "$1" in
+    docker)
+        echo "### building rawrepo-record-service docker ###"
+        docker build . -t rawrepo-record-service || exit 1
+        ;;
+
+    *)
+        echo "### building rawrepo-record-service project ###"
+        echo "### Look for build artifacts in target/ ###"
+
+        mvn package -Dmaven.test.skip=true || exit 1
+        ;;
+esac
