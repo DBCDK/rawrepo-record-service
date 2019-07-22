@@ -383,8 +383,8 @@ public class RecordService {
     @Produces({MediaType.APPLICATION_JSON})
     @Timed
     public Response getHistoricRecord(@PathParam("agencyid") int agencyId,
-                                            @PathParam("bibliographicrecordid") String bibliographicRecordId,
-                                            @PathParam("date") String historicDate) {
+                                      @PathParam("bibliographicrecordid") String bibliographicRecordId,
+                                      @PathParam("date") String historicDate) {
         String res = "";
 
         try {
