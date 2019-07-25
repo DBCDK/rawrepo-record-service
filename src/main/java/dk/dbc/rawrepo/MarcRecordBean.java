@@ -280,7 +280,7 @@ public class MarcRecordBean {
      */
     int parentCommonAgencyId(String bibliographicRecordId, RawRepoDAO dao) throws RawRepoException, RecordNotFoundException {
         final Set<Integer> agencies = dao.allAgenciesForBibliographicRecordId(bibliographicRecordId);
-        final List<Integer> possibleParentAgencies = Arrays.asList(870970, 870971, 870979, 190002, 190004);
+        final List<Integer> possibleParentAgencies = Arrays.asList(870970, 870971, 870974, 870979, 190002, 190004);
 
         for (Integer agency : agencies) {
             if (possibleParentAgencies.contains(agency)) {
