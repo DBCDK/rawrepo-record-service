@@ -79,7 +79,17 @@ Returns a list of record ids of all child records with same bibliographicrecordi
     
 Returns a list of record ids of all records which this record has relations to.
 
-### Records list
+### Record history
+    GET v1/record/{agencyid}/{bibliographicrecordid}/history
+    
+Returns a list of list meta data including modified date of all previous versions of the record.    
+
+### Historic record
+    GET v1/record/{agencyid}/{bibliographicrecordid}/{date}
+    
+Returns the raw record as it looked on {date}. Date must a 'modified' date from /history
+
+### Records collection
     GET /api/v1/records/{agencyid}/{bibliographicrecordid}
 
 This endpoint return a JSON document containing a list of all records which the input record depends on. The format for each record is the same as the /record endpoint.
