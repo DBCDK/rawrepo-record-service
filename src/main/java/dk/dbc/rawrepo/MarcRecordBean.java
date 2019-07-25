@@ -688,4 +688,45 @@ public class MarcRecordBean {
         }
     }
 
+    public List<RecordMetaDataHistory> getRecordHistory(String bibliographicRecordId, int agencyId) throws InternalServerException {
+        List<RecordMetaDataHistory> result;
+        try (Connection conn = globalDataSource.getConnection()) {
+            try {
+                final RawRepoDAO dao = createDAO(conn);
+
+                result = dao.getRecordHistory(bibliographicRecordId, agencyId);
+
+                return result;
+            } catch (RawRepoException ex) {
+                conn.rollback();
+                LOGGER.error(ex.getMessage(), ex);
+                throw new InternalServerException(ex.getMessage(), ex);
+            }
+        } catch (SQLException ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            throw new InternalServerException(ex.getMessage(), ex);
+        }
+    }
+
+    public Record getHistoricRecord(RecordMetaDataHistory recordMetaDataHistory) throws InternalServerException {
+        Record result;
+
+        try (Connection conn = globalDataSource.getConnection()) {
+            try {
+                final RawRepoDAO dao = createDAO(conn);
+
+                result = dao.getHistoricRecord(recordMetaDataHistory);
+
+                return result;
+            } catch (RawRepoException ex) {
+                conn.rollback();
+                LOGGER.error(ex.getMessage(), ex);
+                throw new InternalServerException(ex.getMessage(), ex);
+            }
+        } catch (SQLException ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            throw new InternalServerException(ex.getMessage(), ex);
+        }
+    }
+
 }

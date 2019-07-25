@@ -12,6 +12,7 @@ import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.rawrepo.MarcRecordBean;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.RecordId;
+import dk.dbc.rawrepo.RecordMetaDataHistory;
 import dk.dbc.rawrepo.dto.AgencyCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordDTO;
 import dk.dbc.rawrepo.dto.RecordDTOMapper;
@@ -352,6 +353,69 @@ public class RecordService {
             return Response.serverError().build();
         } finally {
             LOGGER.info("v1/record/{bibliographicrecordid}/all-agencies-for");
+        }
+    }
+
+    @GET
+    @Path("v1/record/{agencyid}/{bibliographicrecordid}/history")
+    @Produces({MediaType.APPLICATION_JSON})
+    @Timed
+    public Response getRecordHistoryList(@PathParam("agencyid") int agencyId,
+                                         @PathParam("bibliographicrecordid") String bibliographicRecordId) {
+        String res = "";
+
+        try {
+            final List<RecordMetaDataHistory> recordMetaDataHistoryList = marcRecordBean.getRecordHistory(bibliographicRecordId, agencyId);
+
+            res = jsonbContext.marshall(RecordDTOMapper.recordHistoryCollectionToDTO(recordMetaDataHistoryList));
+
+            return Response.ok(res, MediaType.APPLICATION_JSON).build();
+        } catch (JSONBException | InternalServerException ex) {
+            LOGGER.error("Exception during getRecord", ex);
+            return Response.serverError().build();
+        } finally {
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/history");
+        }
+    }
+
+    @GET
+    @Path("v1/record/{agencyid}/{bibliographicrecordid}/{date}")
+    @Produces({MediaType.APPLICATION_JSON})
+    @Timed
+    public Response getHistoricRecord(@PathParam("agencyid") int agencyId,
+                                      @PathParam("bibliographicrecordid") String bibliographicRecordId,
+                                      @PathParam("date") String historicDate) {
+        String res = "";
+
+        try {
+            final List<RecordMetaDataHistory> recordMetaDataHistoryList = marcRecordBean.getRecordHistory(bibliographicRecordId, agencyId);
+            RecordMetaDataHistory selectedMetaDataHistory = null;
+
+            for (RecordMetaDataHistory recordMetaDataHistory : recordMetaDataHistoryList) {
+                // Instead of converting the input date to an Instant or Date it is easier and "safer" to convert the
+                // modified date to a String and then compare the strings
+                if (historicDate.equals(recordMetaDataHistory.getModified().toString())) {
+                    selectedMetaDataHistory = recordMetaDataHistory;
+                }
+            }
+
+            if (selectedMetaDataHistory != null) {
+                Record record = marcRecordBean.getHistoricRecord(selectedMetaDataHistory);
+
+                RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record);
+
+                res = jsonbContext.marshall(recordDTO);
+
+                return Response.ok(res, MediaType.APPLICATION_JSON).build();
+            } else {
+                // Unknown historic date
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+        } catch (JSONBException | InternalServerException | MarcReaderException ex) {
+            LOGGER.error("Exception during getRecord", ex);
+            return Response.serverError().build();
+        } finally {
+            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/{date}");
         }
     }
 

@@ -12,6 +12,7 @@ import dk.dbc.marc.binding.SubField;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.RecordId;
+import dk.dbc.rawrepo.RecordMetaDataHistory;
 import dk.dbc.rawrepo.service.RecordObjectMapper;
 
 import java.util.ArrayList;
@@ -92,20 +93,20 @@ public class RecordDTOMapper {
                 fieldDTO.setName(dataField.getTag());
 
                 String indicators = "";
-                if ( dataField.getInd1() != null) {
-                    indicators +=  dataField.getInd1();
+                if (dataField.getInd1() != null) {
+                    indicators += dataField.getInd1();
                 } else {
-                    indicators +=  " ";
+                    indicators += " ";
                 }
 
-                if ( dataField.getInd2() != null) {
-                    indicators +=  dataField.getInd2();
+                if (dataField.getInd2() != null) {
+                    indicators += dataField.getInd2();
                 } else {
-                    indicators +=  " ";
+                    indicators += " ";
                 }
 
-                if ( dataField.getInd3() != null) {
-                    indicators +=  dataField.getInd3();
+                if (dataField.getInd3() != null) {
+                    indicators += dataField.getInd3();
                 }
 
                 fieldDTO.setIndicators(indicators);
@@ -140,6 +141,32 @@ public class RecordDTOMapper {
         for (RecordId recordId : set) {
             dto.getRecordIds().add(recordIdToDTO(recordId));
         }
+
+        return dto;
+    }
+
+    public static RecordHistoryDTO recordMetaDataHistoryToDTO(RecordMetaDataHistory recordMetaDataHistory) {
+        RecordHistoryDTO dto = new RecordHistoryDTO();
+
+        dto.setId(recordIdToDTO(recordMetaDataHistory.getId()));
+        dto.setCreated(recordMetaDataHistory.getCreated().toString());
+        dto.setModified(recordMetaDataHistory.getModified().toString());
+        dto.setDeleted(recordMetaDataHistory.isDeleted());
+        dto.setMimeType(recordMetaDataHistory.getMimeType());
+        dto.setTrackingId(recordMetaDataHistory.getTrackingId());
+
+        return dto;
+    }
+
+    public static RecordHistoryCollectionDTO recordHistoryCollectionToDTO(List<RecordMetaDataHistory> metaDataHistoryList) {
+        List<RecordHistoryDTO> dtoList = new ArrayList<>();
+
+        for (RecordMetaDataHistory recordMetaDataHistory : metaDataHistoryList) {
+            dtoList.add(recordMetaDataHistoryToDTO(recordMetaDataHistory));
+        }
+
+        RecordHistoryCollectionDTO dto = new RecordHistoryCollectionDTO();
+        dto.setRecordHistoryList(dtoList);
 
         return dto;
     }

@@ -1,0 +1,32 @@
+./stop || true
+./build docker || exit 1
+
+echo "### Starting rawrepo-record-service docker ###"
+
+record_service_port=${RAWREPO_RECORD_SERVICE_PORT:-8080}
+docker run --rm --name rawrepo-record-service -d -p ${record_service_port}:8080 \
+    -e INSTANCE_NAME=${USER}_dev \
+    -e OPENAGENCY_CACHE_AGE="1" \
+    -e OPENAGENCY_URL="http://openagency.addi.dk/2.34/" \
+    -e RAWREPO_URL=${RAWREPO_URL} \
+    -e HOLDINGS_URL=${HOLDINGS_URL} \
+    -e DUMP_THREAD_COUNT="8" \
+    -e DUMP_SLICE_SIZE="1000" \
+    -e JAVA_MAX_HEAP_SIZE=2G \
+    rawrepo-record-service
+attempts=0
+max_attempts=60
+until $(curl --output /dev/null --silent --head --fail http://localhost:${record_service_port}/api/status); do
+    if [ ${attempts} -eq ${max_attempts} ]; then
+        break
+    fi
+
+    printf '.'
+    attempts=$(($attempts+1))
+    sleep 0.5
+done
+
+echo ""
+echo "### Status for rawrepo-record-service service ###"
+curl -vs http://localhost:${record_service_port}/api/status
+echo ""
