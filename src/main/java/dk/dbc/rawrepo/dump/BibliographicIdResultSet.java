@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toMap;
 
 public class BibliographicIdResultSet {
-    private HashMap<String, String> bibliographicRecordIdList = new HashMap<>();
-    private int sliceSize;
+    private final HashMap<String, String> bibliographicRecordIdList = new HashMap<>();
+    private final int sliceSize;
     private int index;
 
-    public BibliographicIdResultSet(Params params, AgencyType agencyType, int sliceSize, HashMap<String, String> records, HashMap<String, String> holdings) {
+    public BibliographicIdResultSet(AgencyParams params, AgencyType agencyType, int sliceSize, HashMap<String, String> records, HashMap<String, String> holdings) {
         this.sliceSize = sliceSize;
 
         Set<String> localBibliographicRecordIds = records.entrySet().stream()
@@ -64,6 +64,11 @@ public class BibliographicIdResultSet {
             }
         }
 
+        this.bibliographicRecordIdList.putAll(records);
+    }
+
+    public BibliographicIdResultSet(int sliceSize,  HashMap<String, String> records) {
+        this.sliceSize = sliceSize;
         this.bibliographicRecordIdList.putAll(records);
     }
 

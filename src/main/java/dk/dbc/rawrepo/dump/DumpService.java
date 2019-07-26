@@ -12,6 +12,7 @@ import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.dao.HoldingsItemsBean;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.dao.RawRepoBean;
+import dk.dbc.rawrepo.dto.RecordIdDTO;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,15 +23,19 @@ import javax.ejb.Stateless;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,7 +75,7 @@ public class DumpService {
     @Path("v1/dump/dryrun")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.TEXT_PLAIN})
-    public Response dumpLibraryRecordsDryRun(Params params) {
+    public Response dumpLibraryRecordsDryRun(AgencyParams params) {
         try {
             List<ParamsValidationItem> paramsValidationItemList = params.validate(openAgency.getService());
             if (paramsValidationItemList.size() > 0) {
@@ -121,7 +126,7 @@ public class DumpService {
     @Path("v1/dump")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.TEXT_PLAIN})
-    public Response dumpLibraryRecords(Params params) {
+    public Response dumpLibraryRecords(AgencyParams params) {
         // The service is meant to be called from curl, so the error message should be easy to read.
         // Therefor the message is simple text instead of JSON or HTML
         try {
@@ -164,11 +169,11 @@ public class DumpService {
                                 loopCount++;
 
                                 if (agencyType == AgencyType.DBC) {
-                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params));
+                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
                                 } else if (agencyType == AgencyType.FBS) {
-                                    threadList.add(new MergerThreadFBS(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params));
+                                    threadList.add(new MergerThreadFBS(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
                                 } else {
-                                    threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params));
+                                    threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
                                 }
 
                                 // Execute the threads when either the outstanding thread count has reached max or it is the last loop
@@ -205,7 +210,112 @@ public class DumpService {
         }
     }
 
-    private HashMap<String, String> getRecords(int agencyId, Params params) throws RawRepoException {
+    @POST
+    @Path("v1/dump/single")
+    @Consumes({MediaType.TEXT_PLAIN})
+    @Produces({MediaType.TEXT_PLAIN})
+    public Response dumpSingleRecords(String input,
+                                      @DefaultValue("false") @QueryParam("output-encoding") String outputEncoding,
+                                      @DefaultValue("false") @QueryParam("output-format") String outputFormat) {
+        RecordParams params = new RecordParams();
+        params.setOutputEncoding(outputEncoding);
+        params.setOutputFormat(outputFormat);
+        // The service is meant to be called from curl, so the error message should be easy to read.
+        // Therefor the message is simple text instead of JSON or HTML
+        try {
+            List<RecordIdDTO> recordIdDTOs = new ArrayList<>();
+            BufferedReader bufReader = new BufferedReader(new StringReader(input));
+            String line=null;
+            while( (line=bufReader.readLine()) != null )
+            {
+                String[] vars = line.split(":");
+                recordIdDTOs.add(new RecordIdDTO(vars[0], Integer.parseInt(vars[1])));
+            }
+
+            params.setRecordIds(recordIdDTOs);
+
+            List<ParamsValidationItem> paramsValidationItemList = params.validate();
+            LOGGER.info("Dump single dumping {} records", params.getRecordIds().size());
+            LOGGER.info(params.toString());
+            if (paramsValidationItemList.size() > 0) {
+                ParamsValidation paramsValidation = new ParamsValidation();
+                paramsValidation.setErrors(paramsValidationItemList);
+                LOGGER.info("Validation errors: {}", paramsValidation);
+                return Response.status(400).entity(jsonbContext.marshall(paramsValidation)).build();
+            }
+        } catch (JSONBException | IOException ex) {
+            LOGGER.error("Caught unexpected exception", ex);
+            return Response.status(500).entity("Internal server error. Please see the server log.").build();
+        }
+
+        LOGGER.info("Got request: {}", params);
+
+        try {
+            StreamingOutput output = new StreamingOutput() {
+                @Override
+                public void write(OutputStream out) throws WebApplicationException {
+                    try {
+                        for (Integer agencyId : params.getAgencies()) {
+                            RecordByteWriter recordByteWriter = new RecordByteWriter(out, params);
+                            recordByteWriter.writeHeader();
+                            AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
+                            HashMap<String, String> record = getRecords(agencyId, params);
+
+                            LOGGER.info("Opening connection and RecordResultSet...");
+                            BibliographicIdResultSet bibliographicIdResultSet = new
+                                    BibliographicIdResultSet(SLICE_SIZE, record);
+
+                            LOGGER.info("Found {} records", bibliographicIdResultSet.size());
+                            List<Callable<Boolean>> threadList = new ArrayList<>();
+
+                            int loopCount = 0;
+
+                            do {
+                                loopCount++;
+
+                                if (agencyType == AgencyType.DBC) {
+                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
+                                } else if (agencyType == AgencyType.FBS) {
+                                    threadList.add(new MergerThreadFBS(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
+                                } else {
+                                    threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
+                                }
+
+                                // Execute the threads when either the outstanding thread count has reached max or it is the last loop
+                                if (loopCount % MAX_THREAD_COUNT == 0 || !bibliographicIdResultSet.hasNext()) {
+                                    List<Future<Boolean>> futures = executor.invokeAll(threadList);
+                                    for (Future f : futures) {
+                                        try {
+                                            f.get(); // We don't care about the result, we just want to see if there was an exception during execution
+                                        } catch (ExecutionException e) {
+                                            throw new WebApplicationException(e.getMessage(), e);
+                                        }
+                                    }
+                                    threadList = new ArrayList<>(); // Reset list to clean up old done threads
+                                }
+                            } while (bibliographicIdResultSet.hasNext());
+
+                            recordByteWriter.writeFooter();
+                        }
+                    } catch (OpenAgencyException | InterruptedException | RawRepoException | IOException ex) {
+                        LOGGER.error("Caught exception during write", ex);
+                        throw new WebApplicationException("Caught exception during write", ex);
+                    }
+                }
+            };
+
+            LOGGER.info("Dump complete");
+
+            return Response.ok(output).build();
+        } catch (WebApplicationException ex) {
+            LOGGER.error("Caught unexpected exception", ex);
+            return Response.status(500).entity("Internal server error. Please see the server log.").build();
+        } finally {
+            LOGGER.info("v1/dump");
+        }
+    }
+
+    private HashMap<String, String> getRecords(int agencyId, AgencyParams params) throws RawRepoException {
         HashMap<String, String> rawrepoRecordMap;
 
         if (params.getCreatedTo() == null && params.getCreatedFrom() == null && params.getModifiedTo() == null && params.getModifiedFrom() == null) {
@@ -217,8 +327,15 @@ public class DumpService {
         return rawrepoRecordMap;
     }
 
+    private HashMap<String, String> getRecords(int agencyId, RecordParams params) throws RawRepoException {
+        HashMap<String, String> rawrepoRecordMap;
 
-    private HashMap<String, String> getHoldings(int agencyId, AgencyType agencyType, Params params, boolean exactMatch) throws SQLException, RawRepoException {
+        rawrepoRecordMap = rawRepoBean.getMimeTypeForRecordId(params.getBibliographicRecordIdByAgencyId(agencyId), agencyId);
+
+        return rawrepoRecordMap;
+    }
+
+    private HashMap<String, String> getHoldings(int agencyId, AgencyType agencyType, AgencyParams params, boolean exactMatch) throws SQLException, RawRepoException {
         HashMap<String, String> holdings = null;
 
         if (AgencyType.FBS == agencyType && params.getRecordType().contains(RecordType.HOLDINGS.toString())) {

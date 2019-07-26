@@ -35,4 +35,11 @@ public class RecordIdDTO {
         this.agencyId = agencyId;
     }
 
+    @Override
+    public String toString() {
+        return "RecordIdDTO{" +
+                "bibliographicRecordId='" + bibliographicRecordId + '\'' +
+                ", agencyId=" + agencyId +
+                '}';
+    }
 }

@@ -6,7 +6,6 @@
 package dk.dbc.rawrepo.dao;
 
 import dk.dbc.rawrepo.RawRepoException;
-import dk.dbc.rawrepo.dump.Params;
 import dk.dbc.rawrepo.dump.RecordItem;
 import dk.dbc.rawrepo.dump.RecordStatus;
 import dk.dbc.util.StopwatchInterceptor;
@@ -74,6 +73,56 @@ public class RawRepoBean {
         } catch (SQLException ex) {
             throw new RawRepoException("Error getting bibliographicrecordids", ex);
         }
+    }
+
+    public HashMap<String, String> getMimeTypeForRecordId(List<String> bibliographicRecordIds, int agencyId) throws RawRepoException {
+        HashMap<String, String> res = new HashMap<>();
+
+        final int sliceSize = 500;
+        int index = 0;
+
+        LOGGER.info("Getting mimetype of {} records", bibliographicRecordIds.size());
+
+        while (index < bibliographicRecordIds.size()) {
+            LOGGER.info("Checking record slice: {} to {}", index, index + sliceSize);
+            Set<String> slice = bibliographicRecordIds.stream()
+                    .skip(index)
+                    .limit(sliceSize)
+                    .collect(Collectors.toSet());
+
+            List<String> placeHolders = new ArrayList<>();
+            for (int i = 0; i < slice.size(); i++) {
+                placeHolders.add("?");
+            }
+
+            String query = "SELECT bibliographicrecordid, mimetype" +
+                    "         FROM records " +
+                    "        WHERE bibliographicrecordid IN (" + String.join(",", placeHolders) + ")" +
+                    "          AND agencyid = ?";
+
+            int pos = 1;
+
+            try (Connection connection = dataSource.getConnection();
+                 PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+                for (String bibliographicRecordId : slice) {
+                    preparedStatement.setString(pos++, bibliographicRecordId);
+                }
+
+                preparedStatement.setInt(pos++, agencyId);
+
+                ResultSet resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    res.put(resultSet.getString(1), resultSet.getString(2));
+                }
+            } catch (SQLException ex) {
+                LOGGER.info("Caught exception: {}", ex);
+                throw new RawRepoException("Error during getBibliographicRecordIdsForEnrichmentAgency", ex);
+            }
+            index += sliceSize;
+        }
+
+        return res;
     }
 
     @Timed
@@ -222,7 +271,7 @@ public class RawRepoBean {
         return res;
     }
 
-    public List<RecordItem> getDecodedContent(List<String> bibliographicRecordIds, Integer commonAgencyId, Integer localAgencyId, Params params) throws RawRepoException {
+    public List<RecordItem> getDecodedContent(List<String> bibliographicRecordIds, Integer commonAgencyId, Integer localAgencyId) throws RawRepoException {
         List<RecordItem> res = new ArrayList<>();
         List<String> placeHolders = new ArrayList<>();
         for (int i = 0; i < bibliographicRecordIds.size(); i++) {

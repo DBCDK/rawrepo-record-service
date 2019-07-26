@@ -44,15 +44,13 @@ public class MergerThreadFBS implements Callable<Boolean> {
     private RecordByteWriter writer;
     private int agencyId;
     private MarcXMerger merger;
-    private Params params;
 
-    MergerThreadFBS(RawRepoBean bean, HashMap<String, String> recordSet, RecordByteWriter writer, int agencyId, Params params) {
+    MergerThreadFBS(RawRepoBean bean, HashMap<String, String> recordSet, RecordByteWriter writer, int agencyId) {
         this.bean = bean;
         this.recordSet = recordSet;
         this.writer = writer;
         this.agencyId = agencyId;
         this.merger = new DefaultMarcXMergerPool().checkOut();
-        this.params = params;
     }
 
     @Override
@@ -82,7 +80,7 @@ public class MergerThreadFBS implements Callable<Boolean> {
 
             // Handle local records
             if (marcXchangeBibliographicRecordIds.size() > 0) {
-                List<RecordItem> recordItemList = bean.getDecodedContent(marcXchangeBibliographicRecordIds, null, agencyId, params);
+                List<RecordItem> recordItemList = bean.getDecodedContent(marcXchangeBibliographicRecordIds, null, agencyId);
                 for (RecordItem item : recordItemList) {
                     if (item != null) {
                         local = item.getLocal();
@@ -100,7 +98,7 @@ public class MergerThreadFBS implements Callable<Boolean> {
 
             // Handle enrichments
             if (enrichmentBibliographicRecordIds.size() > 0) {
-                List<RecordItem> recordItemList = bean.getDecodedContent(enrichmentBibliographicRecordIds, 870970, agencyId, params);
+                List<RecordItem> recordItemList = bean.getDecodedContent(enrichmentBibliographicRecordIds, 870970, agencyId);
                 for (RecordItem item : recordItemList) {
                     if (item != null) {
                         common = item.getCommon();
@@ -120,7 +118,7 @@ public class MergerThreadFBS implements Callable<Boolean> {
 
             // Handle holdings
             if (bibliograhicRecordIdsWithHolding.size() > 0) {
-                List<RecordItem> recordItemList = bean.getDecodedContent(bibliograhicRecordIdsWithHolding, null, 870970, params);
+                List<RecordItem> recordItemList = bean.getDecodedContent(bibliograhicRecordIdsWithHolding, null, 870970);
                 for (RecordItem item : recordItemList) {
                     if (item != null) {
                         local = item.getLocal();
