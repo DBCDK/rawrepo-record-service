@@ -15,7 +15,7 @@ public enum AgencyType {
     DBC, FBS, LOCAL;
 
     public static AgencyType getAgencyType(OpenAgencyServiceFromURL openAgencyServiceFromURL, int agencyId) throws OpenAgencyException {
-        if (Arrays.asList(870970, 870971, 870979, 190002, 190004).contains(agencyId)) {
+        if (Arrays.asList(870970, 870971, 870974, 870979, 190002, 190004).contains(agencyId)) {
             return AgencyType.DBC;
         }
 
