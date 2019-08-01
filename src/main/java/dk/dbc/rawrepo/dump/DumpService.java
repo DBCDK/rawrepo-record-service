@@ -211,7 +211,7 @@ public class DumpService {
     }
 
     @POST
-    @Path("v1/dump/single")
+    @Path("v1/dump/record")
     @Consumes({MediaType.TEXT_PLAIN})
     @Produces({MediaType.TEXT_PLAIN})
     public Response dumpSingleRecords(String input,
@@ -311,7 +311,7 @@ public class DumpService {
             LOGGER.error("Caught unexpected exception", ex);
             return Response.status(500).entity("Internal server error. Please see the server log.").build();
         } finally {
-            LOGGER.info("v1/dump");
+            LOGGER.info("v1/dump/record");
         }
     }
 
