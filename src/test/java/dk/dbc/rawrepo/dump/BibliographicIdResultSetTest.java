@@ -7,6 +7,7 @@ package dk.dbc.rawrepo.dump;
 
 import dk.dbc.rawrepo.dao.HoldingsItemsBean;
 import dk.dbc.rawrepo.dao.RawRepoBean;
+import dk.dbc.rawrepo.dto.RecordIdDTO;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 
@@ -55,7 +57,7 @@ public class BibliographicIdResultSetTest {
 
     @Test
     public void testNormalList() throws Exception {
-        Params params = new Params();
+        AgencyParams params = new AgencyParams();
         params.setAgencies(Arrays.asList(870970));
         params.setRecordStatus(RecordStatus.ALL.toString());
 
@@ -77,7 +79,7 @@ public class BibliographicIdResultSetTest {
 
     @Test
     public void testListSmallerThanSliceSize() throws Exception {
-        Params params = new Params();
+        AgencyParams params = new AgencyParams();
         params.setAgencies(Arrays.asList(870970));
         params.setRecordStatus(RecordStatus.ALL.toString());
 
@@ -95,7 +97,7 @@ public class BibliographicIdResultSetTest {
 
     @Test
     public void testListSizeEqualsSliceSize() throws Exception {
-        Params params = new Params();
+        AgencyParams params = new AgencyParams();
         params.setAgencies(Arrays.asList(870970));
         params.setRecordStatus(RecordStatus.ALL.toString());
 
@@ -113,7 +115,7 @@ public class BibliographicIdResultSetTest {
 
     @Test
     public void testEmptyList() throws Exception {
-        Params params = new Params();
+        AgencyParams params = new AgencyParams();
         params.setAgencies(Arrays.asList(870970));
         params.setRecordStatus(RecordStatus.ALL.toString());
 
@@ -124,7 +126,7 @@ public class BibliographicIdResultSetTest {
 
     @Test
     public void testFBSAllRecordTypes() throws Exception {
-        Params params = new Params();
+        AgencyParams params = new AgencyParams();
         params.setRecordType(new ArrayList<>());
         params.getRecordType().add(RecordType.LOCAL.toString());
         params.getRecordType().add(RecordType.ENRICHMENT.toString());
@@ -149,7 +151,7 @@ public class BibliographicIdResultSetTest {
 
     @Test
     public void testFBSLocalAndEnrichments() throws Exception {
-        Params params = new Params();
+        AgencyParams params = new AgencyParams();
         params.setRecordType(new ArrayList<>());
         params.getRecordType().add(RecordType.LOCAL.toString());
         params.getRecordType().add(RecordType.ENRICHMENT.toString());
@@ -170,7 +172,7 @@ public class BibliographicIdResultSetTest {
 
     @Test
     public void testFSBLocalAndHoldings() throws Exception {
-        Params params = new Params();
+        AgencyParams params = new AgencyParams();
         params.setRecordType(new ArrayList<>());
         params.getRecordType().add(RecordType.LOCAL.toString());
         params.getRecordType().add(RecordType.HOLDINGS.toString());
@@ -191,7 +193,7 @@ public class BibliographicIdResultSetTest {
 
     @Test
     public void testFSBEnrichmentAndHoldings() throws Exception {
-        Params params = new Params();
+        AgencyParams params = new AgencyParams();
         params.setRecordType(new ArrayList<>());
         params.getRecordType().add(RecordType.ENRICHMENT.toString());
         params.getRecordType().add(RecordType.HOLDINGS.toString());
@@ -212,7 +214,7 @@ public class BibliographicIdResultSetTest {
 
     @Test
     public void testFSBHoldingsOnly() throws Exception {
-        Params params = new Params();
+        AgencyParams params = new AgencyParams();
         params.setRecordType(new ArrayList<>());
         params.getRecordType().add(RecordType.HOLDINGS.toString());
         params.setRecordStatus(RecordStatus.ALL.toString());
@@ -226,4 +228,44 @@ public class BibliographicIdResultSetTest {
             put("E", "holdings");
         }}));
     }
+
+    @Test
+    public void testRecordParams() throws Exception {
+        RecordParams params = new RecordParams();
+
+        List<RecordIdDTO> recordIdDTOs = new ArrayList<>();
+        recordIdDTOs.add(new RecordIdDTO("1111", 191919));
+        recordIdDTOs.add(new RecordIdDTO("2222", 191919));
+        recordIdDTOs.add(new RecordIdDTO("3333", 723000));
+        params.setRecordIds(recordIdDTOs);
+
+        Assert.assertThat(params.getAgencies().size(), is(2));
+        Assert.assertTrue(params.getAgencies().contains(191919));
+        Assert.assertTrue(params.getAgencies().contains(723000));
+
+        Assert.assertThat(params.getBibliographicRecordIdByAgencyId(191919).size(), is(2));
+        Assert.assertTrue(params.getBibliographicRecordIdByAgencyId(191919).contains("1111"));
+        Assert.assertTrue(params.getBibliographicRecordIdByAgencyId(191919).contains("2222"));
+
+        Assert.assertThat(params.getBibliographicRecordIdByAgencyId(723000).size(), is(1));
+        Assert.assertTrue(params.getBibliographicRecordIdByAgencyId(723000).contains("3333"));
+    }
+
+    @Test
+    public void testRecordParamsBibliographicIdResultSet() throws Exception {
+        BibliographicIdResultSet resultSet = new BibliographicIdResultSet(3, rawrepoRecordIdsFor870970);
+
+        Assert.assertThat(resultSet.size(), is(5));
+        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+            put("A", "text/marcxchange");
+            put("B", "text/marcxchange");
+            put("C", "text/marcxchange");
+        }}));
+
+        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+            put("D", "text/marcxchange");
+            put("E", "text/marcxchange");
+        }}));
+    }
+
 }

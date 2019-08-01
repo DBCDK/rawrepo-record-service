@@ -26,14 +26,12 @@ public class MergerThreadLocal implements Callable<Boolean> {
     private HashMap<String, String> recordSet;
     private RecordByteWriter writer;
     private int agencyId;
-    private Params params;
 
-    MergerThreadLocal(RawRepoBean bean, HashMap<String, String> recordSet, RecordByteWriter writer, int agencyId, Params params) {
+    MergerThreadLocal(RawRepoBean bean, HashMap<String, String> recordSet, RecordByteWriter writer, int agencyId) {
         this.bean = bean;
         this.recordSet = recordSet;
         this.writer = writer;
         this.agencyId = agencyId;
-        this.params = params;
     }
 
     @Override
@@ -45,7 +43,7 @@ public class MergerThreadLocal implements Callable<Boolean> {
             bibliographicRecordIdList = new ArrayList<>(recordSet.keySet());
 
             if (bibliographicRecordIdList.size() > 0) {
-                List<RecordItem> recordItemList = bean.getDecodedContent(bibliographicRecordIdList, null, agencyId, params);
+                List<RecordItem> recordItemList = bean.getDecodedContent(bibliographicRecordIdList, null, agencyId);
                 LOGGER.info("Got {} RecordItems", recordItemList.size());
                 for (RecordItem item : recordItemList) {
                     if (item != null) {

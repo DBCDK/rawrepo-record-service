@@ -30,15 +30,13 @@ public class MergerThreadDBC implements Callable<Boolean> {
     private RecordByteWriter writer;
     private int agencyId;
     private MarcXMerger merger;
-    private Params params;
 
-    MergerThreadDBC(RawRepoBean bean, HashMap<String, String> recordSet, RecordByteWriter writer, int agencyId, Params params) {
+    MergerThreadDBC(RawRepoBean bean, HashMap<String, String> recordSet, RecordByteWriter writer, int agencyId) {
         this.bean = bean;
         this.recordSet = recordSet;
         this.writer = writer;
         this.agencyId = agencyId;
         this.merger = new CustomMarcXMergerPool().checkOut();
-        this.params = params;
     }
 
     @Override
@@ -50,7 +48,7 @@ public class MergerThreadDBC implements Callable<Boolean> {
             bibliographicRecordIdList = new ArrayList<>(recordSet.keySet());
 
             if (bibliographicRecordIdList.size() > 0) {
-                List<RecordItem> recordItemList = bean.getDecodedContent(bibliographicRecordIdList, agencyId, 191919, params);
+                List<RecordItem> recordItemList = bean.getDecodedContent(bibliographicRecordIdList, agencyId, 191919);
                 LOGGER.info("Got {} RecordItems", recordItemList.size());
                 for (RecordItem item : recordItemList) {
                     common = item.getCommon();
