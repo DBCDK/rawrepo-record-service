@@ -72,6 +72,7 @@ public class MarcRecordBean {
             case MarcXChangeMimeType.ARTICLE:
             case MarcXChangeMimeType.ENRICHMENT:
             case MarcXChangeMimeType.MARCXCHANGE:
+            case MarcXChangeMimeType.LITANALYSIS:
                 return true;
             default:
                 return false;
