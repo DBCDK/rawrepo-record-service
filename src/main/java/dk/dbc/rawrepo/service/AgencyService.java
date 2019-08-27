@@ -40,7 +40,7 @@ import java.util.List;
 public class AgencyService {
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(AgencyService.class);
     private final JSONBContext jsonbContext = new JSONBContext();
-    private final List<Integer> DBC_AGENCIES = Arrays.asList(870970, 870971, 870979);
+    private final List<Integer> DBC_AGENCIES = Arrays.asList(870970, 870971, 870974, 870979);
 
     @EJB
     private RawRepoBean rawRepoBean;
