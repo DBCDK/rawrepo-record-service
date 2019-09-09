@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record xmlns="info:lc/xmlns/marcxchange-v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">126395604</subfield>
+        <subfield code="b">870974</subfield>
+        <subfield code="c">20190827144322</subfield>
+        <subfield code="d">20190802</subfield>
+        <subfield code="f">a</subfield>
+        <subfield code="t">FAUST</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">d</subfield>
+        <subfield code="a">i</subfield>
+    </datafield>
+    <datafield tag="016" ind1="0" ind2="0">
+        <subfield code="a">46912683</subfield>
+        <subfield code="5">870970</subfield>
+    </datafield>
+    <datafield tag="600" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">68754011</subfield>
+        <subfield code="å">1</subfield>
+    </datafield>
+    <datafield tag="770" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">68234190</subfield>
+        <subfield code="å">1</subfield>
+    </datafield>
+    <datafield tag="996" ind1="0" ind2="0">
+        <subfield code="a">DBC</subfield>
+    </datafield>
+</record>

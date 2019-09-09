@@ -10,6 +10,7 @@ import dk.dbc.jsonb.JSONBException;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.rawrepo.MarcRecordBean;
+import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.RecordId;
 import dk.dbc.rawrepo.RecordMetaDataHistory;
@@ -213,7 +214,7 @@ public class RecordService {
         } catch (JSONBException ex) {
             LOGGER.error("Exception during recordExists", ex);
             return Response.serverError().build();
-        } catch (InternalServerException e) {
+        } catch (RawRepoException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } finally {
             LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/exists");

@@ -11,6 +11,9 @@ import dk.dbc.marc.writer.MarcXchangeV1Writer;
 import dk.dbc.marcxmerge.FieldRules;
 import dk.dbc.marcxmerge.MarcXChangeMimeType;
 import dk.dbc.marcxmerge.MarcXMerger;
+import dk.dbc.openagency.client.LibraryRuleHandler;
+import dk.dbc.openagency.client.OpenAgencyException;
+import dk.dbc.openagency.client.OpenAgencyServiceFromURL;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,6 +26,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -32,12 +36,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MarcRecordBeanTest {
@@ -50,6 +59,11 @@ public class MarcRecordBeanTest {
 
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
 
+    private final String COMMON = "common";
+    private final String ARTICLE = "article";
+    private final String AUTHORITY = "authority";
+    private final String LITTOLK = "littolk";
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -58,12 +72,36 @@ public class MarcRecordBeanTest {
     private class MarcRecordBeanMock extends MarcRecordBean {
         public MarcRecordBeanMock(DataSource globalDataSource) {
             super(globalDataSource);
+
+            try {
+                this.relationHints = new RelationHintsOpenAgency(getOpenAgencyService());
+            } catch (OpenAgencyException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
         protected RawRepoDAO createDAO(Connection conn) throws RawRepoException {
+            try {
+                rawRepoDAO.relationHints = new RelationHintsOpenAgency(getOpenAgencyService());
+            } catch (OpenAgencyException e) {
+                e.printStackTrace();
+            }
+
             return rawRepoDAO;
         }
+    }
+
+    private OpenAgencyServiceFromURL getOpenAgencyService() throws OpenAgencyException {
+        LibraryRuleHandler libraryRuleHandlerMock = mock(LibraryRuleHandler.class);
+        when(libraryRuleHandlerMock.isAllowed(eq(870970), eq(LibraryRuleHandler.Rule.USE_ENRICHMENTS))).thenReturn(true);
+        when(libraryRuleHandlerMock.isAllowed(eq(191919), eq(LibraryRuleHandler.Rule.USE_ENRICHMENTS))).thenReturn(true);
+        when(libraryRuleHandlerMock.isAllowed(eq(1), eq(LibraryRuleHandler.Rule.USE_ENRICHMENTS))).thenReturn(true);
+        when(libraryRuleHandlerMock.isAllowed(eq(2), eq(LibraryRuleHandler.Rule.USE_ENRICHMENTS))).thenReturn(false);
+        OpenAgencyServiceFromURL openAgencyServiceFromURLMock = mock(OpenAgencyServiceFromURL.class);
+        when(openAgencyServiceFromURLMock.libraryRules()).thenReturn(libraryRuleHandlerMock);
+
+        return openAgencyServiceFromURLMock;
     }
 
     @Test(expected = RecordNotFoundException.class)
@@ -360,6 +398,304 @@ public class MarcRecordBeanTest {
         final MarcRecord mergedMarcRecord = reader.read();
         final byte[] mergedContent = marcXchangeV1Writer.write(mergedMarcRecord, Charset.forName("UTF-8"));
         Assert.assertThat(mergedContent, is(expected.getContent()));
+    }
+
+    @Test
+    public void recordIsActiveTestActive() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+        final String bibliographicRecordId = "12345678";
+        final int agencyId = 870970;
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, agencyId)).thenReturn(true);
+
+        Assert.assertThat(bean.recordIsActive(bibliographicRecordId, agencyId), is(true));
+    }
+
+    @Test
+    public void recordIsActiveTestDeleted() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+        final String bibliographicRecordId = "12345678";
+        final int agencyId = 870970;
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, agencyId)).thenReturn(false);
+
+        Assert.assertThat(bean.recordIsActive(bibliographicRecordId, agencyId), is(false));
+    }
+
+    @Test(expected = RecordNotFoundException.class)
+    public void recordIsActiveTestNotFound() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+        final String bibliographicRecordId = "12345678";
+        final int agencyId = 870970;
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)).thenReturn(false);
+
+        Assert.assertThat(bean.recordIsActive(bibliographicRecordId, agencyId), is(true));
+    }
+
+    @Test
+    public void findParentRelationAgencyTestActive() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        doCallRealMethod().when(rawRepoDAO).findParentRelationAgency(anyString(), anyInt());
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(anyString(), eq(191919))).thenReturn(true);
+        when(rawRepoDAO.recordExistsMaybeDeleted(COMMON, 870970)).thenReturn(true);
+        when(rawRepoDAO.recordExistsMaybeDeleted(ARTICLE, 870971)).thenReturn(true);
+        when(rawRepoDAO.recordExistsMaybeDeleted(AUTHORITY, 870979)).thenReturn(true);
+        when(rawRepoDAO.recordExistsMaybeDeleted(LITTOLK, 870974)).thenReturn(true);
+
+        when(rawRepoDAO.recordExists(anyString(), eq(191919))).thenReturn(true);
+        when(rawRepoDAO.recordExists(COMMON, 870970)).thenReturn(true);
+        when(rawRepoDAO.recordExists(ARTICLE, 870971)).thenReturn(true);
+        when(rawRepoDAO.recordExists(LITTOLK, 870974)).thenReturn(true);
+        when(rawRepoDAO.recordExists(AUTHORITY, 870979)).thenReturn(true);
+
+        assertFindParentRelationAgency(bean);
+    }
+
+    @Test
+    public void findParentRelationAgencyTestNotActive() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        doCallRealMethod().when(rawRepoDAO).findParentRelationAgency(anyString(), anyInt());
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(anyString(), eq(191919))).thenReturn(true);
+        when(rawRepoDAO.recordExistsMaybeDeleted(COMMON, 870970)).thenReturn(true);
+        when(rawRepoDAO.recordExistsMaybeDeleted(ARTICLE, 870971)).thenReturn(true);
+        when(rawRepoDAO.recordExistsMaybeDeleted(AUTHORITY, 870979)).thenReturn(true);
+        when(rawRepoDAO.recordExistsMaybeDeleted(LITTOLK, 870974)).thenReturn(true);
+
+        when(rawRepoDAO.recordExists(anyString(), eq(191919))).thenReturn(false);
+        when(rawRepoDAO.recordExists(COMMON, 870970)).thenReturn(false);
+        when(rawRepoDAO.recordExists(ARTICLE, 870971)).thenReturn(false);
+        when(rawRepoDAO.recordExists(LITTOLK, 870974)).thenReturn(false);
+        when(rawRepoDAO.recordExists(AUTHORITY, 870979)).thenReturn(false);
+
+        assertFindParentRelationAgency(bean);
+    }
+
+    private void assertFindParentRelationAgency(MarcRecordBean bean) throws Exception {
+        Assert.assertThat(bean.findParentRelationAgency(COMMON, 191919), is(870970));
+        Assert.assertThat(bean.findParentRelationAgency(COMMON, 870970), is(870970));
+
+        Assert.assertThat(bean.findParentRelationAgency(ARTICLE, 191919), is(870971));
+        Assert.assertThat(bean.findParentRelationAgency(ARTICLE, 870971), is(870971));
+
+        Assert.assertThat(bean.findParentRelationAgency(LITTOLK, 191919), is(870974));
+        Assert.assertThat(bean.findParentRelationAgency(LITTOLK, 870974), is(870974));
+
+        Assert.assertThat(bean.findParentRelationAgency(AUTHORITY, 191919), is(870979));
+        Assert.assertThat(bean.findParentRelationAgency(AUTHORITY, 870979), is(870979));
+    }
+
+    @Test
+    public void findParentRelationAgencyFBSLocal() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        doCallRealMethod().when(rawRepoDAO).findParentRelationAgency(anyString(), anyInt());
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(anyString(), eq(820010))).thenReturn(true);
+        when(rawRepoDAO.recordExists(anyString(), eq(820010))).thenReturn(false);
+
+        Assert.assertThat(bean.findParentRelationAgency("FBS", 820010), is(820010));
+    }
+
+    @Test
+    public void testGetRelationsParents191919() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(COMMON, 191919)).thenReturn(true);
+        when(rawRepoDAO.recordExists(COMMON, 191919)).thenReturn(false);
+        when(rawRepoDAO.recordExistsMaybeDeleted(COMMON, 870970)).thenReturn(true);
+        when(rawRepoDAO.recordExists(COMMON, 870970)).thenReturn(false);
+
+        Set<RecordId> actual = bean.getRelationsParents(COMMON, 191919);
+
+        Assert.assertThat(actual.size(), is(0));
+    }
+
+    @Test
+    public void testGetRelationsParentsFBSEnrichment() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "50938409";
+
+        final MarcRecord marcRecord = loadMarcRecord("getRelationsParents/fbs-enrichment.xml");
+
+        final Record record = createRecordMock(bibliographicRecordId, 911116, MarcXChangeMimeType.MARCXCHANGE,
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 911116)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 911116)).thenReturn(false);
+        when(rawRepoDAO.fetchRecord(bibliographicRecordId, 911116)).thenReturn(record);
+
+        Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 911116);
+
+        Assert.assertThat(actual.size(), is(0));
+    }
+
+    @Test
+    public void testGetRelationsParentsFBSLocal() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "2207787";
+
+        final MarcRecord marcRecord = loadMarcRecord("getRelationsParents/fbs-local.xml");
+
+        final Record record = createRecordMock(bibliographicRecordId, 820010, MarcXChangeMimeType.MARCXCHANGE,
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 820010)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 820010)).thenReturn(false);
+        when(rawRepoDAO.fetchRecord(bibliographicRecordId, 820010)).thenReturn(record);
+
+        Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 820010);
+
+        Assert.assertThat(actual.size(), is(1));
+        Iterator<RecordId> iterator = actual.iterator();
+        Assert.assertThat(iterator.next(), is(new RecordId("223906", 820010)));
+    }
+
+    @Test
+    public void testGetRelationsParentsCommonNoParents() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "50938409";
+
+        final MarcRecord marcRecord = loadMarcRecord("getRelationsParents/common-no-relations.xml");
+
+        final Record record = createRecordMock(bibliographicRecordId, 870970, MarcXChangeMimeType.MARCXCHANGE,
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 870970)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 870970)).thenReturn(false);
+        when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870970)).thenReturn(record);
+
+        Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870970);
+
+        Assert.assertThat(actual.size(), is(0));
+    }
+
+    @Test
+    public void testGetRelationsParentsCommonSingleAut() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "50938409";
+
+        final MarcRecord marcRecord = loadMarcRecord("getRelationsParents/common-single-aut.xml");
+
+        final Record record = createRecordMock(bibliographicRecordId, 870970, MarcXChangeMimeType.MARCXCHANGE,
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 870970)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 870970)).thenReturn(false);
+        when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870970)).thenReturn(record);
+
+        Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870970);
+
+        Assert.assertThat(actual.size(), is(1));
+        Iterator<RecordId> iterator = actual.iterator();
+        Assert.assertThat(iterator.next(), is(new RecordId("69208045", 870979)));
+    }
+
+    @Test
+    public void testGetRelationsParentsCommonTripleAut() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "53090567";
+
+        MarcRecord marcRecord = loadMarcRecord("getRelationsParents/common-triple-aut.xml");
+
+        Record record = createRecordMock(bibliographicRecordId, 870970, MarcXChangeMimeType.MARCXCHANGE,
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 870970)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 870970)).thenReturn(false);
+        when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870970)).thenReturn(record);
+
+        Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870970);
+
+        Assert.assertThat(actual.size(), is(4));
+
+        Iterator<RecordId> iterator = actual.iterator();
+        Assert.assertThat(iterator.next(), is(new RecordId("19050416", 870979)));
+        Assert.assertThat(iterator.next(), is(new RecordId("19050785", 870979)));
+        Assert.assertThat(iterator.next(), is(new RecordId("19047903", 870979)));
+        Assert.assertThat(iterator.next(), is(new RecordId("69208045", 870979)));
+    }
+
+    @Test
+    public void testGetRelationsParentsArticle() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "85803190";
+
+        MarcRecord marcRecord = loadMarcRecord("getRelationsParents/article.xml");
+
+        Record record = createRecordMock(bibliographicRecordId, 870971, MarcXChangeMimeType.MARCXCHANGE,
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 870971)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 870971)).thenReturn(false);
+        when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870971)).thenReturn(record);
+
+        Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870971);
+
+        Assert.assertThat(actual.size(), is(1));
+
+        Iterator<RecordId> iterator = actual.iterator();
+        Assert.assertThat(iterator.next(), is(new RecordId("23191083", 870970)));
+    }
+
+    @Test
+    public void testGetRelationsParentsVolume() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "22723715";
+
+        MarcRecord marcRecord = loadMarcRecord("getRelationsParents/common-volume.xml");
+
+        Record record = createRecordMock(bibliographicRecordId, 870970, MarcXChangeMimeType.MARCXCHANGE,
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 870970)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 870970)).thenReturn(false);
+        when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870970)).thenReturn(record);
+
+        Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870970);
+
+        Assert.assertThat(actual.size(), is(1));
+
+        Iterator<RecordId> iterator = actual.iterator();
+        Assert.assertThat(iterator.next(), is(new RecordId("50434990", 870970)));
+    }
+
+    @Test
+    public void testGetRelationsParentsLittolk() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "126395604";
+
+        MarcRecord marcRecord = loadMarcRecord("getRelationsParents/littolk.xml");
+
+        Record record = createRecordMock(bibliographicRecordId, 870974, MarcXChangeMimeType.MARCXCHANGE,
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 870974)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 870974)).thenReturn(false);
+        when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870974)).thenReturn(record);
+
+        Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870974);
+
+        Assert.assertThat(actual.size(), is(3));
+
+        Iterator<RecordId> iterator = actual.iterator();
+        Assert.assertThat(iterator.next(), is(new RecordId("68754011", 870979)));
+        Assert.assertThat(iterator.next(), is(new RecordId("68234190", 870979)));
+        Assert.assertThat(iterator.next(), is(new RecordId("46912683", 870970)));
     }
 
     private MarcRecord loadMarcRecord(String filename) throws Exception {
