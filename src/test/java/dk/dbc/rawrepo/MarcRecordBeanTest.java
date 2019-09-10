@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -57,6 +58,9 @@ public class MarcRecordBeanTest {
     @Mock
     private RawRepoDAO rawRepoDAO;
 
+    @Mock
+    private RelationHintsOpenAgency relationHintsOpenAgency;
+
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
 
     private final String COMMON = "common";
@@ -67,26 +71,29 @@ public class MarcRecordBeanTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        doCallRealMethod().when(relationHintsOpenAgency).getAgencyPriority(anyInt());
+        doCallRealMethod().when(relationHintsOpenAgency).usesCommonSchoolAgency(anyInt());
+        doCallRealMethod().when(relationHintsOpenAgency).get(anyInt());
+        when(relationHintsOpenAgency.usesCommonAgency(anyInt())).thenReturn(false);
+        when(relationHintsOpenAgency.usesCommonAgency(eq(191919))).thenReturn(true);
+        when(relationHintsOpenAgency.usesCommonAgency(eq(700300))).thenReturn(true);
+        when(relationHintsOpenAgency.usesCommonAgency(eq(870970))).thenReturn(true);
+        when(relationHintsOpenAgency.usesCommonAgency(eq(870971))).thenReturn(true);
+        when(relationHintsOpenAgency.usesCommonAgency(eq(870974))).thenReturn(true);
+        when(relationHintsOpenAgency.usesCommonAgency(eq(870979))).thenReturn(true);
     }
 
     private class MarcRecordBeanMock extends MarcRecordBean {
         public MarcRecordBeanMock(DataSource globalDataSource) {
             super(globalDataSource);
 
-            try {
-                this.relationHints = new RelationHintsOpenAgency(getOpenAgencyService());
-            } catch (OpenAgencyException e) {
-                e.printStackTrace();
-            }
+                this.relationHints = relationHintsOpenAgency;
         }
 
         @Override
         protected RawRepoDAO createDAO(Connection conn) throws RawRepoException {
-            try {
-                rawRepoDAO.relationHints = new RelationHintsOpenAgency(getOpenAgencyService());
-            } catch (OpenAgencyException e) {
-                e.printStackTrace();
-            }
+            rawRepoDAO.relationHints = this.relationHints;
 
             return rawRepoDAO;
         }
@@ -354,33 +361,38 @@ public class MarcRecordBeanTest {
         final MarcRecord deletedEnrichment = loadMarcRecord("deleted-191919.xml");
         final MarcRecord deletedCommon = loadMarcRecord("deleted-870970.xml");
         final MarcRecord deletedMerged = loadMarcRecord("deleted-merged.xml");
-        final Set<Integer> agenciesFound = new HashSet<>(Arrays.asList(870970));
+        final Set<Integer> agenciesFound = new HashSet<>(Arrays.asList(191919, 870970));
         final String bibliographicRecordId = "00199087";
 
         final Record deletedEnrichmentMock = createRecordMock(bibliographicRecordId, 191919, MarcXChangeMimeType.ENRICHMENT,
-                marcXchangeV1Writer.write(deletedEnrichment, Charset.forName("UTF-8")));
+                marcXchangeV1Writer.write(deletedEnrichment, StandardCharsets.UTF_8));
         deletedEnrichmentMock.setDeleted(true);
         deletedEnrichmentMock.setCreated(getInstant("2016-01-01"));
         deletedEnrichmentMock.setModified(getInstant("2017-01-01"));
 
         final Record deletedCommonMock = createRecordMock(bibliographicRecordId, 870970, MarcXChangeMimeType.MARCXCHANGE,
-                marcXchangeV1Writer.write(deletedCommon, Charset.forName("UTF-8")));
+                marcXchangeV1Writer.write(deletedCommon, StandardCharsets.UTF_8));
         deletedCommonMock.setDeleted(true);
 
         deletedCommonMock.setCreated(getInstant("2016-01-01"));
         deletedCommonMock.setModified(getInstant("2017-01-01"));
 
         final Record expected = createRecordMock(bibliographicRecordId, 191919, MarcXChangeMimeType.MARCXCHANGE,
-                marcXchangeV1Writer.write(deletedMerged, Charset.forName("UTF-8")));
+                marcXchangeV1Writer.write(deletedMerged, StandardCharsets.UTF_8));
         expected.setDeleted(true);
         expected.setCreated(getInstant("2016-01-01"));
         expected.setModified(getInstant("2017-01-01"));
 
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 191919)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 191919)).thenReturn(false);
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 870970)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 870970)).thenReturn(false);
         when(rawRepoDAO.allAgenciesForBibliographicRecordId(eq(bibliographicRecordId))).thenReturn(agenciesFound);
+        when(rawRepoDAO.agencyFor(bibliographicRecordId, 191919, true)).thenReturn(191919);
         when(rawRepoDAO.fetchRecord(bibliographicRecordId, 191919)).thenReturn(deletedEnrichmentMock);
         when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870970)).thenReturn(deletedCommonMock);
 
-        final Record mergedDeletedRecord = bean.mergeDeletedRecord(bibliographicRecordId, 191919, getMerger(), rawRepoDAO);
+        final Record mergedDeletedRecord = bean.fetchMergedRecord(bibliographicRecordId, 191919, getMerger());
 
         Assert.assertThat(mergedDeletedRecord.getId(), is(expected.getId()));
         Assert.assertThat(mergedDeletedRecord.isDeleted(), is(expected.isDeleted()));
@@ -394,9 +406,9 @@ public class MarcRecordBeanTest {
         // comparison we have to run the out content through a reader and writer first.
         final InputStream inputStream = new ByteArrayInputStream(mergedDeletedRecord.getContent());
         final BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
-        final MarcXchangeV1Reader reader = new MarcXchangeV1Reader(bufferedInputStream, Charset.forName("UTF-8"));
+        final MarcXchangeV1Reader reader = new MarcXchangeV1Reader(bufferedInputStream, StandardCharsets.UTF_8);
         final MarcRecord mergedMarcRecord = reader.read();
-        final byte[] mergedContent = marcXchangeV1Writer.write(mergedMarcRecord, Charset.forName("UTF-8"));
+        final byte[] mergedContent = marcXchangeV1Writer.write(mergedMarcRecord, StandardCharsets.UTF_8);
         Assert.assertThat(mergedContent, is(expected.getContent()));
     }
 
@@ -696,6 +708,186 @@ public class MarcRecordBeanTest {
         Assert.assertThat(iterator.next(), is(new RecordId("68754011", 870979)));
         Assert.assertThat(iterator.next(), is(new RecordId("68234190", 870979)));
         Assert.assertThat(iterator.next(), is(new RecordId("46912683", 870970)));
+    }
+
+    @Test
+    public void testGetRelationsSiblingsFromMeActiveRecord191919() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "12345678";
+        final RecordId thisRecordId = new RecordId(bibliographicRecordId, 191919);
+        final RecordId siblingFromMeRecordId = new RecordId(bibliographicRecordId, 870970);
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 191919)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 191919)).thenReturn(true);
+        when(rawRepoDAO.getRelationsSiblingsFromMe(eq(thisRecordId))).thenReturn(new HashSet<>(Collections.singletonList(siblingFromMeRecordId)));
+
+        Set<RecordId> actual = bean.getRelationsSiblingsFromMe(bibliographicRecordId, 191919);
+
+        Assert.assertThat(actual.size(), is(1));
+        Iterator<RecordId> iterator = actual.iterator();
+        Assert.assertThat(iterator.next(), is(siblingFromMeRecordId));
+    }
+
+    @Test
+    public void testGetRelationsSiblingsFromMeActiveRecord870970() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "12345678";
+        final RecordId thisRecordId = new RecordId(bibliographicRecordId, 870970);
+
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 870970)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 870970)).thenReturn(true);
+        when(rawRepoDAO.getRelationsSiblingsFromMe(eq(thisRecordId))).thenReturn(new HashSet<>());
+
+        Set<RecordId> actual = bean.getRelationsSiblingsFromMe(bibliographicRecordId, 870970);
+
+        Assert.assertThat(actual.size(), is(0));
+    }
+
+    @Test
+    public void testGetRelationsSiblingsFromMeInactive191919() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "12345678";
+        final RecordId siblingFromMeRecordId = new RecordId(bibliographicRecordId, 870970);
+        final Set<Integer> allAgenciesForRecord = new HashSet<>(Arrays.asList(191919, 700300, 870970));
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 191919)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 191919)).thenReturn(false);
+        when(rawRepoDAO.allAgenciesForBibliographicRecordId(bibliographicRecordId)).thenReturn(allAgenciesForRecord);
+
+        Set<RecordId> actual = bean.getRelationsSiblingsFromMe(bibliographicRecordId, 191919);
+
+        Assert.assertThat(actual.size(), is(1));
+        Iterator<RecordId> iterator = actual.iterator();
+        Assert.assertThat(iterator.next(), is(siblingFromMeRecordId));
+    }
+
+    @Test
+    public void testGetRelationsSiblingsFromMeInactive700300() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "12345678";
+        final RecordId siblingFromMeRecordId = new RecordId(bibliographicRecordId, 870970);
+        final Set<Integer> allAgenciesForRecord = new HashSet<>(Arrays.asList(191919, 700300, 870970));
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 700300)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 700300)).thenReturn(false);
+        when(rawRepoDAO.allAgenciesForBibliographicRecordId(bibliographicRecordId)).thenReturn(allAgenciesForRecord);
+
+        Set<RecordId> actual = bean.getRelationsSiblingsFromMe(bibliographicRecordId, 700300);
+
+        Assert.assertThat(actual.size(), is(1));
+        Iterator<RecordId> iterator = actual.iterator();
+        Assert.assertThat(iterator.next(), is(siblingFromMeRecordId));
+    }
+
+    @Test
+    public void testGetRelationsSiblingsFromMeInactive870970() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "12345678";
+        final Set<Integer> allAgenciesForRecord = new HashSet<>(Arrays.asList(191919, 700300, 870970));
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 870970)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 870970)).thenReturn(false);
+        when(rawRepoDAO.allAgenciesForBibliographicRecordId(bibliographicRecordId)).thenReturn(allAgenciesForRecord);
+
+        Set<RecordId> actual = bean.getRelationsSiblingsFromMe(bibliographicRecordId, 870970);
+
+        Assert.assertThat(actual.size(), is(0));
+    }
+
+
+    @Test
+    public void testGetRelationsSiblingsToMeActiveRecord191919() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "12345678";
+        final RecordId thisRecordId = new RecordId(bibliographicRecordId, 191919);
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 191919)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 191919)).thenReturn(true);
+        when(rawRepoDAO.getRelationsSiblingsToMe(eq(thisRecordId))).thenReturn(new HashSet<>());
+
+        Set<RecordId> actual = bean.getRelationsSiblingsToMe(bibliographicRecordId, 191919);
+
+        Assert.assertThat(actual.size(), is(0));
+    }
+
+    @Test
+    public void testGetRelationsSiblingsToMeActiveRecord870970() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "12345678";
+        final RecordId thisRecordId = new RecordId(bibliographicRecordId, 870970);
+
+        final RecordId siblingToMeRecordId = new RecordId(bibliographicRecordId, 191919);
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 870970)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 870970)).thenReturn(true);
+        when(rawRepoDAO.getRelationsSiblingsToMe(eq(thisRecordId))).thenReturn(new HashSet<>(Collections.singletonList(siblingToMeRecordId)));
+
+        Set<RecordId> actual = bean.getRelationsSiblingsToMe(bibliographicRecordId, 870970);
+
+        Assert.assertThat(actual.size(), is(1));
+        Iterator<RecordId> iterator = actual.iterator();
+        Assert.assertThat(iterator.next(), is(siblingToMeRecordId));
+    }
+
+    @Test
+    public void testGetRelationsSiblingsToMeInactive191919() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "12345678";
+        final RecordId siblingFromMeRecordId = new RecordId(bibliographicRecordId, 870970);
+        final Set<Integer> allAgenciesForRecord = new HashSet<>(Arrays.asList(191919, 700300, 870970));
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 191919)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 191919)).thenReturn(false);
+        when(rawRepoDAO.allAgenciesForBibliographicRecordId(bibliographicRecordId)).thenReturn(allAgenciesForRecord);
+
+        Set<RecordId> actual = bean.getRelationsSiblingsToMe(bibliographicRecordId, 191919);
+
+        Assert.assertThat(actual.size(), is(0));
+    }
+
+    @Test
+    public void testGetRelationsSiblingsToMeInactive700300() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "12345678";
+        final RecordId siblingFromMeRecordId = new RecordId(bibliographicRecordId, 870970);
+        final Set<Integer> allAgenciesForRecord = new HashSet<>(Arrays.asList(191919, 700300, 870970));
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 700300)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 700300)).thenReturn(false);
+        when(rawRepoDAO.allAgenciesForBibliographicRecordId(bibliographicRecordId)).thenReturn(allAgenciesForRecord);
+
+        Set<RecordId> actual = bean.getRelationsSiblingsToMe(bibliographicRecordId, 700300);
+
+        Assert.assertThat(actual.size(), is(0));
+    }
+
+    @Test
+    public void testGetRelationsSiblingsToMeInactive870970() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "12345678";
+        final Set<Integer> allAgenciesForRecord = new HashSet<>(Arrays.asList(191919, 700300, 870970));
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 870970)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 870970)).thenReturn(false);
+        when(rawRepoDAO.allAgenciesForBibliographicRecordId(bibliographicRecordId)).thenReturn(allAgenciesForRecord);
+
+        Set<RecordId> actual = bean.getRelationsSiblingsToMe(bibliographicRecordId, 870970);
+
+        Assert.assertThat(actual.size(), is(2));
+        Iterator<RecordId> iterator = actual.iterator();
+        Assert.assertThat(iterator.next(), is(new RecordId(bibliographicRecordId, 191919)));
+        Assert.assertThat(iterator.next(), is(new RecordId(bibliographicRecordId, 700300)));
     }
 
     private MarcRecord loadMarcRecord(String filename) throws Exception {

@@ -279,7 +279,7 @@ public class RecordService {
             res = jsonbContext.marshall(RecordDTOMapper.recordIdToCollectionDTO(recordIds));
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
-        } catch (JSONBException | InternalServerException ex) {
+        } catch (JSONBException | InternalServerException | RawRepoException | RecordNotFoundException ex) {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
         } finally {
@@ -301,7 +301,7 @@ public class RecordService {
             res = jsonbContext.marshall(RecordDTOMapper.recordIdToCollectionDTO(recordIds));
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
-        } catch (JSONBException | InternalServerException ex) {
+        } catch (JSONBException | InternalServerException | RawRepoException | RecordNotFoundException ex) {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
         } finally {
