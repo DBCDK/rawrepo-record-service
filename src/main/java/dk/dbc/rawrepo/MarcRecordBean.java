@@ -592,62 +592,27 @@ public class MarcRecordBean {
     public Collection<MarcRecord> getMarcRecordCollection(String bibliographicRecordId, int agencyId,
                                                           boolean allowDeleted, boolean excludeDBCFields,
                                                           boolean useParentAgency,
-                                                          boolean expand, boolean keepAutFields) throws InternalServerException, RecordNotFoundException {
-        Map<String, Record> collection;
-        try (Connection conn = globalDataSource.getConnection()) {
-            try {
-                final RawRepoDAO dao = createDAO(conn);
+                                                          boolean expand, boolean keepAutFields) throws InternalServerException, RecordNotFoundException, MarcXMergerException, MarcReaderException {
+        Map<String, Record> collection = getRawRepoRecordCollection(bibliographicRecordId, agencyId,allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields, excludeDBCFields);
 
-                ObjectPool<MarcXMerger> mergePool = getMergerPool(useParentAgency);
-                MarcXMerger merger = mergePool.checkOut();
+        final Collection<MarcRecord> marcRecords = new HashSet<>();
 
-                if (!dao.recordExists(bibliographicRecordId, agencyId) &&
-                        dao.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)) {
-                    final Record rawRecord = dao.fetchRecord(bibliographicRecordId, agencyId);
-                    collection = new HashMap<>();
-                    collection.put(bibliographicRecordId, rawRecord);
-                } else {
-                    if (expand) {
-                        collection = dao.fetchRecordCollectionExpanded(bibliographicRecordId, agencyId, merger, true, keepAutFields);
-                    } else {
-                        collection = dao.fetchRecordCollection(bibliographicRecordId, agencyId, merger);
-                    }
-                }
-
-                mergePool.checkIn(merger);
-
-                final Collection<MarcRecord> marcRecords = new HashSet<>();
-                for (Map.Entry<String, Record> entry : collection.entrySet()) {
-                    final Record rawRecord = entry.getValue();
-                    if (!isMarcXChange(rawRecord.getMimeType())) {
-                        throw new MarcXMergerException("Cannot make marcx:collection from mimetype: " + rawRecord.getMimeType());
-                    }
-
-                    MarcRecord record = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
-
-                    if (excludeDBCFields) {
-                        record = removePrivateFields(record);
-                    }
-
-                    marcRecords.add(record);
-                }
-
-                return marcRecords;
-            } catch (RawRepoExceptionRecordNotFound ex) {
-                LOGGER.error("Record not found", ex);
-                throw new RecordNotFoundException("Posten '" + bibliographicRecordId + ":" + agencyId + "' blev ikke fundet");
-            } catch (RawRepoException ex) {
-                conn.rollback();
-                LOGGER.error(ex.getMessage(), ex);
-                throw new InternalServerException(ex.getMessage(), ex);
-            } catch (MarcReaderException | MarcXMergerException ex) {
-                LOGGER.error(ex.getMessage(), ex);
-                throw new InternalServerException(ex.getMessage(), ex);
+        for (Map.Entry<String, Record> entry : collection.entrySet()) {
+            final Record rawRecord = entry.getValue();
+            if (!isMarcXChange(rawRecord.getMimeType())) {
+                throw new MarcXMergerException("Cannot make marcx:collection from mimetype: " + rawRecord.getMimeType());
             }
-        } catch (SQLException ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            throw new InternalServerException(ex.getMessage(), ex);
+
+            MarcRecord record = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
+
+            if (excludeDBCFields) {
+                record = removePrivateFields(record);
+            }
+
+            marcRecords.add(record);
         }
+
+        return marcRecords;
     }
 
     @Timed
@@ -661,7 +626,6 @@ public class MarcRecordBean {
                                                           boolean excludeAutRecords) throws InternalServerException {
         Map<String, Record> collection;
         Map<String, Record> result = new HashMap<>();
-
         try (Connection conn = globalDataSource.getConnection()) {
             try {
                 final RawRepoDAO dao = createDAO(conn);
