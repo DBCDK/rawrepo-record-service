@@ -11,9 +11,6 @@ import dk.dbc.marc.writer.MarcXchangeV1Writer;
 import dk.dbc.marcxmerge.FieldRules;
 import dk.dbc.marcxmerge.MarcXChangeMimeType;
 import dk.dbc.marcxmerge.MarcXMerger;
-import dk.dbc.openagency.client.LibraryRuleHandler;
-import dk.dbc.openagency.client.OpenAgencyException;
-import dk.dbc.openagency.client.OpenAgencyServiceFromURL;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,7 +22,6 @@ import javax.sql.DataSource;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.time.Instant;
@@ -47,7 +43,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MarcRecordBeanTest {
@@ -85,30 +80,18 @@ public class MarcRecordBeanTest {
     }
 
     private class MarcRecordBeanMock extends MarcRecordBean {
-        public MarcRecordBeanMock(DataSource globalDataSource) {
+        MarcRecordBeanMock(DataSource globalDataSource) {
             super(globalDataSource);
 
             this.relationHints = relationHintsOpenAgency;
         }
 
         @Override
-        protected RawRepoDAO createDAO(Connection conn) throws RawRepoException {
+        protected RawRepoDAO createDAO(Connection conn) {
             rawRepoDAO.relationHints = this.relationHints;
 
             return rawRepoDAO;
         }
-    }
-
-    private OpenAgencyServiceFromURL getOpenAgencyService() throws OpenAgencyException {
-        LibraryRuleHandler libraryRuleHandlerMock = mock(LibraryRuleHandler.class);
-        when(libraryRuleHandlerMock.isAllowed(eq(870970), eq(LibraryRuleHandler.Rule.USE_ENRICHMENTS))).thenReturn(true);
-        when(libraryRuleHandlerMock.isAllowed(eq(191919), eq(LibraryRuleHandler.Rule.USE_ENRICHMENTS))).thenReturn(true);
-        when(libraryRuleHandlerMock.isAllowed(eq(1), eq(LibraryRuleHandler.Rule.USE_ENRICHMENTS))).thenReturn(true);
-        when(libraryRuleHandlerMock.isAllowed(eq(2), eq(LibraryRuleHandler.Rule.USE_ENRICHMENTS))).thenReturn(false);
-        OpenAgencyServiceFromURL openAgencyServiceFromURLMock = mock(OpenAgencyServiceFromURL.class);
-        when(openAgencyServiceFromURLMock.libraryRules()).thenReturn(libraryRuleHandlerMock);
-
-        return openAgencyServiceFromURLMock;
     }
 
     @Test(expected = RecordNotFoundException.class)
@@ -136,7 +119,7 @@ public class MarcRecordBeanTest {
         MarcRecord marcRecord = loadMarcRecord("raw.xml");
 
         Record record = createRecordMock(bibliographicRecordId, agencyId, MarcXChangeMimeType.ENRICHMENT,
-                marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
 
         when(globalDataSource.getConnection()).thenReturn(null);
         when(rawRepoDAO.fetchRecord(eq(bibliographicRecordId), eq(agencyId))).thenReturn(record);
@@ -155,13 +138,13 @@ public class MarcRecordBeanTest {
         MarcRecord marcRecord = loadMarcRecord("merged.xml");
 
         Record record = createRecordMock(bibliographicRecordId, agencyId, MarcXChangeMimeType.ENRICHMENT,
-                marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
 
         when(globalDataSource.getConnection()).thenReturn(null);
         when(rawRepoDAO.agencyFor(eq(bibliographicRecordId), eq(agencyId), eq(true))).thenReturn(agencyId);
         when(rawRepoDAO.recordExists(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
-        when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
+        when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false))).thenReturn(record);
 
         Assert.assertThat(bean.getMarcRecordMerged(bibliographicRecordId, agencyId, true, false, false), is(marcRecord));
     }
@@ -177,13 +160,13 @@ public class MarcRecordBeanTest {
 
 
         Record record = createRecordMock(bibliographicRecordId, agencyId, MarcXChangeMimeType.ENRICHMENT,
-                marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
 
         when(globalDataSource.getConnection()).thenReturn(null);
         when(rawRepoDAO.agencyFor(eq(bibliographicRecordId), eq(agencyId), eq(true))).thenReturn(agencyId);
         when(rawRepoDAO.recordExists(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
-        when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
+        when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false))).thenReturn(record);
 
         Assert.assertThat(bean.getMarcRecordMerged(bibliographicRecordId, agencyId, true, true, false), is(loadMarcRecord("merged-ex-dbc-fields.xml")));
     }
@@ -198,13 +181,13 @@ public class MarcRecordBeanTest {
         MarcRecord marcRecord = loadMarcRecord("merged-overwrite-common.xml");
 
         Record record = createRecordMock(bibliographicRecordId, agencyId, MarcXChangeMimeType.ENRICHMENT,
-                marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
 
         when(globalDataSource.getConnection()).thenReturn(null);
         when(rawRepoDAO.agencyFor(eq(bibliographicRecordId), eq(agencyId), eq(true))).thenReturn(agencyId);
         when(rawRepoDAO.recordExists(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
-        when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
+        when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false))).thenReturn(record);
 
         Assert.assertThat(bean.getMarcRecordMerged(bibliographicRecordId, agencyId, true, false, true), is(marcRecord));
     }
@@ -219,7 +202,7 @@ public class MarcRecordBeanTest {
         MarcRecord marcRecord = loadMarcRecord("merged.xml");
 
         Record record = createRecordMock(bibliographicRecordId, agencyId, MarcXChangeMimeType.ENRICHMENT,
-                marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
 
         when(globalDataSource.getConnection()).thenReturn(null);
         when(rawRepoDAO.agencyFor(eq(bibliographicRecordId), eq(agencyId), eq(true))).thenReturn(agencyId);
@@ -227,7 +210,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
 
-        Assert.assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, false, false, false), is(marcRecord));
+        Assert.assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, false, false, true), is(marcRecord));
     }
 
     @Test
@@ -241,13 +224,13 @@ public class MarcRecordBeanTest {
 
 
         Record record = createRecordMock(bibliographicRecordId, agencyId, MarcXChangeMimeType.ENRICHMENT,
-                marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
 
         when(globalDataSource.getConnection()).thenReturn(null);
         when(rawRepoDAO.agencyFor(eq(bibliographicRecordId), eq(agencyId), eq(true))).thenReturn(agencyId);
         when(rawRepoDAO.recordExists(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
-        when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
+        when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false))).thenReturn(record);
 
         Assert.assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, true, false, false), is(loadMarcRecord("merged-ex-dbc-fields.xml")));
     }
@@ -262,7 +245,7 @@ public class MarcRecordBeanTest {
         MarcRecord marcRecord = loadMarcRecord("merged-overwrite-common.xml");
 
         Record record = createRecordMock(bibliographicRecordId, agencyId, MarcXChangeMimeType.ENRICHMENT,
-                marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
 
         when(globalDataSource.getConnection()).thenReturn(null);
         when(rawRepoDAO.agencyFor(eq(bibliographicRecordId), eq(agencyId), eq(true))).thenReturn(agencyId);
@@ -270,7 +253,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
 
-        Assert.assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, false, true, false), is(marcRecord));
+        Assert.assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, false, true, true), is(marcRecord));
     }
 
     @Test
@@ -286,7 +269,7 @@ public class MarcRecordBeanTest {
         collection.add(marcRecord);
 
         Record record = createRecordMock(bibliographicRecordId, agencyId, MarcXChangeMimeType.ENRICHMENT,
-                marcXchangeV1Writer.write(marcRecord, Charset.forName("UTF-8")));
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
 
         Map<String, Record> recordMap = new HashMap<>();
         recordMap.put(bibliographicRecordId, record);
@@ -932,7 +915,6 @@ public class MarcRecordBeanTest {
         final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
 
         final String bibliographicRecordId = "12345678";
-        final RecordId siblingFromMeRecordId = new RecordId(bibliographicRecordId, 870970);
         final Set<Integer> allAgenciesForRecord = new HashSet<>(Arrays.asList(191919, 700300, 870970));
 
         when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 191919)).thenReturn(true);
@@ -949,7 +931,6 @@ public class MarcRecordBeanTest {
         final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
 
         final String bibliographicRecordId = "12345678";
-        final RecordId siblingFromMeRecordId = new RecordId(bibliographicRecordId, 870970);
         final Set<Integer> allAgenciesForRecord = new HashSet<>(Arrays.asList(191919, 700300, 870970));
 
         when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 700300)).thenReturn(true);
@@ -984,7 +965,7 @@ public class MarcRecordBeanTest {
         InputStream inputStream = this.getClass().getResourceAsStream(filename);
         BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
 
-        MarcXchangeV1Reader reader = new MarcXchangeV1Reader(bufferedInputStream, Charset.forName("UTF-8"));
+        MarcXchangeV1Reader reader = new MarcXchangeV1Reader(bufferedInputStream, StandardCharsets.UTF_8);
 
         return reader.read();
     }
