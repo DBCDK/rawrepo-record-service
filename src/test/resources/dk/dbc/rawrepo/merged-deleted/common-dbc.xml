@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record xmlns="info:lc/xmlns/marcxchange-v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">50938409</subfield>
+        <subfield code="b">870970</subfield>
+        <subfield code="c">20160123125944</subfield>
+        <subfield code="d">20140131</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">d</subfield>
+        <subfield code="a">e</subfield>
+    </datafield>
+    <datafield tag="008" ind1="0" ind2="0">
+        <subfield code="t">m</subfield>
+        <subfield code="u">f</subfield>
+        <subfield code="a">2014</subfield>
+        <subfield code="b">dk</subfield>
+        <subfield code="d">2</subfield>
+        <subfield code="d">å</subfield>
+        <subfield code="d">x</subfield>
+        <subfield code="l">dan</subfield>
+        <subfield code="o">b</subfield>
+        <subfield code="v">0</subfield>
+    </datafield>
+    <datafield tag="009" ind1="0" ind2="0">
+        <subfield code="a">a</subfield>
+        <subfield code="g">xx</subfield>
+    </datafield>
+    <datafield tag="021" ind1="0" ind2="0">
+        <subfield code="e">9788792286376</subfield>
+        <subfield code="c">ib.</subfield>
+    </datafield>
+    <datafield tag="032" ind1="0" ind2="0">
+        <subfield code="a">DBF201409</subfield>
+        <subfield code="x">BKM201409</subfield>
+        <subfield code="x">ACC201405</subfield>
+        <subfield code="x">DAT991605</subfield>
+    </datafield>
+    <datafield tag="038" ind1="0" ind2="0">
+        <subfield code="a">bi</subfield>
+    </datafield>
+    <datafield tag="041" ind1="0" ind2="0">
+        <subfield code="a">dan</subfield>
+        <subfield code="c">nor</subfield>
+    </datafield>
+    <datafield tag="100" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">69208045</subfield>
+        <subfield code="4">aut</subfield>
+        <subfield code="4">art</subfield>
+    </datafield>
+    <datafield tag="241" ind1="0" ind2="0">
+        <subfield code="a">Odd er et egg</subfield>
+    </datafield>
+    <datafield tag="245" ind1="0" ind2="0">
+        <subfield code="a">Ib er et æg</subfield>
+    </datafield>
+    <datafield tag="250" ind1="0" ind2="0">
+        <subfield code="a">1. udgave</subfield>
+        <subfield code="b">÷</subfield>
+    </datafield>
+    <datafield tag="260" ind1="0" ind2="0">
+        <subfield code="&amp;">1</subfield>
+        <subfield code="a">Hedehusene</subfield>
+        <subfield code="b">Torgard</subfield>
+        <subfield code="c">2014</subfield>
+    </datafield>
+    <datafield tag="300" ind1="0" ind2="0">
+        <subfield code="a">[36] sider</subfield>
+        <subfield code="b">alle ill. i farver</subfield>
+        <subfield code="c">28 cm</subfield>
+    </datafield>
+    <datafield tag="504" ind1="0" ind2="0">
+        <subfield code="&amp;">1</subfield>
+        <subfield code="a">Billedbog. Hver morgen pakker Ib sit hoved ind i håndklæder og en tehætte. Hans hoved er nemlig et æg, og han skal hele tiden passe på, at det ikke går i stykker. Men så møder han Sif. Hun passer ikke på noget</subfield>
+    </datafield>
+    <datafield tag="521" ind1="0" ind2="0">
+        <subfield code="&amp;">REX</subfield>
+        <subfield code="b">1. oplag</subfield>
+        <subfield code="c">2014</subfield>
+        <subfield code="k">Arcorounborg</subfield>
+    </datafield>
+    <datafield tag="652" ind1="0" ind2="0">
+        <subfield code="n">85</subfield>
+        <subfield code="z">296</subfield>
+    </datafield>
+    <datafield tag="652" ind1="0" ind2="0">
+        <subfield code="o">sk</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="s">alene</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="s">ensomhed</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="s">venskab</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="s">kærlighed</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="s">tapperhed</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="s">mod</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="u">for 4 år</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="u">for 5 år</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="u">for 6 år</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="u">for 7 år</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Hugin Eide</subfield>
+        <subfield code="4">trl</subfield>
+    </datafield>
+    <datafield tag="990" ind1="0" ind2="0">
+        <subfield code="o">201409</subfield>
+        <subfield code="b">l</subfield>
+        <subfield code="b">b</subfield>
+        <subfield code="b">s</subfield>
+        <subfield code="u">nt</subfield>
+    </datafield>
+    <datafield tag="996" ind1="0" ind2="0">
+        <subfield code="a">DBC</subfield>
+    </datafield>
+</record>

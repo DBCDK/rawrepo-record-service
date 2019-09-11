@@ -10,6 +10,7 @@ import dk.dbc.marc.binding.Field;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.binding.SubField;
 import dk.dbc.marc.reader.MarcReaderException;
+import dk.dbc.marcrecord.ExpandCommonMarcRecord;
 import dk.dbc.marcxmerge.MarcXChangeMimeType;
 import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.marcxmerge.MarcXMergerException;
@@ -395,7 +396,7 @@ public class MarcRecordBean {
      * @throws RecordNotFoundException
      * @throws MarcXMergerException
      */
-    Record fetchMergedRecord(String bibliographicRecordId, int originalAgencyId, MarcXMerger merger) throws MarcXMergerException, InternalServerException, RawRepoException, RecordNotFoundException {
+    Record fetchMergedRecord(String bibliographicRecordId, int originalAgencyId, MarcXMerger merger) throws InternalServerException, RawRepoException, RecordNotFoundException {
         try (Connection conn = globalDataSource.getConnection()) {
             if (recordIsActive(bibliographicRecordId, originalAgencyId)) {
                 final RawRepoDAO dao = createDAO(conn);
@@ -444,6 +445,62 @@ public class MarcRecordBean {
                 return record;
             }
         } catch (SQLException | MarcXMergerException ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            throw new RawRepoException(ex.getMessage(), ex);
+        }
+    }
+
+    Record fetchMergedRecordExpanded(String bibliographicRecordId, int originalAgencyId, MarcXMerger merger) throws InternalServerException, RawRepoException, RecordNotFoundException {
+        final Record record = fetchMergedRecord(bibliographicRecordId, originalAgencyId, merger);
+
+        expandRecord(record, false);
+
+        return record;
+    }
+
+    public void expandRecord(Record record, boolean keepAutField) throws RawRepoException, RecordNotFoundException, InternalServerException {
+        final RecordId recordId = record.getId();
+        final String bibliographicRecordId = recordId.getBibliographicRecordId();
+        final int agencyId = recordId.getAgencyId();
+
+        try (Connection conn = globalDataSource.getConnection()) {
+            if (recordIsActive(bibliographicRecordId, agencyId)) {
+                final RawRepoDAO dao = createDAO(conn);
+
+                dao.expandRecord(record, keepAutField);
+            } else {
+                RecordId expandableRecordId = null;
+
+                // Only these agencies can have authority parents
+                final List<Integer> expandableAgencies = Arrays.asList(190002, 190004, 870970, 870971, 870974);
+
+                if (expandableAgencies.contains(recordId.agencyId)) {
+                    expandableRecordId = recordId;
+                } else {
+                    final Set<RecordId> relationsSiblings = getRelationsSiblingsFromMe(bibliographicRecordId, agencyId);
+                    for (int expandableAgencyId : expandableAgencies) {
+                        RecordId potentialExpandableRecordId = new RecordId(bibliographicRecordId, expandableAgencyId);
+                        if (relationsSiblings.contains(potentialExpandableRecordId)) {
+                            expandableRecordId = potentialExpandableRecordId;
+                            break;
+                        }
+                    }
+                }
+
+                if (expandableRecordId != null) {
+                    final Set<RecordId> autParents = getRelationsParents(expandableRecordId.bibliographicRecordId, expandableRecordId.agencyId);
+                    final Map<String, Record> autRecords = new HashMap<>();
+
+                    for (RecordId parentId : autParents) {
+                        if ("870979".equals(Integer.toString(parentId.getAgencyId()))) {
+                            autRecords.put(parentId.getBibliographicRecordId(), fetchRecord(parentId.getBibliographicRecordId(), parentId.getAgencyId()));
+                        }
+                    }
+
+                    ExpandCommonMarcRecord.expandRecord(record, autRecords, keepAutField);
+                }
+            }
+        } catch (SQLException ex) {
             LOGGER.error(ex.getMessage(), ex);
             throw new RawRepoException(ex.getMessage(), ex);
         }
