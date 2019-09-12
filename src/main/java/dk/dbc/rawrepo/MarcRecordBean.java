@@ -170,9 +170,7 @@ public class MarcRecordBean {
     private void fetchRecordCollection(Map<String, Record> collection, String bibliographicRecordId, int agencyId, MarcXMerger merger, boolean includeAut) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
         if (!collection.containsKey(bibliographicRecordId)) {
             final Record record = fetchMergedRecord(bibliographicRecordId, agencyId, merger);
-
             collection.put(bibliographicRecordId, record);
-
             final int mostCommonAgency = findParentRelationAgency(bibliographicRecordId, agencyId);
             final Set<RecordId> parents = getRelationsParents(bibliographicRecordId, mostCommonAgency);
             for (RecordId parent : parents) {
@@ -634,7 +632,7 @@ public class MarcRecordBean {
                                                           boolean useParentAgency,
                                                           boolean expand, boolean keepAutFields) throws InternalServerException, RecordNotFoundException, MarcXMergerException, MarcReaderException {
         Map<String, Record> collection = getRawRepoRecordCollection(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields, excludeDBCFields);
-        System.out.println(collection.size());
+
         final Collection<MarcRecord> marcRecords = new HashSet<>();
 
         for (Map.Entry<String, Record> entry : collection.entrySet()) {
@@ -809,7 +807,6 @@ public class MarcRecordBean {
                         }
                     }
                 }
-
                 return result;
             }
         } catch (SQLException | RawRepoException | RecordNotFoundException ex) {
