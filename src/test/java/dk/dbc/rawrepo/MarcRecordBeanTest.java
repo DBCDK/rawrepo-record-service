@@ -495,8 +495,6 @@ public class MarcRecordBeanTest {
 
         final String bibliographicRecordId = "90004158";
         final int agencyId = 191919;
-        final ObjectPool<MarcXMerger> mergePool = new DefaultMarcXMergerPool();
-        final MarcXMerger merger = mergePool.checkOut();
 
         Map<String, Record> collection = new HashMap<>();
 
@@ -512,9 +510,9 @@ public class MarcRecordBeanTest {
 
         when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)).thenReturn(true);
         when(rawRepoDAO.recordExists(bibliographicRecordId, agencyId)).thenReturn(true);
-        when(rawRepoDAO.fetchRecordCollection(bibliographicRecordId, agencyId, merger)).thenReturn(collection);
+        when(rawRepoDAO.fetchRecordCollection(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class))).thenReturn(collection);
 
-        Assert.assertThat(bean.fetchRecordCollection(bibliographicRecordId, agencyId, merger), is(collection));
+        Assert.assertThat(bean.fetchRecordCollection(bibliographicRecordId, agencyId, getMerger()), is(collection));
     }
 
     @Test
@@ -1116,7 +1114,6 @@ public class MarcRecordBeanTest {
 
         Assert.assertThat(actual.size(), is(0));
     }
-
 
     @Test
     public void testGetRelationsSiblingsToMeActiveRecord191919() throws Exception {
