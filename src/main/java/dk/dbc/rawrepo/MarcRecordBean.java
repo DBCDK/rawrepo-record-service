@@ -126,7 +126,6 @@ public class MarcRecordBean {
         return newMarcRecord;
     }
 
-    // TODO Add test cases
     Map<String, Record> fetchRecordCollection(String bibliographicRecordId, int agencyId, MarcXMerger merger) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
         if (recordIsActive(bibliographicRecordId, agencyId)) {
             try (Connection conn = globalDataSource.getConnection()) {
@@ -146,7 +145,6 @@ public class MarcRecordBean {
         }
     }
 
-    // TODO Add test cases
     Map<String, Record> fetchRecordCollectionExpanded(String bibliographicRecordId, int agencyId, MarcXMerger merger, boolean includeAut, boolean keepAutField) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
         if (recordIsActive(bibliographicRecordId, agencyId)) {
             try (Connection conn = globalDataSource.getConnection()) {
@@ -166,7 +164,6 @@ public class MarcRecordBean {
         }
     }
 
-    // TODO Add test cases
     private void fetchRecordCollection(Map<String, Record> collection, String bibliographicRecordId, int agencyId, MarcXMerger merger, boolean includeAut) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
         if (!collection.containsKey(bibliographicRecordId)) {
             final Record record = fetchMergedRecord(bibliographicRecordId, agencyId, merger);
@@ -183,12 +180,9 @@ public class MarcRecordBean {
         }
     }
 
-    // TODO Add test cases
     private void fetchRecordCollectionExpanded(Map<String, Record> collection, String bibliographicRecordId, int agencyId, MarcXMerger merger, boolean includeAut, boolean keepAutField) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
         if (!collection.containsKey(bibliographicRecordId)) {
-            final Record record = fetchMergedRecord(bibliographicRecordId, agencyId, merger);
-
-            expandRecord(record, keepAutField);
+            final Record record = fetchMergedRecordExpanded(bibliographicRecordId, agencyId, merger, keepAutField);
 
             collection.put(bibliographicRecordId, record);
 
@@ -199,7 +193,7 @@ public class MarcRecordBean {
                 if (870979 == parent.agencyId && !includeAut) {
                     continue;
                 }
-                fetchRecordCollection(collection, parent.getBibliographicRecordId(), agencyId, merger, includeAut);
+                fetchRecordCollectionExpanded(collection, parent.getBibliographicRecordId(), agencyId, merger, includeAut, keepAutField);
             }
         }
     }
