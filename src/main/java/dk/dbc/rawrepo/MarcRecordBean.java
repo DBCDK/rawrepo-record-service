@@ -198,30 +198,22 @@ public class MarcRecordBean {
         }
     }
 
-    int findParentRelationAgency(String bibliographicRecordId, int originalAgencyId) throws RawRepoException, RecordNotFoundException {
-        try (Connection conn = globalDataSource.getConnection()) {
-            if (recordIsActive(bibliographicRecordId, originalAgencyId)) {
-                final RawRepoDAO dao = createDAO(conn);
-
-                return dao.findParentRelationAgency(bibliographicRecordId, originalAgencyId);
-            } else {
-                if (relationHints.usesCommonAgency(originalAgencyId)) {
-                    final List<Integer> list = relationHints.get(originalAgencyId);
-                    if (!list.isEmpty()) {
-                        for (Integer agencyId : list) {
-                            if (recordExists(bibliographicRecordId, agencyId, true)) {
-                                return agencyId;
-                            }
-                        }
+    int findParentRelationAgency(String bibliographicRecordId, int originalAgencyId) throws RawRepoException {
+        if (relationHints.usesCommonAgency(originalAgencyId)) {
+            final List<Integer> list = relationHints.get(originalAgencyId);
+            if (!list.isEmpty()) {
+                for (Integer agencyId : list) {
+                    if (recordExists(bibliographicRecordId, agencyId, true)) {
+                        return agencyId;
                     }
                 }
-                if (recordExists(bibliographicRecordId, originalAgencyId, true)) {
-                    return originalAgencyId;
-                }
             }
-        } catch (SQLException ex) {
-            throw new RawRepoException(ex.getMessage(), ex);
         }
+
+        if (recordExists(bibliographicRecordId, originalAgencyId, true)) {
+            return originalAgencyId;
+        }
+
         throw new RawRepoExceptionRecordNotFound("Could not find (parent) relation agency for " + bibliographicRecordId + " from " + originalAgencyId);
     }
 
@@ -424,10 +416,12 @@ public class MarcRecordBean {
     Record fetchMergedRecord(String bibliographicRecordId, int originalAgencyId, MarcXMerger merger) throws InternalServerException, RawRepoException, RecordNotFoundException {
         try (Connection conn = globalDataSource.getConnection()) {
             final RawRepoDAO dao = createDAO(conn);
-            if (recordIsActive(bibliographicRecordId, originalAgencyId)) {
+
+            int agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, true);
+
+            if (recordIsActive(bibliographicRecordId, agencyId)) {
                 return dao.fetchMergedRecord(bibliographicRecordId, originalAgencyId, merger, false);
             } else {
-                int agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, true);
                 final LinkedList<Record> records = new LinkedList<>();
 
                 for (; ; ) {

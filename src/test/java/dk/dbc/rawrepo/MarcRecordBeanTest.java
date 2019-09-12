@@ -435,7 +435,7 @@ public class MarcRecordBeanTest {
         expectedExpandedRecord.setCreated(getInstant("2018-09-11"));
         expectedExpandedRecord.setModified(getInstant("2019-09-11"));
 
-        final Record authorityRecord = createRecordMock("69208045", 870979, MarcXChangeMimeType.MARCXCHANGE,
+        final Record authorityRecord = createRecordMock("69208045", 870979, MarcXChangeMimeType.AUTHORITY,
                 marcXchangeV1Writer.write(authorityMarcRecord, StandardCharsets.UTF_8));
         authorityRecord.setDeleted(false);
         authorityRecord.setCreated(getInstant("2018-09-11"));
@@ -545,7 +545,7 @@ public class MarcRecordBeanTest {
         expectedMergedRecord.setCreated(getInstant("2018-09-11"));
         expectedMergedRecord.setModified(getInstant("2019-09-11"));
 
-        final Record authorityRecord = createRecordMock("69208045", 870979, MarcXChangeMimeType.MARCXCHANGE,
+        final Record authorityRecord = createRecordMock("69208045", 870979, MarcXChangeMimeType.AUTHORITY,
                 marcXchangeV1Writer.write(authorityMarcRecord, StandardCharsets.UTF_8));
         authorityRecord.setDeleted(false);
         authorityRecord.setCreated(getInstant("2018-09-11"));
@@ -562,6 +562,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.findParentRelationAgency(autBibliographicRecordId, 191919)).thenReturn(870979);
         when(rawRepoDAO.allAgenciesForBibliographicRecordId(eq(bibliographicRecordId))).thenReturn(agenciesFound);
         when(rawRepoDAO.agencyFor(bibliographicRecordId, 191919, true)).thenReturn(191919);
+        when(rawRepoDAO.agencyFor("69208045", 191919, true)).thenReturn(191919);
         when(rawRepoDAO.fetchRecord(bibliographicRecordId, 191919)).thenReturn(deletedEnrichmentRecord);
         when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870970)).thenReturn(deletedCommonRecord);
         when(rawRepoDAO.fetchMergedRecord(eq(autBibliographicRecordId), eq(191919), any(MarcXMerger.class), eq(false))).thenReturn(authorityRecord);
