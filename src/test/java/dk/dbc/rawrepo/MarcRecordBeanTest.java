@@ -524,7 +524,6 @@ public class MarcRecordBeanTest {
         final MarcRecord deletedEnrichmentMarcRecord = loadMarcRecord("merged-deleted/common-enrichment.xml");
         final MarcRecord deletedCommonMarcRecord = loadMarcRecord("merged-deleted/common-dbc.xml");
         final MarcRecord expectedMergedMarcRecord = loadMarcRecord("merged-deleted/expected-merged.xml");
-        final MarcRecord expectedExpandedMarcRecord = loadMarcRecord("merged-deleted/expected-expanded.xml");
         final MarcRecord authorityMarcRecord = loadMarcRecord("merged-deleted/aut-dbc.xml");
         final Set<Integer> agenciesFound = new HashSet<>(Arrays.asList(191919, 700300, 870970));
         final String bibliographicRecordId = "50938409";
@@ -592,6 +591,125 @@ public class MarcRecordBeanTest {
         byte[] mergedContent = marcXchangeV1Writer.write(mergedMarcRecord, StandardCharsets.UTF_8);
 
         Assert.assertThat(mergedContent, is(expectedMergedRecord.getContent()));
+
+        final Record actualAutRecord = actual.get(autBibliographicRecordId);
+
+        Assert.assertThat(actualAutRecord.getId(), is(authorityRecord.getId()));
+        Assert.assertThat(actualAutRecord.isDeleted(), is(authorityRecord.isDeleted()));
+        Assert.assertThat(actualAutRecord.getMimeType(), is(authorityRecord.getMimeType()));
+        Assert.assertThat(actualAutRecord.getCreated(), is(authorityRecord.getCreated()));
+        Assert.assertThat(actualAutRecord.getModified(), is(authorityRecord.getModified()));
+        Assert.assertThat(actualAutRecord.getTrackingId(), is(authorityRecord.getTrackingId()));
+
+        inputStream = new ByteArrayInputStream(actualAutRecord.getContent());
+        bufferedInputStream = new BufferedInputStream(inputStream);
+        reader = new MarcXchangeV1Reader(bufferedInputStream, StandardCharsets.UTF_8);
+        mergedMarcRecord = reader.read();
+        mergedContent = marcXchangeV1Writer.write(mergedMarcRecord, StandardCharsets.UTF_8);
+
+        Assert.assertThat(mergedContent, is(authorityRecord.getContent()));
+    }
+
+    @Test
+    public void testFetchRecordCollectionExpandedExistingRecord() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "90004158";
+        final int agencyId = 191919;
+        final ObjectPool<MarcXMerger> mergePool = new DefaultMarcXMergerPool();
+        final MarcXMerger merger = mergePool.checkOut();
+        final Map<String, Record> collection = new HashMap<>();
+        final MarcRecord marcRecord = loadMarcRecord("merged-deleted/expected-expanded.xml");
+
+        final Record record = createRecordMock(bibliographicRecordId, 191919, MarcXChangeMimeType.MARCXCHANGE,
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
+        record.setDeleted(true);
+        record.setCreated(getInstant("2018-09-11"));
+        record.setModified(getInstant("2019-09-11"));
+
+        collection.put(bibliographicRecordId, record);
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, agencyId)).thenReturn(true);
+        when(rawRepoDAO.fetchRecordCollectionExpanded(bibliographicRecordId, agencyId, merger, true, false)).thenReturn(collection);
+
+        Assert.assertThat(bean.fetchRecordCollectionExpanded(bibliographicRecordId, agencyId, merger, true, false), is(collection));
+    }
+
+    @Test
+    public void testFetchRecordCollectionExpandedDeletedRecord() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final MarcRecord deletedEnrichmentMarcRecord = loadMarcRecord("merged-deleted/common-enrichment.xml");
+        final MarcRecord deletedCommonMarcRecord = loadMarcRecord("merged-deleted/common-dbc.xml");
+        final MarcRecord expanded = loadMarcRecord("merged-deleted/expected-expanded.xml");
+        final MarcRecord authorityMarcRecord = loadMarcRecord("merged-deleted/aut-dbc.xml");
+        final Set<Integer> agenciesFound = new HashSet<>(Arrays.asList(191919, 700300, 870970));
+        final String bibliographicRecordId = "50938409";
+        final String autBibliographicRecordId = "69208045";
+
+        final Record deletedEnrichmentRecord = createRecordMock(bibliographicRecordId, 191919, MarcXChangeMimeType.ENRICHMENT,
+                marcXchangeV1Writer.write(deletedEnrichmentMarcRecord, StandardCharsets.UTF_8));
+        deletedEnrichmentRecord.setDeleted(true);
+        deletedEnrichmentRecord.setCreated(getInstant("2018-09-11"));
+        deletedEnrichmentRecord.setModified(getInstant("2019-09-11"));
+
+        final Record deletedCommonRecord = createRecordMock(bibliographicRecordId, 870970, MarcXChangeMimeType.MARCXCHANGE,
+                marcXchangeV1Writer.write(deletedCommonMarcRecord, StandardCharsets.UTF_8));
+        deletedCommonRecord.setDeleted(true);
+        deletedCommonRecord.setCreated(getInstant("2018-09-11"));
+        deletedCommonRecord.setModified(getInstant("2019-09-11"));
+
+        final Record expectedExpandedRecord = createRecordMock(bibliographicRecordId, 191919, MarcXChangeMimeType.MARCXCHANGE,
+                marcXchangeV1Writer.write(expanded, StandardCharsets.UTF_8));
+        expectedExpandedRecord.setDeleted(true);
+        expectedExpandedRecord.setCreated(getInstant("2018-09-11"));
+        expectedExpandedRecord.setModified(getInstant("2019-09-11"));
+
+        final Record authorityRecord = createRecordMock("69208045", 870979, MarcXChangeMimeType.MARCXCHANGE,
+                marcXchangeV1Writer.write(authorityMarcRecord, StandardCharsets.UTF_8));
+        authorityRecord.setDeleted(false);
+        authorityRecord.setCreated(getInstant("2018-09-11"));
+        authorityRecord.setModified(getInstant("2019-09-11"));
+
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 191919)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 191919)).thenReturn(false);
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, 870970)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, 870970)).thenReturn(false);
+        when(rawRepoDAO.recordExistsMaybeDeleted(autBibliographicRecordId, 191919)).thenReturn(true);
+        when(rawRepoDAO.recordExists(autBibliographicRecordId, 191919)).thenReturn(true);
+        when(rawRepoDAO.recordExistsMaybeDeleted(autBibliographicRecordId, 870979)).thenReturn(true);
+        when(rawRepoDAO.recordExists(autBibliographicRecordId, 870979)).thenReturn(true);
+        when(rawRepoDAO.findParentRelationAgency(autBibliographicRecordId, 191919)).thenReturn(870979);
+        when(rawRepoDAO.allAgenciesForBibliographicRecordId(eq(bibliographicRecordId))).thenReturn(agenciesFound);
+        when(rawRepoDAO.agencyFor(bibliographicRecordId, 191919, true)).thenReturn(191919);
+        when(rawRepoDAO.fetchRecord(bibliographicRecordId, 191919)).thenReturn(deletedEnrichmentRecord);
+        when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870970)).thenReturn(deletedCommonRecord);
+        when(rawRepoDAO.fetchMergedRecordExpanded(eq(autBibliographicRecordId), eq(191919), any(MarcXMerger.class), eq(false))).thenReturn(authorityRecord);
+        when(rawRepoDAO.fetchRecord(autBibliographicRecordId, 870979)).thenReturn(authorityRecord);
+
+        final Map<String, Record> actual = bean.fetchRecordCollectionExpanded(bibliographicRecordId, 191919, getMerger(), true, false);
+
+        Assert.assertThat(actual.size(), is(2));
+        Assert.assertTrue(actual.containsKey(bibliographicRecordId));
+        Assert.assertTrue(actual.containsKey(autBibliographicRecordId));
+
+        final Record actualCommonRecord = actual.get(bibliographicRecordId);
+
+        Assert.assertThat(actualCommonRecord.getId(), is(expectedExpandedRecord.getId()));
+        Assert.assertThat(actualCommonRecord.isDeleted(), is(expectedExpandedRecord.isDeleted()));
+        Assert.assertThat(actualCommonRecord.getMimeType(), is(expectedExpandedRecord.getMimeType()));
+        Assert.assertThat(actualCommonRecord.getCreated(), is(expectedExpandedRecord.getCreated()));
+        // We won't compare modified date as it is set during expandRecord. Therefore we can't compare to a static value
+        Assert.assertThat(actualCommonRecord.getTrackingId(), is(expectedExpandedRecord.getTrackingId()));
+
+        InputStream inputStream = new ByteArrayInputStream(actualCommonRecord.getContent());
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+        MarcXchangeV1Reader reader = new MarcXchangeV1Reader(bufferedInputStream, StandardCharsets.UTF_8);
+        MarcRecord mergedMarcRecord = reader.read();
+        byte[] mergedContent = marcXchangeV1Writer.write(mergedMarcRecord, StandardCharsets.UTF_8);
+
+        Assert.assertThat(mergedContent, is(expectedExpandedRecord.getContent()));
 
         final Record actualAutRecord = actual.get(autBibliographicRecordId);
 
