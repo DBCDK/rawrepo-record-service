@@ -136,13 +136,14 @@ public class RecordCollectionService {
 
             return Response.ok(res, MediaType.APPLICATION_XML).build();
         } catch (RecordNotFoundException ex) {
-            LOGGER.error("Record not found", ex);
+            LOGGER.error("Record collection for {}:{} not found", bibliographicRecordId, agencyId, ex);
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception ex) {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}");
+            LOGGER.info("v1/records/{}/{}/content?allow-deleted={}&exclude-dbc-fields={}&use-parent-agency={}&expand={}&keep-aut-fields={}",
+                    agencyId, bibliographicRecordId, allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields);
         }
     }
 

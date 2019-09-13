@@ -224,7 +224,7 @@ public class MarcRecordBean {
             if (dao.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)) {
                 return dao.recordExists(bibliographicRecordId, agencyId);
             } else {
-                throw new RecordNotFoundException("Record doesn't exist");
+                throw new RecordNotFoundException(String.format("Record %s:%s doesn't exist", bibliographicRecordId, agencyId));
             }
 
         } catch (SQLException ex) {
