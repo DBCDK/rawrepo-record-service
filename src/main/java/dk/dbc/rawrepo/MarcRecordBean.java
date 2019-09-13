@@ -329,7 +329,6 @@ public class MarcRecordBean {
                 final Record rawRecord;
                 final ObjectPool<MarcXMerger> mergePool = getMergerPool(useParentAgency);
                 final MarcXMerger merger = mergePool.checkOut();
-
                 final int correctedAgencyId = dao.agencyFor(bibliographicRecordId, agencyId, allowDeleted);
 
                 final boolean recordExists = dao.recordExistsMaybeDeleted(bibliographicRecordId, correctedAgencyId);
@@ -414,13 +413,24 @@ public class MarcRecordBean {
      * @throws MarcXMergerException
      */
     Record fetchMergedRecord(String bibliographicRecordId, int originalAgencyId, MarcXMerger merger) throws InternalServerException, RawRepoException, RecordNotFoundException {
+        return fetchMergedRecordExpanded(bibliographicRecordId, originalAgencyId, merger, false, false);
+    }
+
+    Record fetchMergedRecordExpanded(String bibliographicRecordId, int originalAgencyId, MarcXMerger merger, boolean keepAutField) throws InternalServerException, RawRepoException, RecordNotFoundException, MarcXMergerException {
+        return fetchMergedRecordExpanded(bibliographicRecordId, originalAgencyId, merger, true, keepAutField);
+    }
+
+    private Record fetchMergedRecordExpanded(String bibliographicRecordId, int originalAgencyId, MarcXMerger merger, boolean doExpand, boolean keepAutField) throws InternalServerException, RawRepoException, RecordNotFoundException {
         try (Connection conn = globalDataSource.getConnection()) {
             final RawRepoDAO dao = createDAO(conn);
-
             int agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, true);
 
             if (recordIsActive(bibliographicRecordId, agencyId)) {
-                return dao.fetchMergedRecord(bibliographicRecordId, originalAgencyId, merger, false);
+                if (doExpand) {
+                    return dao.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, merger, false, keepAutField);
+                } else {
+                    return dao.fetchMergedRecord(bibliographicRecordId, agencyId, merger, false);
+                }
             } else {
                 final LinkedList<Record> records = new LinkedList<>();
 
@@ -459,28 +469,13 @@ public class MarcRecordBean {
                     }
                 }
 
+                if (doExpand) {
+                    expandRecord(record, keepAutField);
+                }
+
                 return record;
             }
         } catch (SQLException | MarcXMergerException ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            throw new RawRepoException(ex.getMessage(), ex);
-        }
-    }
-
-    Record fetchMergedRecordExpanded(String bibliographicRecordId, int originalAgencyId, MarcXMerger merger, boolean keepAutField) throws InternalServerException, RawRepoException, RecordNotFoundException, MarcXMergerException {
-        try (Connection conn = globalDataSource.getConnection()) {
-            if (recordIsActive(bibliographicRecordId, originalAgencyId)) {
-                final RawRepoDAO dao = createDAO(conn);
-
-                return dao.fetchMergedRecordExpanded(bibliographicRecordId, originalAgencyId, merger, keepAutField);
-            } else {
-                final Record record = fetchMergedRecord(bibliographicRecordId, originalAgencyId, merger);
-
-                expandRecord(record, keepAutField);
-
-                return record;
-            }
-        } catch (SQLException ex) {
             LOGGER.error(ex.getMessage(), ex);
             throw new RawRepoException(ex.getMessage(), ex);
         }

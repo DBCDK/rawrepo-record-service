@@ -210,7 +210,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.agencyFor(eq(bibliographicRecordId), eq(agencyId), eq(true))).thenReturn(agencyId);
         when(rawRepoDAO.recordExists(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
-        when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
+        when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false), eq(true))).thenReturn(record);
 
         Assert.assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, false, false, true), is(marcRecord));
     }
@@ -232,7 +232,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.agencyFor(eq(bibliographicRecordId), eq(agencyId), eq(true))).thenReturn(agencyId);
         when(rawRepoDAO.recordExists(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
-        when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false))).thenReturn(record);
+        when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false), eq(false))).thenReturn(record);
 
         Assert.assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, true, false, false), is(loadMarcRecord("merged-ex-dbc-fields.xml")));
     }
@@ -253,7 +253,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.agencyFor(eq(bibliographicRecordId), eq(agencyId), eq(true))).thenReturn(agencyId);
         when(rawRepoDAO.recordExists(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
-        when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true))).thenReturn(record);
+        when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false), eq(true))).thenReturn(record);
 
         Assert.assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, false, true, true), is(marcRecord));
     }
@@ -682,9 +682,10 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.findParentRelationAgency(autBibliographicRecordId, 191919)).thenReturn(870979);
         when(rawRepoDAO.allAgenciesForBibliographicRecordId(eq(bibliographicRecordId))).thenReturn(agenciesFound);
         when(rawRepoDAO.agencyFor(bibliographicRecordId, 191919, true)).thenReturn(191919);
+        when(rawRepoDAO.agencyFor(autBibliographicRecordId, 191919, true)).thenReturn(191919);
         when(rawRepoDAO.fetchRecord(bibliographicRecordId, 191919)).thenReturn(deletedEnrichmentRecord);
         when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870970)).thenReturn(deletedCommonRecord);
-        when(rawRepoDAO.fetchMergedRecordExpanded(eq(autBibliographicRecordId), eq(191919), any(MarcXMerger.class), eq(false))).thenReturn(authorityRecord);
+        when(rawRepoDAO.fetchMergedRecordExpanded(eq(autBibliographicRecordId), eq(191919), any(MarcXMerger.class), eq(false), eq(false))).thenReturn(authorityRecord);
         when(rawRepoDAO.fetchRecord(autBibliographicRecordId, 870979)).thenReturn(authorityRecord);
 
         final Map<String, Record> actual = bean.fetchRecordCollectionExpanded(bibliographicRecordId, 191919, getMerger(), true, false);
