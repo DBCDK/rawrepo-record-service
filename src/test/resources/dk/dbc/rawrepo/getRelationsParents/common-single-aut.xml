@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record xmlns="info:lc/xmlns/marcxchange-v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">50938409</subfield>
+        <subfield code="b">870970</subfield>
+        <subfield code="c">20160123125944</subfield>
+        <subfield code="d">20140131</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">d</subfield>
+        <subfield code="a">e</subfield>
+    </datafield>
+    <datafield tag="008" ind1="0" ind2="0">
+        <subfield code="t">m</subfield>
+        <subfield code="u">f</subfield>
+        <subfield code="a">2014</subfield>
+        <subfield code="b">dk</subfield>
+        <subfield code="d">2</subfield>
+        <subfield code="d">å</subfield>
+        <subfield code="d">x</subfield>
+        <subfield code="l">dan</subfield>
+        <subfield code="o">b</subfield>
+        <subfield code="v">0</subfield>
+    </datafield>
+    <datafield tag="100" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">69208045</subfield>
+        <subfield code="4">aut</subfield>
+        <subfield code="4">art</subfield>
+    </datafield>
+    <datafield tag="245" ind1="0" ind2="0">
+        <subfield code="a">Ib er et æg</subfield>
+    </datafield>
+    <datafield tag="996" ind1="0" ind2="0">
+        <subfield code="a">DBC</subfield>
+    </datafield>
+</record>

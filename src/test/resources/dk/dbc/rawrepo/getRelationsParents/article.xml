@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<marcx:record xmlns:marcx="info:lc/xmlns/marcxchange-v1" format="danMARC2" type="Bibliographic">
+    <marcx:leader>00000n    2200000   4500</marcx:leader>
+    <marcx:datafield ind1="0" ind2="0" tag="001">
+        <marcx:subfield code="a">85803190</marcx:subfield>
+        <marcx:subfield code="b">870971</marcx:subfield>
+        <marcx:subfield code="c">20150327073752</marcx:subfield>
+        <marcx:subfield code="d">20001030</marcx:subfield>
+        <marcx:subfield code="f">a</marcx:subfield>
+    </marcx:datafield>
+    <marcx:datafield ind1="0" ind2="0" tag="004">
+        <marcx:subfield code="r">d</marcx:subfield>
+        <marcx:subfield code="a">i</marcx:subfield>
+    </marcx:datafield>
+    <marcx:datafield ind1="0" ind2="0" tag="008">
+        <marcx:subfield code="t">a</marcx:subfield>
+        <marcx:subfield code="u">f</marcx:subfield>
+        <marcx:subfield code="a">2000</marcx:subfield>
+        <marcx:subfield code="b">dk</marcx:subfield>
+        <marcx:subfield code="d">s</marcx:subfield>
+        <marcx:subfield code="l">dan</marcx:subfield>
+        <marcx:subfield code="n">b</marcx:subfield>
+        <marcx:subfield code="v">0</marcx:subfield>
+        <marcx:subfield code="r">an</marcx:subfield>
+    </marcx:datafield>
+    <marcx:datafield ind1="0" ind2="0" tag="014">
+        <marcx:subfield code="a">23191083</marcx:subfield>
+        <marcx:subfield code="x">ANM</marcx:subfield>
+    </marcx:datafield>
+    <marcx:datafield ind1="0" ind2="0" tag="016">
+        <marcx:subfield code="a">03243850</marcx:subfield>
+    </marcx:datafield>
+    <marcx:datafield ind1="0" ind2="0" tag="245">
+        <marcx:subfield code="a">[Anmeldelse]</marcx:subfield>
+    </marcx:datafield>
+    <marcx:datafield ind1="0" ind2="0" tag="700">
+        <marcx:subfield code="&amp;">ANM</marcx:subfield>
+        <marcx:subfield code="a">Michelsen</marcx:subfield>
+        <marcx:subfield code="h">Thomas</marcx:subfield>
+    </marcx:datafield>
+    <marcx:datafield ind1="0" ind2="0" tag="996">
+        <marcx:subfield code="a">IDX</marcx:subfield>
+    </marcx:datafield>
+</marcx:record>

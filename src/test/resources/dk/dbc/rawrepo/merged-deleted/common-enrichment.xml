@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record xmlns="info:lc/xmlns/marcxchange-v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">50938409</subfield>
+        <subfield code="b">191919</subfield>
+        <subfield code="c">20160123125944</subfield>
+        <subfield code="d">20140131</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">d</subfield>
+        <subfield code="a">e</subfield>
+    </datafield>
+    <datafield tag="d08" ind1="0" ind2="0">
+        <subfield code="a">masserettet i forb. med nye og ændrede funktionskoder</subfield>
+    </datafield>
+    <datafield tag="d08" ind1="0" ind2="0">
+        <subfield code="o">sah</subfield>
+        <subfield code="a">Udkommer d. 20.02.14</subfield>
+        <subfield code="o">kga</subfield>
+        <subfield code="k">lhf</subfield>
+    </datafield>
+    <datafield tag="d09" ind1="0" ind2="0">
+        <subfield code="z">REX201411</subfield>
+    </datafield>
+    <datafield tag="d31" ind1="0" ind2="0">
+        <subfield code="b">233</subfield>
+        <subfield code="h">274</subfield>
+        <subfield code="t">6</subfield>
+    </datafield>
+    <datafield tag="d32" ind1="0" ind2="0">
+        <subfield code="b">230</subfield>
+        <subfield code="h">270</subfield>
+    </datafield>
+    <datafield tag="d35" ind1="0" ind2="0">
+        <subfield code="a">P</subfield>
+        <subfield code="i">02</subfield>
+        <subfield code="n">07</subfield>
+        <subfield code="p">08</subfield>
+        <subfield code="q">07</subfield>
+    </datafield>
+    <datafield tag="f06" ind1="0" ind2="0">
+        <subfield code="b">l</subfield>
+        <subfield code="b">b</subfield>
+        <subfield code="b">s</subfield>
+    </datafield>
+    <datafield tag="n51" ind1="0" ind2="0">
+        <subfield code="a">20140219</subfield>
+    </datafield>
+    <datafield tag="s12" ind1="0" ind2="0">
+        <subfield code="t">TeamBLY201407</subfield>
+    </datafield>
+    <datafield tag="z99" ind1="0" ind2="0">
+        <subfield code="a">masseret</subfield>
+    </datafield>
+</record>
