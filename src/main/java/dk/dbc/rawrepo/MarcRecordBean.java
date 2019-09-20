@@ -127,49 +127,30 @@ public class MarcRecordBean {
     }
 
     Map<String, Record> fetchRecordCollection(String bibliographicRecordId, int agencyId, MarcXMerger merger) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
-        if (recordIsActive(bibliographicRecordId, agencyId)) {
-            try (Connection conn = globalDataSource.getConnection()) {
-                final RawRepoDAO dao = createDAO(conn);
+        final HashMap<String, Record> ret = new HashMap<>();
 
-                return dao.fetchRecordCollection(bibliographicRecordId, agencyId, merger);
-            } catch (SQLException | MarcXMergerException ex) {
-                LOGGER.error(ex.getMessage(), ex);
-                throw new RawRepoException(ex.getMessage(), ex);
-            }
-        } else {
-            final HashMap<String, Record> ret = new HashMap<>();
+        fetchRecordCollection(ret, bibliographicRecordId, agencyId, merger, true);
 
-            fetchRecordCollection(ret, bibliographicRecordId, agencyId, merger, true);
-
-            return ret;
-        }
+        return ret;
     }
 
     Map<String, Record> fetchRecordCollectionExpanded(String bibliographicRecordId, int agencyId, MarcXMerger merger, boolean includeAut, boolean keepAutField) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
-        if (recordIsActive(bibliographicRecordId, agencyId)) {
-            try (Connection conn = globalDataSource.getConnection()) {
-                final RawRepoDAO dao = createDAO(conn);
+        final HashMap<String, Record> ret = new HashMap<>();
 
-                return dao.fetchRecordCollectionExpanded(bibliographicRecordId, agencyId, merger, includeAut, keepAutField);
-            } catch (SQLException | MarcXMergerException ex) {
-                LOGGER.error(ex.getMessage(), ex);
-                throw new RawRepoException(ex.getMessage(), ex);
-            }
-        } else {
-            final HashMap<String, Record> ret = new HashMap<>();
+        fetchRecordCollectionExpanded(ret, bibliographicRecordId, agencyId, merger, includeAut, keepAutField);
 
-            fetchRecordCollectionExpanded(ret, bibliographicRecordId, agencyId, merger, includeAut, keepAutField);
-
-            return ret;
-        }
+        return ret;
     }
 
     private void fetchRecordCollection(Map<String, Record> collection, String bibliographicRecordId, int agencyId, MarcXMerger merger, boolean includeAut) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
         if (!collection.containsKey(bibliographicRecordId)) {
             final Record record = fetchMergedRecord(bibliographicRecordId, agencyId, merger);
+
             collection.put(bibliographicRecordId, record);
+
             final int mostCommonAgency = findParentRelationAgency(bibliographicRecordId, agencyId);
             final Set<RecordId> parents = getRelationsParents(bibliographicRecordId, mostCommonAgency);
+
             for (RecordId parent : parents) {
                 // If this parent is an authority record and includeAut is false then skip parent
                 if (870979 == parent.agencyId && !includeAut) {
@@ -188,6 +169,7 @@ public class MarcRecordBean {
 
             final int mostCommonAgency = findParentRelationAgency(bibliographicRecordId, agencyId);
             final Set<RecordId> parents = getRelationsParents(bibliographicRecordId, mostCommonAgency);
+
             for (RecordId parent : parents) {
                 // If this parent is an authority record and includeAut is false then skip parent
                 if (870979 == parent.agencyId && !includeAut) {
@@ -331,19 +313,10 @@ public class MarcRecordBean {
                 final MarcXMerger merger = mergePool.checkOut();
                 final int correctedAgencyId = dao.agencyFor(bibliographicRecordId, agencyId, allowDeleted);
 
-                final boolean recordExists = dao.recordExistsMaybeDeleted(bibliographicRecordId, correctedAgencyId);
-                final boolean isDeleted = recordExists && !dao.recordExists(bibliographicRecordId, correctedAgencyId);
-
-                // If the record doesn't exist at all or if the record is marked as deleted and the result should not
-                // include deleted records then return null.
-                if (!recordExists || isDeleted && !allowDeleted) {
-                    return null;
+                if (doExpand) {
+                    rawRecord = fetchMergedRecordExpanded(bibliographicRecordId, correctedAgencyId, merger, keepAutFields);
                 } else {
-                    if (doExpand) {
-                        rawRecord = fetchMergedRecordExpanded(bibliographicRecordId, correctedAgencyId, merger, keepAutFields);
-                    } else {
-                        rawRecord = fetchMergedRecord(bibliographicRecordId, correctedAgencyId, merger);
-                    }
+                    rawRecord = fetchMergedRecord(bibliographicRecordId, correctedAgencyId, merger);
                 }
 
                 mergePool.checkIn(merger);
@@ -636,7 +609,7 @@ public class MarcRecordBean {
 
     @Timed
     public Map<String, Record> getRawRepoRecordCollection(String bibliographicRecordId,
-                                                          int agencyId,
+                                                          int originalAgencyId,
                                                           boolean allowDeleted,
                                                           boolean excludeDBCFields,
                                                           boolean useParentAgency,
@@ -647,20 +620,13 @@ public class MarcRecordBean {
         final Map<String, Record> result = new HashMap<>();
         try (Connection conn = globalDataSource.getConnection()) {
             try {
-                final RawRepoDAO dao = createDAO(conn);
                 final ObjectPool<MarcXMerger> mergePool = getMergerPool(useParentAgency);
                 final MarcXMerger merger = mergePool.checkOut();
 
-                if (allowDeleted ?
-                        dao.recordExistsMaybeDeleted(bibliographicRecordId, agencyId) :
-                        dao.recordExists(bibliographicRecordId, agencyId)) {
-                    if (expand) {
-                        collection = fetchRecordCollectionExpanded(bibliographicRecordId, agencyId, merger, true, keepAutFields);
-                    } else {
-                        collection = fetchRecordCollection(bibliographicRecordId, agencyId, merger);
-                    }
+                if (expand) {
+                    collection = fetchRecordCollectionExpanded(bibliographicRecordId, originalAgencyId, merger, true, keepAutFields);
                 } else {
-                    collection = new HashMap<>();
+                    collection = fetchRecordCollection(bibliographicRecordId, originalAgencyId, merger);
                 }
 
                 mergePool.checkIn(merger);
