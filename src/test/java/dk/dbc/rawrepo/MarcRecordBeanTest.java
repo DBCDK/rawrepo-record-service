@@ -753,7 +753,6 @@ public class MarcRecordBeanTest {
 
         when(rawRepoDAO.agencyFor(bibliographicRecordId, originalAgencyId, true)).thenReturn(agencyId);
         when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, originalAgencyId)).thenReturn(false);
-        //when(rawRepoDAO.recordExists(bibliographicRecordId, originalAgencyId)).thenReturn(false);
         when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)).thenReturn(true);
         when(rawRepoDAO.recordExists(bibliographicRecordId, agencyId)).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, merger, false, false)).thenReturn(record);
