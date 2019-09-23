@@ -277,9 +277,10 @@ public class MarcRecordBeanTest {
         recordMap.put(bibliographicRecordId, record);
 
         when(globalDataSource.getConnection()).thenReturn(null);
+        when(rawRepoDAO.agencyFor(bibliographicRecordId, agencyId, true)).thenReturn(191919);
         when(rawRepoDAO.recordExists(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
-        when(rawRepoDAO.fetchRecordCollectionExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(true), eq(false))).thenReturn(recordMap);
+        when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false), eq(false))).thenReturn(record);
 
         Assert.assertThat(bean.getMarcRecordCollection(bibliographicRecordId, agencyId, true, false, true, true, false), is(collection));
     }
@@ -507,10 +508,10 @@ public class MarcRecordBeanTest {
         record.setModified(getInstant("2019-09-11"));
 
         collection.put(bibliographicRecordId, record);
-
+        when(rawRepoDAO.agencyFor(bibliographicRecordId, agencyId, true)).thenReturn(191919);
         when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)).thenReturn(true);
         when(rawRepoDAO.recordExists(bibliographicRecordId, agencyId)).thenReturn(true);
-        when(rawRepoDAO.fetchRecordCollection(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class))).thenReturn(collection);
+        when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false))).thenReturn(record);
 
         Assert.assertThat(bean.fetchRecordCollection(bibliographicRecordId, agencyId, getMerger()), is(collection));
     }
@@ -628,9 +629,10 @@ public class MarcRecordBeanTest {
 
         collection.put(bibliographicRecordId, record);
 
+        when(rawRepoDAO.agencyFor(bibliographicRecordId, agencyId, true)).thenReturn(191919);
         when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)).thenReturn(true);
         when(rawRepoDAO.recordExists(bibliographicRecordId, agencyId)).thenReturn(true);
-        when(rawRepoDAO.fetchRecordCollectionExpanded(bibliographicRecordId, agencyId, merger, true, false)).thenReturn(collection);
+        when(rawRepoDAO.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, merger, false, false)).thenReturn(record);
 
         Assert.assertThat(bean.fetchRecordCollectionExpanded(bibliographicRecordId, agencyId, merger, true, false), is(collection));
     }
@@ -727,6 +729,35 @@ public class MarcRecordBeanTest {
         mergedContent = marcXchangeV1Writer.write(mergedMarcRecord, StandardCharsets.UTF_8);
 
         Assert.assertThat(mergedContent, is(authorityRecord.getContent()));
+    }
+
+    @Test
+    public void testFetchRecordCollectionExpandedExistingPHRecord() throws Exception {
+        final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
+
+        final String bibliographicRecordId = "90004158";
+        final int originalAgencyId = 700300;
+        final int agencyId = 870970;
+        final ObjectPool<MarcXMerger> mergePool = new DefaultMarcXMergerPool();
+        final MarcXMerger merger = mergePool.checkOut();
+        final Map<String, Record> collection = new HashMap<>();
+        final MarcRecord marcRecord = loadMarcRecord("merged-deleted/expected-expanded.xml");
+
+        final Record record = createRecordMock(bibliographicRecordId, 870970, MarcXChangeMimeType.MARCXCHANGE,
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
+        record.setDeleted(true);
+        record.setCreated(getInstant("2018-09-11"));
+        record.setModified(getInstant("2019-09-11"));
+
+        collection.put(bibliographicRecordId, record);
+
+        when(rawRepoDAO.agencyFor(bibliographicRecordId, originalAgencyId, true)).thenReturn(agencyId);
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, originalAgencyId)).thenReturn(false);
+        when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)).thenReturn(true);
+        when(rawRepoDAO.recordExists(bibliographicRecordId, agencyId)).thenReturn(true);
+        when(rawRepoDAO.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, merger, false, false)).thenReturn(record);
+
+        Assert.assertThat(bean.fetchRecordCollectionExpanded(bibliographicRecordId, originalAgencyId, merger, true, false), is(collection));
     }
 
     @Test
