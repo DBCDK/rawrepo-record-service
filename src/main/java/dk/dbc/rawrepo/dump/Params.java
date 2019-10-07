@@ -1,7 +1,6 @@
 package dk.dbc.rawrepo.dump;
 
 import java.nio.charset.Charset;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,9 +41,7 @@ public abstract class Params {
         if (this.outputEncoding == null) {
             this.outputEncoding = "UTF-8"; // Set default value
         } else {
-            try {
-                Charset.forName(this.outputEncoding);
-            } catch (UnsupportedCharsetException ex) {
+            if (!("DANMARC2".equalsIgnoreCase(this.outputEncoding) || Charset.availableCharsets().containsKey(this.outputEncoding))) {
                 result.add(new ParamsValidationItem("outputEncoding", "The value " + this.outputEncoding + " is not a valid charset"));
             }
         }
