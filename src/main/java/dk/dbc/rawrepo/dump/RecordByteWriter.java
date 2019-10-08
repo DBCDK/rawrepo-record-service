@@ -7,6 +7,7 @@ package dk.dbc.rawrepo.dump;
 
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
+import dk.dbc.marc.DanMarc2Charset;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marc.writer.DanMarc2LineFormatWriter;
@@ -45,7 +46,7 @@ public class RecordByteWriter {
 
     public void writeHeader() throws IOException {
         if (outputFormat == OutputFormat.XML) {
-            String xmlHeader = "<?xml version='1.0' encoding='" +  params.getOutputEncoding() +"'?>\n";
+            String xmlHeader = "<?xml version='1.0' encoding='" + params.getOutputEncoding() + "'?>\n";
             String collectionHeader = "<collection xmlns='info:lc/xmlns/marcxchange-v1' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='info:lc/xmlns/marcxchange-v1 http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd'>";
 
             outputStream.write(xmlHeader.getBytes());
@@ -64,12 +65,13 @@ public class RecordByteWriter {
     public void write(byte[] data) throws IOException, MarcReaderException, JSONBException, MarcWriterException {
         MarcRecord marcRecord;
         byte[] recordBytes;
+        final Charset charset = "DANMARC2".equalsIgnoreCase(params.getOutputEncoding()) ? new DanMarc2Charset() : Charset.forName(params.getOutputEncoding());
 
         switch (outputFormat) {
             case JSON:
                 MarcRecord recordJSON = RecordObjectMapper.contentToMarcRecord(data);
                 ContentDTO contentDTO = RecordDTOMapper.contentToDTO(recordJSON);
-                recordBytes = jsonbContext.marshall(contentDTO).getBytes(params.getOutputEncoding());
+                recordBytes = jsonbContext.marshall(contentDTO).getBytes(charset);
                 synchronized (this) {
                     outputStream.write(recordBytes);
                     outputStream.write("\n".getBytes());
@@ -78,7 +80,7 @@ public class RecordByteWriter {
             case LINE:
                 marcRecord = RecordObjectMapper.contentToMarcRecord(data);
                 synchronized (this) {
-                    outputStream.write(danMarc2LineFormatWriter.write(marcRecord, Charset.forName(params.getOutputEncoding())));
+                    outputStream.write(danMarc2LineFormatWriter.write(marcRecord, charset));
                 }
                 break;
             case LINE_XML:
@@ -89,7 +91,7 @@ public class RecordByteWriter {
                 break;
             case XML:
                 marcRecord = RecordObjectMapper.contentToMarcRecord(data);
-                recordBytes = marcXchangeV1Writer.write(marcRecord, Charset.forName(params.getOutputEncoding()));
+                recordBytes = marcXchangeV1Writer.write(marcRecord, charset);
                 synchronized (this) {
                     outputStream.write(recordBytes);
                     outputStream.write("\n".getBytes());
@@ -98,7 +100,7 @@ public class RecordByteWriter {
             case ISO:
                 marcRecord = RecordObjectMapper.contentToMarcRecord(data);
                 synchronized (this) {
-                    outputStream.write(iso2709Writer.write(marcRecord, Charset.forName(params.getOutputEncoding())));
+                    outputStream.write(iso2709Writer.write(marcRecord, charset));
                 }
                 break;
         }
