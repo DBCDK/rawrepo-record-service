@@ -13,7 +13,6 @@ import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.RecordId;
 import dk.dbc.rawrepo.RecordMetaDataHistory;
-import dk.dbc.rawrepo.service.RecordObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +36,9 @@ public class RecordDTOMapper {
 
     public static RecordDTO recordToDTO(Record rawRecord) throws MarcReaderException {
         final RecordDTO dto = new RecordDTO();
+        // TODO remove line below when DBCkat is ready
+        dto.setRecordId(recordIdToDTO(rawRecord.getId()));
+
         dto.setDeleted(rawRecord.isDeleted());
         dto.setCreated(rawRecord.getCreated().toString());
         dto.setModified(rawRecord.getModified().toString());
@@ -44,23 +46,24 @@ public class RecordDTOMapper {
         dto.setTrackingId(rawRecord.getTrackingId());
         dto.setEnrichmentTrail(rawRecord.getEnrichmentTrail());
 
-        if (rawRecord.getContent().length == 0) {
-            dto.setContent(null);
-            dto.setContentJSON(null);
-            dto.setRecordId(recordIdToDTO(rawRecord.getId()));
-        } else {
-            dto.setContent(rawRecord.getContent());
-            final MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
-            dto.setContentJSON(contentToDTO(marcRecord));
-
-            // If 'use parent agency' is enabled the id in the record entity might not be the same as the id of the content
-            final RecordIdDTO marcRecordId = getMarcRecordIdDTO(marcRecord);
-            if (marcRecordId != null) {
-                dto.setRecordId(marcRecordId);
-            } else {
-                dto.setRecordId(recordIdToDTO(rawRecord.getId()));
-            }
-        }
+        // TODO un-comment again when DBCkat is ready
+//        if (rawRecord.getContent().length == 0) {
+//            dto.setContent(null);
+//            dto.setContentJSON(null);
+//            dto.setRecordId(recordIdToDTO(rawRecord.getId()));
+//        } else {
+//            dto.setContent(rawRecord.getContent());
+//            final MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
+//            dto.setContentJSON(contentToDTO(marcRecord));
+//
+//            // If 'use parent agency' is enabled the id in the record entity might not be the same as the id of the content
+//            final RecordIdDTO marcRecordId = getMarcRecordIdDTO(marcRecord);
+//            if (marcRecordId != null) {
+//                dto.setRecordId(marcRecordId);
+//            } else {
+//                dto.setRecordId(recordIdToDTO(rawRecord.getId()));
+//            }
+//        }
 
         return dto;
     }
@@ -179,27 +182,28 @@ public class RecordDTOMapper {
         return dto;
     }
 
-    private static RecordIdDTO getMarcRecordIdDTO(MarcRecord marcRecord) {
-        String bibliographicRecordId = null;
-        Integer agencyId = null;
-        for (Field field: marcRecord.getFields()) {
-            final DataField dataField = (DataField) field;
-            if ("001".equals(dataField.getTag())) {
-                for (SubField subField: dataField.getSubfields()) {
-                    if ('a' == subField.getCode()) {
-                        bibliographicRecordId = subField.getData();
-                    } else if ('b' == subField.getCode()) {
-                        agencyId = Integer.parseInt(subField.getData());
-                    }
-                }
-            }
-        }
-
-        if (bibliographicRecordId != null && agencyId != null) {
-            return new RecordIdDTO(bibliographicRecordId, agencyId);
-        } else {
-            return null;
-        }
-    }
+    // TODO un-comment again when DBCkat is ready
+//    private static RecordIdDTO getMarcRecordIdDTO(MarcRecord marcRecord) {
+//        String bibliographicRecordId = null;
+//        Integer agencyId = null;
+//        for (Field field: marcRecord.getFields()) {
+//            final DataField dataField = (DataField) field;
+//            if ("001".equals(dataField.getTag())) {
+//                for (SubField subField: dataField.getSubfields()) {
+//                    if ('a' == subField.getCode()) {
+//                        bibliographicRecordId = subField.getData();
+//                    } else if ('b' == subField.getCode()) {
+//                        agencyId = Integer.parseInt(subField.getData());
+//                    }
+//                }
+//            }
+//        }
+//
+//        if (bibliographicRecordId != null && agencyId != null) {
+//            return new RecordIdDTO(bibliographicRecordId, agencyId);
+//        } else {
+//            return null;
+//        }
+//    }
 
 }
