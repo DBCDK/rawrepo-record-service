@@ -245,11 +245,11 @@ public class MarcRecordBean {
 
                 if (allowDeleted) {
                     if (!dao.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)) {
-                        throw new RecordNotFoundException("Posten '" + bibliographicRecordId + ":" + Integer.toString(agencyId) + "' blev ikke fundet");
+                        throw new RecordNotFoundException("Posten '" + bibliographicRecordId + ":" + agencyId + "' blev ikke fundet");
                     }
                 } else {
                     if (!dao.recordExists(bibliographicRecordId, agencyId)) {
-                        throw new RecordNotFoundException("Posten '" + bibliographicRecordId + ":" + Integer.toString(agencyId) + "' blev ikke fundet eller er slettet");
+                        throw new RecordNotFoundException("Posten '" + bibliographicRecordId + ":" + agencyId + "' blev ikke fundet eller er slettet");
                     }
                 }
 
@@ -383,7 +383,7 @@ public class MarcRecordBean {
      * @return Record object with merged values from the input record and its parent record
      * @throws RawRepoException
      * @throws RecordNotFoundException
-     * @throws MarcXMergerException
+     * @throws InternalServerException
      */
     Record fetchMergedRecord(String bibliographicRecordId, int originalAgencyId, boolean allowDeleted, MarcXMerger merger) throws InternalServerException, RawRepoException, RecordNotFoundException {
         return fetchMergedRecordExpanded(bibliographicRecordId, originalAgencyId, allowDeleted, merger, false, false);
@@ -454,7 +454,7 @@ public class MarcRecordBean {
         }
     }
 
-    public void expandRecord(Record record, boolean keepAutField) throws
+    void expandRecord(Record record, boolean keepAutField) throws
             RawRepoException, RecordNotFoundException, InternalServerException {
         final RecordId recordId = record.getId();
         final String bibliographicRecordId = recordId.getBibliographicRecordId();
@@ -504,8 +504,8 @@ public class MarcRecordBean {
     }
 
     @Timed
-    public MarcRecord getMarcRecord(String bibliographicRecordId, int agencyId, boolean allowDeleted,
-                                    boolean excludeDBCFields) throws InternalServerException, RecordNotFoundException {
+    MarcRecord getMarcRecord(String bibliographicRecordId, int agencyId, boolean allowDeleted,
+                             boolean excludeDBCFields) throws InternalServerException, RecordNotFoundException {
         try (Connection conn = globalDataSource.getConnection()) {
             try {
                 final RawRepoDAO dao = createDAO(conn);
