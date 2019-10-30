@@ -380,7 +380,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.fetchRecord(bibliographicRecordId, 191919)).thenReturn(deletedEnrichmentMock);
         when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870970)).thenReturn(deletedCommonMock);
 
-        final Record mergedDeletedRecord = bean.fetchMergedRecord(bibliographicRecordId, 191919, getMerger());
+        final Record mergedDeletedRecord = bean.fetchMergedRecord(bibliographicRecordId, 191919, true, getMerger());
 
         Assert.assertThat(mergedDeletedRecord.getId(), is(expected.getId()));
         Assert.assertThat(mergedDeletedRecord.isDeleted(), is(expected.isDeleted()));
@@ -452,7 +452,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870970)).thenReturn(deletedCommonRecord);
         when(rawRepoDAO.fetchRecord("69208045", 870979)).thenReturn(authorityRecord);
 
-        final Record actualRecord = bean.fetchMergedRecord(bibliographicRecordId, 191919, getMerger());
+        final Record actualRecord = bean.fetchMergedRecord(bibliographicRecordId, 191919, true, getMerger());
 
         Assert.assertThat(actualRecord.getId(), is(expectedMergedRecord.getId()));
         Assert.assertThat(actualRecord.isDeleted(), is(expectedMergedRecord.isDeleted()));
@@ -513,7 +513,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExists(bibliographicRecordId, agencyId)).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false))).thenReturn(record);
 
-        Assert.assertThat(bean.fetchRecordCollection(bibliographicRecordId, agencyId, getMerger()), is(collection));
+        Assert.assertThat(bean.fetchRecordCollection(bibliographicRecordId, agencyId, true, getMerger()), is(collection));
     }
 
     @Test
@@ -568,7 +568,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870970)).thenReturn(deletedCommonRecord);
         when(rawRepoDAO.fetchMergedRecord(eq(autBibliographicRecordId), eq(191919), any(MarcXMerger.class), eq(false))).thenReturn(authorityRecord);
 
-        final Map<String, Record> actual = bean.fetchRecordCollection(bibliographicRecordId, 191919, getMerger());
+        final Map<String, Record> actual = bean.fetchRecordCollection(bibliographicRecordId, 191919, true, getMerger());
 
         Assert.assertThat(actual.size(), is(2));
 
@@ -634,7 +634,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExists(bibliographicRecordId, agencyId)).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, merger, false, false)).thenReturn(record);
 
-        Assert.assertThat(bean.fetchRecordCollectionExpanded(bibliographicRecordId, agencyId, merger, true, false), is(collection));
+        Assert.assertThat(bean.fetchRecordCollectionExpanded(bibliographicRecordId, agencyId, true, merger, true, false), is(collection));
     }
 
     @Test
@@ -690,7 +690,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.fetchMergedRecordExpanded(eq(autBibliographicRecordId), eq(191919), any(MarcXMerger.class), eq(false), eq(false))).thenReturn(authorityRecord);
         when(rawRepoDAO.fetchRecord(autBibliographicRecordId, 870979)).thenReturn(authorityRecord);
 
-        final Map<String, Record> actual = bean.fetchRecordCollectionExpanded(bibliographicRecordId, 191919, getMerger(), true, false);
+        final Map<String, Record> actual = bean.fetchRecordCollectionExpanded(bibliographicRecordId, 191919, true, getMerger(), true, false);
 
         Assert.assertThat(actual.size(), is(2));
         Assert.assertTrue(actual.containsKey(bibliographicRecordId));
@@ -757,7 +757,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExists(bibliographicRecordId, agencyId)).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, merger, false, false)).thenReturn(record);
 
-        Assert.assertThat(bean.fetchRecordCollectionExpanded(bibliographicRecordId, originalAgencyId, merger, true, false), is(collection));
+        Assert.assertThat(bean.fetchRecordCollectionExpanded(bibliographicRecordId, originalAgencyId, true, merger, true, false), is(collection));
     }
 
     @Test
