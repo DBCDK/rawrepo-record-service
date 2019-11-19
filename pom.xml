@@ -23,6 +23,8 @@
         <microprofile.version>1.2</microprofile.version>
         <perf4j.version>0.9.16</perf4j.version>
         <hamcrest.version>1.3</hamcrest.version>
+        <rawrepo.scm.url>https://raw.githubusercontent.com/DBCDK/rawrepo/master/access/schema</rawrepo.scm.url>
+        <rawrepo.download.url>${project.build.directory}/schema</rawrepo.download.url>
     </properties>
 
     <pluginRepositories>
@@ -132,7 +134,97 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.googlecode.maven-download-plugin</groupId>
+                    <artifactId>download-maven-plugin</artifactId>
+                    <version>1.3.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
+            <plugin>
+                <groupId>com.googlecode.maven-download-plugin</groupId>
+                <artifactId>download-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>fetch-update-service-wsdl</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>wget</goal>
+                        </goals>
+                        <configuration>
+                            <url>${rawrepo.scm.url}/rawrepo.sql</url>
+                            <outputDirectory>${rawrepo.download.url}</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>fetch-update-service-xsd</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>wget</goal>
+                        </goals>
+                        <configuration>
+                            <url>${rawrepo.scm.url}/queuerules.sql</url>
+                            <outputDirectory>${rawrepo.download.url}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>reserve-network-port</id>
+                        <goals>
+                            <goal>reserve-network-port</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <portNames>
+                                <portName>postgresql.port</portName>
+                                <portName>wiremock.port</portName>
+                            </portNames>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>dk.dbc</groupId>
+                <artifactId>postgresql-maven-plugin</artifactId>
+                <version>1.3-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <id>start-postgresql</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                        <configuration>
+                            <pgPort>${postgresql.port}</pgPort>
+                            <pgDbName>rawrepo</pgDbName>
+                            <pgDbScripts>
+                                <param>${rawrepo.download.url}/rawrepo.sql</param>
+                                <param>${rawrepo.download.url}/queuerules.sql</param>
+                            </pgDbScripts>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop-postgresql</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>shutdown</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
