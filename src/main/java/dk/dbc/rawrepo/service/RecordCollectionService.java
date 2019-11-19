@@ -77,6 +77,7 @@ public class RecordCollectionService {
     public Response getRecordCollection(@PathParam("agencyid") int agencyId,
                                         @PathParam("bibliographicrecordid") String bibliographicRecordId,
                                         @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
+                                        @DefaultValue("false") @QueryParam("for-corepo") boolean forCorepo,
                                         @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                         @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                         @DefaultValue("false") @QueryParam("expand") boolean expand,
@@ -87,7 +88,7 @@ public class RecordCollectionService {
 
         try {
 
-            Map<String, Record> collection = marcRecordBean.getRawRepoRecordCollection(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields, excludeAutRecords);
+            Map<String, Record> collection = marcRecordBean.getRawRepoRecordCollection(bibliographicRecordId, agencyId, allowDeleted, forCorepo, excludeDBCFields, useParentAgency, expand, keepAutFields, excludeAutRecords);
 
             RecordCollectionDTO dtoList = RecordDTOMapper.recordCollectionToDTO(collection);
 
@@ -123,6 +124,7 @@ public class RecordCollectionService {
     public Response getRecordContentCollection(@PathParam("agencyid") int agencyId,
                                                @PathParam("bibliographicrecordid") String bibliographicRecordId,
                                                @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
+                                               @DefaultValue("false") @QueryParam("for-corepo") boolean forCorepo,
                                                @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                                @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                                @DefaultValue("false") @QueryParam("expand") boolean expand,
@@ -130,7 +132,7 @@ public class RecordCollectionService {
         String res;
 
         try {
-            Collection<MarcRecord> marcRecords = marcRecordBean.getMarcRecordCollection(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields);
+            Collection<MarcRecord> marcRecords = marcRecordBean.getMarcRecordCollection(bibliographicRecordId, agencyId, allowDeleted, forCorepo, excludeDBCFields, useParentAgency, expand, keepAutFields);
 
             res = new String(RecordObjectMapper.marcRecordCollectionToContent(marcRecords));
 

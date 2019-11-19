@@ -126,29 +126,29 @@ public class MarcRecordBean {
         return newMarcRecord;
     }
 
-    Map<String, Record> fetchRecordCollection(String bibliographicRecordId, int agencyId, boolean allowDeleted, MarcXMerger merger) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
+    Map<String, Record> fetchRecordCollection(String bibliographicRecordId, int agencyId, boolean allowDeleted, boolean attemptToFindActiveRecord, MarcXMerger merger) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
         final HashMap<String, Record> ret = new HashMap<>();
 
-        fetchRecordCollection(ret, bibliographicRecordId, agencyId, allowDeleted, merger, true);
+        fetchRecordCollection(ret, bibliographicRecordId, agencyId, allowDeleted, attemptToFindActiveRecord, merger, true);
 
         return ret;
     }
 
-    Map<String, Record> fetchRecordCollectionExpanded(String bibliographicRecordId, int agencyId, boolean allowDeleted, MarcXMerger merger, boolean includeAut, boolean keepAutField) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
+    Map<String, Record> fetchRecordCollectionExpanded(String bibliographicRecordId, int agencyId, boolean allowDeleted, boolean attemptToFindActiveRecord, MarcXMerger merger, boolean includeAut, boolean keepAutField) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
         final HashMap<String, Record> ret = new HashMap<>();
 
-        fetchRecordCollectionExpanded(ret, bibliographicRecordId, agencyId, allowDeleted, merger, includeAut, keepAutField);
+        fetchRecordCollectionExpanded(ret, bibliographicRecordId, agencyId, allowDeleted, attemptToFindActiveRecord, merger, includeAut, keepAutField);
 
         return ret;
     }
 
-    private void fetchRecordCollection(Map<String, Record> collection, String bibliographicRecordId, int agencyId, boolean allowDeleted, MarcXMerger merger, boolean includeAut) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
-        fetchRecordCollection(collection, bibliographicRecordId, agencyId, allowDeleted, true, merger, includeAut);
+    private void fetchRecordCollection(Map<String, Record> collection, String bibliographicRecordId, int agencyId, boolean allowDeleted, boolean attemptToFindActiveRecord, MarcXMerger merger, boolean includeAut) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
+        fetchRecordCollection(collection, bibliographicRecordId, agencyId, allowDeleted, attemptToFindActiveRecord, true, merger, includeAut);
     }
 
-    private void fetchRecordCollection(Map<String, Record> collection, String bibliographicRecordId, int agencyId, boolean allowDeleted, boolean isRoot, MarcXMerger merger, boolean includeAut) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
+    private void fetchRecordCollection(Map<String, Record> collection, String bibliographicRecordId, int agencyId, boolean allowDeleted, boolean attemptToFindActiveRecord, boolean isRoot, MarcXMerger merger, boolean includeAut) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
         if (!collection.containsKey(bibliographicRecordId)) {
-            final Record record = fetchMergedRecord(bibliographicRecordId, agencyId, allowDeleted, isRoot, merger);
+            final Record record = fetchMergedRecord(bibliographicRecordId, agencyId, allowDeleted, attemptToFindActiveRecord, isRoot, merger);
 
             collection.put(bibliographicRecordId, record);
 
@@ -160,18 +160,18 @@ public class MarcRecordBean {
                 if (870979 == parent.agencyId && !includeAut) {
                     continue;
                 }
-                fetchRecordCollection(collection, parent.getBibliographicRecordId(), agencyId, allowDeleted, false, merger, includeAut);
+                fetchRecordCollection(collection, parent.getBibliographicRecordId(), agencyId, allowDeleted, attemptToFindActiveRecord, false, merger, includeAut);
             }
         }
     }
 
-    private void fetchRecordCollectionExpanded(Map<String, Record> collection, String bibliographicRecordId, int agencyId, boolean allowDeleted, MarcXMerger merger, boolean includeAut, boolean keepAutField) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
-        fetchRecordCollectionExpanded(collection, bibliographicRecordId, agencyId, allowDeleted, true, merger, includeAut, keepAutField);
+    private void fetchRecordCollectionExpanded(Map<String, Record> collection, String bibliographicRecordId, int agencyId, boolean allowDeleted, boolean attemptToFindActiveRecord, MarcXMerger merger, boolean includeAut, boolean keepAutField) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
+        fetchRecordCollectionExpanded(collection, bibliographicRecordId, agencyId, allowDeleted, attemptToFindActiveRecord, true, merger, includeAut, keepAutField);
     }
 
-    private void fetchRecordCollectionExpanded(Map<String, Record> collection, String bibliographicRecordId, int agencyId, boolean allowDeleted, boolean isRoot, MarcXMerger merger, boolean includeAut, boolean keepAutField) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
+    private void fetchRecordCollectionExpanded(Map<String, Record> collection, String bibliographicRecordId, int agencyId, boolean allowDeleted, boolean attemptToFindActiveRecord, boolean isRoot, MarcXMerger merger, boolean includeAut, boolean keepAutField) throws RawRepoException, InternalServerException, MarcXMergerException, RecordNotFoundException {
         if (!collection.containsKey(bibliographicRecordId)) {
-            final Record record = fetchMergedRecordExpanded(bibliographicRecordId, agencyId, allowDeleted, isRoot, merger, keepAutField);
+            final Record record = fetchMergedRecordExpanded(bibliographicRecordId, agencyId, allowDeleted, attemptToFindActiveRecord, isRoot, merger, keepAutField);
 
             collection.put(bibliographicRecordId, record);
 
@@ -183,7 +183,7 @@ public class MarcRecordBean {
                 if (870979 == parent.agencyId && !includeAut) {
                     continue;
                 }
-                fetchRecordCollectionExpanded(collection, parent.getBibliographicRecordId(), agencyId, allowDeleted, false, merger, includeAut, keepAutField);
+                fetchRecordCollectionExpanded(collection, parent.getBibliographicRecordId(), agencyId, allowDeleted, attemptToFindActiveRecord, false, merger, includeAut, keepAutField);
             }
         }
     }
@@ -322,9 +322,9 @@ public class MarcRecordBean {
                 final int correctedAgencyId = dao.agencyFor(bibliographicRecordId, agencyId, allowDeleted);
 
                 if (doExpand) {
-                    rawRecord = fetchMergedRecordExpanded(bibliographicRecordId, correctedAgencyId, allowDeleted, merger, keepAutFields);
+                    rawRecord = fetchMergedRecordExpanded(bibliographicRecordId, correctedAgencyId, allowDeleted, false, merger, keepAutFields);
                 } else {
-                    rawRecord = fetchMergedRecord(bibliographicRecordId, correctedAgencyId, allowDeleted, merger);
+                    rawRecord = fetchMergedRecord(bibliographicRecordId, correctedAgencyId, allowDeleted, false, merger);
                 }
 
                 mergePool.checkIn(merger);
@@ -344,7 +344,7 @@ public class MarcRecordBean {
                 conn.rollback();
                 LOGGER.error(ex.getMessage(), ex);
                 throw new InternalServerException(ex.getMessage(), ex);
-            } catch (MarcReaderException | MarcXMergerException ex) {
+            } catch (MarcReaderException ex) {
                 LOGGER.error(ex.getMessage(), ex);
                 throw new InternalServerException(ex.getMessage(), ex);
             }
@@ -393,46 +393,46 @@ public class MarcRecordBean {
      * @throws RecordNotFoundException
      * @throws InternalServerException
      */
-    Record fetchMergedRecord(String bibliographicRecordId, int originalAgencyId, boolean allowDeleted, MarcXMerger merger) throws InternalServerException, RawRepoException, RecordNotFoundException {
-        return fetchMergedRecordExpanded(bibliographicRecordId, originalAgencyId, allowDeleted, true, merger, false, false);
+    Record fetchMergedRecord(String bibliographicRecordId, int originalAgencyId, boolean allowDeleted, boolean attemptToFindActiveRecord, MarcXMerger merger) throws InternalServerException, RawRepoException, RecordNotFoundException {
+        return fetchMergedRecordExpanded(bibliographicRecordId, originalAgencyId, allowDeleted, true, attemptToFindActiveRecord, merger, false, false);
     }
 
-    private Record fetchMergedRecord(String bibliographicRecordId, int originalAgencyId, boolean allowDeleted, boolean isRoot, MarcXMerger merger) throws InternalServerException, RawRepoException, RecordNotFoundException {
-        return fetchMergedRecordExpanded(bibliographicRecordId, originalAgencyId, allowDeleted, isRoot, merger, false, false);
+    private Record fetchMergedRecord(String bibliographicRecordId, int originalAgencyId, boolean allowDeleted, boolean attemptToFindActiveRecord, boolean isRoot, MarcXMerger merger) throws InternalServerException, RawRepoException, RecordNotFoundException {
+        return fetchMergedRecordExpanded(bibliographicRecordId, originalAgencyId, allowDeleted, isRoot, attemptToFindActiveRecord, merger, false, false);
     }
 
-    Record fetchMergedRecordExpanded(String bibliographicRecordId, int originalAgencyId, boolean allowDeleted, MarcXMerger merger, boolean keepAutField) throws InternalServerException, RawRepoException, RecordNotFoundException, MarcXMergerException {
-        return fetchMergedRecordExpanded(bibliographicRecordId, originalAgencyId, allowDeleted, true, merger, true, keepAutField);
+    Record fetchMergedRecordExpanded(String bibliographicRecordId, int originalAgencyId, boolean allowDeleted, boolean attemptToFindActiveRecord, MarcXMerger merger, boolean keepAutField) throws InternalServerException, RawRepoException, RecordNotFoundException {
+        return fetchMergedRecordExpanded(bibliographicRecordId, originalAgencyId, allowDeleted, true, attemptToFindActiveRecord, merger, true, keepAutField);
     }
 
-    private Record fetchMergedRecordExpanded(String bibliographicRecordId, int originalAgencyId, boolean allowDeleted, boolean isRoot, MarcXMerger merger, boolean keepAutField) throws InternalServerException, RawRepoException, RecordNotFoundException, MarcXMergerException {
-        return fetchMergedRecordExpanded(bibliographicRecordId, originalAgencyId, allowDeleted, isRoot, merger, true, keepAutField);
+    private Record fetchMergedRecordExpanded(String bibliographicRecordId, int originalAgencyId, boolean allowDeleted, boolean attemptToFindActiveRecord, boolean isRoot, MarcXMerger merger, boolean keepAutField) throws InternalServerException, RawRepoException, RecordNotFoundException {
+        return fetchMergedRecordExpanded(bibliographicRecordId, originalAgencyId, allowDeleted, isRoot, attemptToFindActiveRecord, merger, true, keepAutField);
     }
 
-    private Record fetchMergedRecordExpanded(String bibliographicRecordId, int originalAgencyId, boolean allowDeleted, boolean isRoot, MarcXMerger merger, boolean doExpand, boolean keepAutField) throws InternalServerException, RawRepoException, RecordNotFoundException {
+    private Record fetchMergedRecordExpanded(String bibliographicRecordId, int originalAgencyId, boolean allowDeleted, boolean isRoot, boolean attemptToFindActiveRecord, MarcXMerger merger, boolean doExpand, boolean keepAutField) throws InternalServerException, RawRepoException, RecordNotFoundException {
         try (Connection conn = globalDataSource.getConnection()) {
             final RawRepoDAO dao = createDAO(conn);
-            int agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, true);
-
-            if (!allowDeleted || recordIsActive(bibliographicRecordId, agencyId)) {
+            int agencyId;
+            if (isRoot) {
+                if (attemptToFindActiveRecord) {
+                    try {
+                        agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, false);
+                    } catch (RawRepoExceptionRecordNotFound e) {
+                        agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, allowDeleted);
+                    }
+                } else {
+                    agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, allowDeleted);
+                }
+            } else {
+                agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, false);
+            }
+            if (recordIsActive(bibliographicRecordId, agencyId)) {
                 if (doExpand) {
                     return dao.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, merger, false, keepAutField);
                 } else {
                     return dao.fetchMergedRecord(bibliographicRecordId, agencyId, merger, false);
                 }
             } else {
-                if (!isRoot) {
-                    try {
-                        // In case the record is an enrichment we want the active parent record
-                        // Example a library has an active volume enrichment and a deleted head enrichment
-                        // When a collection with the volume enrichment is retrieved the collection should contain the
-                        // active volume enrichment and the active common record
-                        agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, false);
-                    } catch (RawRepoExceptionRecordNotFound ex) {
-                        LOGGER.info("There is no agency with an active record for {}:{} so using agency {}", bibliographicRecordId, originalAgencyId, agencyId);
-                    }
-                }
-
                 final LinkedList<Record> records = new LinkedList<>();
 
                 for (; ; ) {
@@ -610,10 +610,21 @@ public class MarcRecordBean {
 
     @Timed
     public Collection<MarcRecord> getMarcRecordCollection(String bibliographicRecordId, int agencyId,
-                                                          boolean allowDeleted, boolean excludeDBCFields,
+                                                          boolean allowDeleted,
+                                                          boolean attemptToFindActiveRecord,
+                                                          boolean excludeDBCFields,
                                                           boolean useParentAgency,
-                                                          boolean expand, boolean keepAutFields) throws InternalServerException, RecordNotFoundException, MarcXMergerException, MarcReaderException {
-        final Map<String, Record> collection = getRawRepoRecordCollection(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields, excludeDBCFields);
+                                                          boolean expand,
+                                                          boolean keepAutFields) throws InternalServerException, RecordNotFoundException, MarcXMergerException, MarcReaderException {
+        final Map<String, Record> collection = getRawRepoRecordCollection(bibliographicRecordId,
+                agencyId,
+                allowDeleted,
+                attemptToFindActiveRecord,
+                excludeDBCFields,
+                useParentAgency,
+                expand,
+                keepAutFields,
+                excludeDBCFields);
 
         final Collection<MarcRecord> marcRecords = new HashSet<>();
 
@@ -639,6 +650,7 @@ public class MarcRecordBean {
     public Map<String, Record> getRawRepoRecordCollection(String bibliographicRecordId,
                                                           int originalAgencyId,
                                                           boolean allowDeleted,
+                                                          boolean attemptToFindActiveRecord,
                                                           boolean excludeDBCFields,
                                                           boolean useParentAgency,
                                                           boolean expand,
@@ -652,9 +664,9 @@ public class MarcRecordBean {
                 final MarcXMerger merger = mergePool.checkOut();
 
                 if (expand) {
-                    collection = fetchRecordCollectionExpanded(bibliographicRecordId, originalAgencyId, allowDeleted, merger, true, keepAutFields);
+                    collection = fetchRecordCollectionExpanded(bibliographicRecordId, originalAgencyId, allowDeleted, attemptToFindActiveRecord, merger, true, keepAutFields);
                 } else {
-                    collection = fetchRecordCollection(bibliographicRecordId, originalAgencyId, allowDeleted, merger);
+                    collection = fetchRecordCollection(bibliographicRecordId, originalAgencyId, allowDeleted, attemptToFindActiveRecord, merger);
                 }
 
                 mergePool.checkIn(merger);
