@@ -3,14 +3,10 @@
  *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
  */
 
-
 package dk.dbc.rawrepo.service;
 
 import dk.dbc.commons.testutils.postgres.connection.PostgresITConnection;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -24,21 +20,19 @@ import java.time.Instant;
 
 import static org.hamcrest.core.Is.is;
 
-public class RecordServiceIT {
-    private static final XLogger LOGGER = XLoggerFactory.getXLogger(RecordServiceIT.class);
+public class OldRecordServiceIT {
+    private static final XLogger LOGGER = XLoggerFactory.getXLogger(OldRecordServiceIT.class);
 
     private Connection connection;
     private PostgresITConnection postgres;
     private RecordService recordService;
 
-    @Before
     public void setup() throws SQLException {
         postgres = new PostgresITConnection("rawrepo");
         connection = postgres.getConnection();
         resetDatabase();
     }
 
-    @After
     public void teardown() throws SQLException {
         postgres.close();
     }
@@ -91,7 +85,6 @@ public class RecordServiceIT {
         stmt.execute();
     }
 
-    @Test
     public void recordTest() throws Exception {
         byte[] content = fileToContent("sql/50129691-191919.sql");
 
