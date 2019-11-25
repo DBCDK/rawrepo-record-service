@@ -7,6 +7,7 @@ package dk.dbc.rawrepo.service;
 
 import dk.dbc.httpclient.HttpClient;
 import dk.dbc.marc.binding.MarcRecord;
+import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marc.reader.MarcXchangeV1Reader;
 import dk.dbc.marc.writer.MarcXchangeV1Writer;
 import dk.dbc.openagency.client.OpenAgencyServiceFromURL;
@@ -23,6 +24,7 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -33,6 +35,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -115,15 +118,59 @@ class AbstractRecordServiceContainerTest {
         return rawRepoBuilder.build();
     }
 
-    static void saveRecord(Connection connection, String fileName, String mimeType) throws Exception {
-        final RawRepoDAO dao = createDAO(connection);
-
+    static MarcRecord getMarcRecordFromFile(String fileName) throws MarcReaderException {
         final InputStream inputStream = AbstractRecordServiceContainerTest.class.getResourceAsStream(fileName);
         final BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
         final MarcXchangeV1Reader reader = new MarcXchangeV1Reader(bufferedInputStream, StandardCharsets.UTF_8);
+
+        return reader.read();
+    }
+
+    static MarcRecord getMarcRecordFromString(String content) throws MarcReaderException {
+        final InputStream inputStream = new ByteArrayInputStream(content.getBytes());
+        final BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+        final MarcXchangeV1Reader reader = new MarcXchangeV1Reader(bufferedInputStream, StandardCharsets.UTF_8);
+
+        return reader.read();
+    }
+
+    static HashMap<String, MarcRecord> getMarcRecordCollectionFromFile(String fileName) throws MarcReaderException {
+        final InputStream inputStream = AbstractRecordServiceContainerTest.class.getResourceAsStream(fileName);
+        final BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+        final MarcXchangeV1Reader reader = new MarcXchangeV1Reader(bufferedInputStream, StandardCharsets.UTF_8);
+
+        final HashMap<String, MarcRecord> collection = new HashMap<>();
+
+        MarcRecord marcRecord = reader.read();
+        while (marcRecord != null) {
+            collection.put(marcRecord.getSubFieldValue("001", 'a').get(), marcRecord);
+            marcRecord = reader.read();
+        }
+
+        return collection;
+    }
+
+    static HashMap<String, MarcRecord> getMarcRecordCollectionFromString(String content) throws MarcReaderException {
+        final InputStream inputStream = new ByteArrayInputStream(content.getBytes());
+        final BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+        final MarcXchangeV1Reader reader = new MarcXchangeV1Reader(bufferedInputStream, StandardCharsets.UTF_8);
+
+        final HashMap<String, MarcRecord> collection = new HashMap<>();
+
+        MarcRecord marcRecord = reader.read();
+        while (marcRecord != null) {
+            collection.put(marcRecord.getSubFieldValue("001", 'a').get(), marcRecord);
+            marcRecord = reader.read();
+        }
+
+        return collection;
+    }
+
+    static void saveRecord(Connection connection, String fileName, String mimeType) throws Exception {
+        final RawRepoDAO dao = createDAO(connection);
         final MarcXchangeV1Writer writer = new MarcXchangeV1Writer();
 
-        final MarcRecord marcRecord = reader.read();
+        final MarcRecord marcRecord = getMarcRecordFromFile(fileName);
 
         final String bibliographicRecordId = marcRecord.getSubFieldValue("001", 'a').get();
         final int agencyId = Integer.parseInt(marcRecord.getSubFieldValue("001", 'b').get());

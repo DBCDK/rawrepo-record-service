@@ -55,6 +55,41 @@ class RecordServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
+    void getMarcRecord_Merged() throws Exception {
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}/content")
+                        .bind("bibliographicRecordId", 50129691)
+                        .bind("agencyId", 191919)
+                        .bind("mode", "merged")
+                        .build());
+
+        Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        String content = response.readEntity(String.class);
+        assertThat("content", getMarcRecordFromString(content), is(getMarcRecordFromFile("sql/50129691-191919-merged.xml")));
+    }
+
+    @Test
+    void getMarcRecord_MergedUseParentAgency() throws Exception {
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}/content")
+                        .bind("bibliographicRecordId", 50129691)
+                        .bind("agencyId", 191919)
+                        .bind("mode", "merged")
+                        .bind("use-parent-agency", "true")
+                        .build());
+
+        Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        String content = response.readEntity(String.class);
+        assertThat("content", getMarcRecordFromString(content), is(getMarcRecordFromFile("sql/50129691-191919-merged-parent-agency.xml")));
+    }
+
+    @Test
     void exists() throws Exception {
         final HttpGet httpGet = new HttpGet(httpClient)
                 .withBaseUrl(recordServiceBaseUrl)
