@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<?xml version="1.0" encoding="UTF-8"?>
+<record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <leader>00000n    2200000   4500</leader>
     <datafield tag="001" ind1="0" ind2="0">
         <subfield code="a">50129691</subfield>
-        <subfield code="b">191919</subfield>
+        <subfield code="b">870970</subfield>
         <subfield code="c">19920212</subfield>
         <subfield code="d">19790614</subfield>
         <subfield code="f">a</subfield>
@@ -12,10 +13,7 @@
         <subfield code="r">n</subfield>
         <subfield code="a">h</subfield>
     </datafield>
-    <datafield tag="d08" ind1="0" ind2="0">
-        <subfield code="a">le+alle+aw/ma</subfield>
-    </datafield>
-    <datafield tag="d08" ind1="0" ind2="0">
-        <subfield code="a">AutSupUdenAjour</subfield>
+    <datafield tag="996" ind1="0" ind2="0">
+        <subfield code="a">DBC</subfield>
     </datafield>
 </record>
