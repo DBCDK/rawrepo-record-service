@@ -102,6 +102,7 @@ Parameters:
     expand
     keep-aut-fields
     exclude-attribute
+    for-corepo
     
 ### Records content list
     GET /api/v1/records/{agencyid}/{bibliographicrecordid}/content
@@ -115,6 +116,7 @@ Parameters:
     use-parent-agency
     expand
     keep-aut-fields
+    for-corepo
 
 ### Records bulk load
     POST /api/v1/records/bulk
@@ -203,6 +205,22 @@ All DBC enrichments have the same agency regardless the type of record they belo
 Setting use-parent-agency to true returns record with the parent agency - not that this should ONLY be used for DBC enrichments, never for FBS enrichments!
 
     Param name: 'use-parent-agency'
+    Valid values: 'true', 'false'
+    Default: 'false'
+
+### For Corepo
+This parameter is used for telling record service to find the most relevant active record. In the case of deleted enrichments it means the active common record is returned.
+Setting for-corepo to true might mean the returned record is not from the specified agency!
+
+Cases:
+    
+    Active common record and active enrichment -> Enrichment is returned
+    Active common record and deleted enrichment -> Common record is returned
+    Deleted common record and deleted enrichment -> The deleted enrichment is returned    
+
+The use case for this parameter is when creating searchable volume records for corepo. If an enrichment agency has a deleted volume record but an active head record the corepo record has to be a combination of the common volume record and the enrichment head record
+    
+    Param name: 'for-corepo'
     Valid values: 'true', 'false'
     Default: 'false'
 
