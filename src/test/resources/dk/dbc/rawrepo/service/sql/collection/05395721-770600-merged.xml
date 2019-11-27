@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?><marcx:record xmlns:marcx="info:lc/xmlns/marcxchange-v1" format="danMARC2" type="Bibliographic">
+    <marcx:leader>00000n    2200000   4500</marcx:leader>
+    <marcx:datafield tag="001" ind1="0" ind2="0">
+        <marcx:subfield code="a">05395721</marcx:subfield>
+        <marcx:subfield code="b">770600</marcx:subfield>
+        <marcx:subfield code="c">19940328</marcx:subfield>
+        <marcx:subfield code="d">19790614</marcx:subfield>
+        <marcx:subfield code="f">a</marcx:subfield>
+        <marcx:subfield code="o">c</marcx:subfield>
+    </marcx:datafield>
+    <marcx:datafield tag="004" ind1="0" ind2="0">
+        <marcx:subfield code="r">d</marcx:subfield>
+    </marcx:datafield>
+    <marcx:datafield tag="014" ind1="0" ind2="0">
+        <marcx:subfield code="a">50129691</marcx:subfield>
+    </marcx:datafield>
+    <marcx:datafield tag="996" ind1="0" ind2="0">
+        <marcx:subfield code="a">DBC</marcx:subfield>
+    </marcx:datafield>
+</marcx:record>

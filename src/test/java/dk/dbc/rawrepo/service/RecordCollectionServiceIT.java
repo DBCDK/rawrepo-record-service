@@ -42,6 +42,10 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
             // No relation from 05395720:770600 to 50129691:870970 as the 770600 record is deleted
             saveRelations(rawrepoConnection, "05395720", 870970, "50129691", 870970); // volume -> head
 
+            saveRecord(rawrepoConnection, "sql/collection/05395721-870970.xml", MIMETYPE_MARCXCHANGE); // Deleted
+            saveRecord(rawrepoConnection, "sql/collection/05395721-191919.xml", MIMETYPE_ENRICHMENT); // Deleted
+            saveRecord(rawrepoConnection, "sql/collection/05395721-770600.xml", MIMETYPE_ENRICHMENT); // Deleted
+            // No relations as all 05395721 records are deleted
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
@@ -54,6 +58,37 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         params.put("use-parent-agency", false);
         params.put("keep-aut-fields", false);
         params.put("expand", true);
+
+        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/content")
+                .bind("agencyid", "830380")
+                .bind("bibliographicrecordid", "285927994");
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build());
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            httpGet.withQueryParameter(param.getKey(), param.getValue());
+        }
+
+        final Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        final String collection = response.readEntity(String.class);
+
+        final HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        assertThat("collection contains 285927994", actual.containsKey("285927994"), is(true));
+        assertThat("collection content 285927994", actual.get("285927994"), is(getMarcRecordFromFile("sql/collection/285927994-830380.xml")));
+        assertThat("collection contains 703213855", actual.containsKey("703213855"), is(true));
+        assertThat("collection content 703213855", actual.get("703213855"), is(getMarcRecordFromFile("sql/collection/703213855-830380.xml")));
+    }
+
+    @Test
+    void getRecordCollection_DataIO_Ok_ForCorepo() throws Exception {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("allow-deleted", true);
+        params.put("use-parent-agency", false);
+        params.put("keep-aut-fields", false);
+        params.put("expand", true);
+        params.put("for-corepo", true);
 
         final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/content")
                 .bind("agencyid", "830380")
@@ -164,6 +199,67 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
         assertThat("collection contains 05395720", actual.containsKey("05395720"), is(true));
         assertThat("collection content 05395720", actual.get("05395720"), is(getMarcRecordFromFile("sql/collection/05395720-870970.xml")));
+        assertThat("collection contains 50129691", actual.containsKey("50129691"), is(true));
+        assertThat("collection content 50129691", actual.get("50129691"), is(getMarcRecordFromFile("sql/collection/50129691-870970.xml")));
+    }
+
+    @Test
+    void getRecordCollection_DataIO_DeletedCommonVolume() throws Exception {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("allow-deleted", true);
+        params.put("use-parent-agency", false);
+        params.put("keep-aut-fields", false);
+        params.put("expand", true);
+
+        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/content")
+                .bind("agencyid", "770600")
+                .bind("bibliographicrecordid", "05395721");
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build());
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            httpGet.withQueryParameter(param.getKey(), param.getValue());
+        }
+
+        final Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        final String collection = response.readEntity(String.class);
+
+        HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        assertThat("collection contains 05395720", actual.containsKey("05395721"), is(true));
+        assertThat("collection content 05395720", actual.get("05395721"), is(getMarcRecordFromFile("sql/collection/05395721-770600-merged.xml")));
+        assertThat("collection contains 50129691", actual.containsKey("50129691"), is(true));
+        assertThat("collection content 50129691", actual.get("50129691"), is(getMarcRecordFromFile("sql/collection/50129691-870970.xml")));
+    }
+
+    @Test
+    void getRecordCollection_DataIO_DeletedCommonVolume_ForCorepo() throws Exception {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("allow-deleted", true);
+        params.put("use-parent-agency", false);
+        params.put("keep-aut-fields", false);
+        params.put("expand", true);
+        params.put("for-corepo", true);
+
+        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/content")
+                .bind("agencyid", "770600")
+                .bind("bibliographicrecordid", "05395721");
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build());
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            httpGet.withQueryParameter(param.getKey(), param.getValue());
+        }
+
+        final Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        final String collection = response.readEntity(String.class);
+
+        HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        assertThat("collection contains 05395720", actual.containsKey("05395721"), is(true));
+        assertThat("collection content 05395720", actual.get("05395721"), is(getMarcRecordFromFile("sql/collection/05395721-770600-merged.xml")));
         assertThat("collection contains 50129691", actual.containsKey("50129691"), is(true));
         assertThat("collection content 50129691", actual.get("50129691"), is(getMarcRecordFromFile("sql/collection/50129691-870970.xml")));
     }
