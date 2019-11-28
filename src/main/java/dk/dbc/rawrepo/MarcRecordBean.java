@@ -413,19 +413,21 @@ public class MarcRecordBean {
         try (Connection conn = globalDataSource.getConnection()) {
             final RawRepoDAO dao = createDAO(conn);
             int agencyId;
-            if (isRoot) {
-                if (attemptToFindActiveRecord) {
-                    try {
-                        agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, false);
-                    } catch (RawRepoExceptionRecordNotFound e) {
-                        agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, allowDeleted);
-                    }
-                } else {
-                    agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, allowDeleted);
-                }
+
+            if (isRoot && !attemptToFindActiveRecord) {
+                agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, allowDeleted);
             } else {
-                agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, false);
+                try {
+                    agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, false);
+                } catch (RawRepoExceptionRecordNotFound e) {
+                    if (allowDeleted) {
+                        agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, true);
+                    } else {
+                        throw e;
+                    }
+                }
             }
+
             if (recordIsActive(bibliographicRecordId, agencyId)) {
                 if (doExpand) {
                     return dao.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, merger, false, keepAutField);
