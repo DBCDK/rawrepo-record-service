@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">37408115</subfield>
+        <subfield code="b">191919</subfield>
+        <subfield code="c">20191127103014</subfield>
+        <subfield code="d">20170519</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">d</subfield>
+        <subfield code="a">i</subfield>
+    </datafield>
+</record>
