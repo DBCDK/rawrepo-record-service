@@ -14,9 +14,9 @@ import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.rawrepo.pool.DefaultMarcXMergerPool;
 import dk.dbc.rawrepo.pool.ObjectPool;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -40,6 +40,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -56,7 +58,7 @@ public class MarcRecordBeanTest {
     private RawRepoDAO rawRepoDAO;
 
     @Mock
-    private RelationHintsOpenAgency relationHintsOpenAgency;
+    private static RelationHintsOpenAgency relationHintsOpenAgency;
 
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
 
@@ -65,7 +67,7 @@ public class MarcRecordBeanTest {
     private final String AUTHORITY = "authority";
     private final String LITTOLK = "littolk";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
@@ -96,7 +98,7 @@ public class MarcRecordBeanTest {
         }
     }
 
-    @Test(expected = RecordNotFoundException.class)
+    @Test
     public void testGetRawRecordNotFound() throws Exception {
         MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
 
@@ -108,7 +110,9 @@ public class MarcRecordBeanTest {
         when(globalDataSource.getConnection()).thenReturn(null);
         when(rawRepoDAO.fetchRecord(eq(bibliographicRecordId), eq(agencyId))).thenReturn(record);
 
-        bean.getMarcRecord(bibliographicRecordId, agencyId, true, false);
+        Assertions.assertThrows(RecordNotFoundException.class, () -> {
+            bean.getMarcRecord(bibliographicRecordId, agencyId, true, false);
+        });
     }
 
     @Test
@@ -127,7 +131,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.fetchRecord(eq(bibliographicRecordId), eq(agencyId))).thenReturn(record);
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
 
-        Assert.assertThat(bean.getMarcRecord(bibliographicRecordId, agencyId, true, false), is(marcRecord));
+        assertThat(bean.getMarcRecord(bibliographicRecordId, agencyId, true, false), is(marcRecord));
     }
 
     @Test
@@ -148,7 +152,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false))).thenReturn(record);
 
-        Assert.assertThat(bean.getMarcRecordMerged(bibliographicRecordId, agencyId, true, false, false), is(marcRecord));
+        assertThat(bean.getMarcRecordMerged(bibliographicRecordId, agencyId, true, false, false), is(marcRecord));
     }
 
     @Test
@@ -170,7 +174,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false))).thenReturn(record);
 
-        Assert.assertThat(bean.getMarcRecordMerged(bibliographicRecordId, agencyId, true, true, false), is(loadMarcRecord("merged-ex-dbc-fields.xml")));
+        assertThat(bean.getMarcRecordMerged(bibliographicRecordId, agencyId, true, true, false), is(loadMarcRecord("merged-ex-dbc-fields.xml")));
     }
 
     @Test
@@ -191,7 +195,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false))).thenReturn(record);
 
-        Assert.assertThat(bean.getMarcRecordMerged(bibliographicRecordId, agencyId, true, false, true), is(marcRecord));
+        assertThat(bean.getMarcRecordMerged(bibliographicRecordId, agencyId, true, false, true), is(marcRecord));
     }
 
     @Test
@@ -212,7 +216,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false), eq(true))).thenReturn(record);
 
-        Assert.assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, false, false, true), is(marcRecord));
+        assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, false, false, true), is(marcRecord));
     }
 
     @Test
@@ -234,7 +238,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false), eq(false))).thenReturn(record);
 
-        Assert.assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, true, false, false), is(loadMarcRecord("merged-ex-dbc-fields.xml")));
+        assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, true, false, false), is(loadMarcRecord("merged-ex-dbc-fields.xml")));
     }
 
     @Test
@@ -255,7 +259,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false), eq(true))).thenReturn(record);
 
-        Assert.assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, false, true, true), is(marcRecord));
+        assertThat(bean.getMarcRecordExpanded(bibliographicRecordId, agencyId, true, false, true, true), is(marcRecord));
     }
 
     @Test
@@ -282,7 +286,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExistsMaybeDeleted(eq(bibliographicRecordId), eq(agencyId))).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecordExpanded(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false), eq(false))).thenReturn(record);
 
-        Assert.assertThat(bean.getMarcRecordCollection(bibliographicRecordId, agencyId, true, false, false, true, true, false), is(collection));
+        assertThat(bean.getMarcRecordCollection(bibliographicRecordId, agencyId, true, false, false, true, true, false), is(collection));
     }
 
     @Test
@@ -295,7 +299,7 @@ public class MarcRecordBeanTest {
         when(globalDataSource.getConnection()).thenReturn(null);
         when(rawRepoDAO.allAgenciesForBibliographicRecordId(eq(bibliographicRecordId))).thenReturn(agencySet);
 
-        Assert.assertThat(bean.getAllAgenciesForBibliographicRecordId(bibliographicRecordId), is(agencySet));
+        assertThat(bean.getAllAgenciesForBibliographicRecordId(bibliographicRecordId), is(agencySet));
     }
 
     @Test
@@ -306,7 +310,7 @@ public class MarcRecordBeanTest {
 
         when(rawRepoDAO.allAgenciesForBibliographicRecordId(eq(bibliographicRecordId))).thenReturn(agenciesFound);
 
-        Assert.assertThat(bean.parentCommonAgencyId(bibliographicRecordId, rawRepoDAO), is(870970));
+        assertThat(bean.parentCommonAgencyId(bibliographicRecordId, rawRepoDAO), is(870970));
     }
 
     @Test
@@ -317,7 +321,7 @@ public class MarcRecordBeanTest {
 
         when(rawRepoDAO.allAgenciesForBibliographicRecordId(eq(bibliographicRecordId))).thenReturn(agenciesFound);
 
-        Assert.assertThat(bean.parentCommonAgencyId(bibliographicRecordId, rawRepoDAO), is(870971));
+        assertThat(bean.parentCommonAgencyId(bibliographicRecordId, rawRepoDAO), is(870971));
     }
 
     @Test
@@ -328,10 +332,10 @@ public class MarcRecordBeanTest {
 
         when(rawRepoDAO.allAgenciesForBibliographicRecordId(eq(bibliographicRecordId))).thenReturn(agenciesFound);
 
-        Assert.assertThat(bean.parentCommonAgencyId(bibliographicRecordId, rawRepoDAO), is(870979));
+        assertThat(bean.parentCommonAgencyId(bibliographicRecordId, rawRepoDAO), is(870979));
     }
 
-    @Test(expected = RecordNotFoundException.class)
+    @Test
     public void testParentCommonAgencyId4() throws Exception {
         final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
         final String bibliographicRecordId = "12345678";
@@ -339,7 +343,9 @@ public class MarcRecordBeanTest {
 
         when(rawRepoDAO.allAgenciesForBibliographicRecordId(eq(bibliographicRecordId))).thenReturn(agenciesFound);
 
-        bean.parentCommonAgencyId(bibliographicRecordId, rawRepoDAO);
+        Assertions.assertThrows(RecordNotFoundException.class, () -> {
+            bean.parentCommonAgencyId(bibliographicRecordId, rawRepoDAO);
+        });
     }
 
     @Test
@@ -382,13 +388,13 @@ public class MarcRecordBeanTest {
 
         final Record mergedDeletedRecord = bean.fetchMergedRecord(bibliographicRecordId, 191919, true, false, getMerger());
 
-        Assert.assertThat(mergedDeletedRecord.getId(), is(expected.getId()));
-        Assert.assertThat(mergedDeletedRecord.isDeleted(), is(expected.isDeleted()));
-        Assert.assertThat(mergedDeletedRecord.getMimeType(), is(expected.getMimeType()));
-        Assert.assertThat(mergedDeletedRecord.getCreated(), is(expected.getCreated()));
-        Assert.assertThat(mergedDeletedRecord.getModified(), is(expected.getModified()));
-        Assert.assertThat(mergedDeletedRecord.getTrackingId(), is(expected.getTrackingId()));
-        Assert.assertThat(mergedDeletedRecord.getEnrichmentTrail(), is("870970,191919"));
+        assertThat(mergedDeletedRecord.getId(), is(expected.getId()));
+        assertThat(mergedDeletedRecord.isDeleted(), is(expected.isDeleted()));
+        assertThat(mergedDeletedRecord.getMimeType(), is(expected.getMimeType()));
+        assertThat(mergedDeletedRecord.getCreated(), is(expected.getCreated()));
+        assertThat(mergedDeletedRecord.getModified(), is(expected.getModified()));
+        assertThat(mergedDeletedRecord.getTrackingId(), is(expected.getTrackingId()));
+        assertThat(mergedDeletedRecord.getEnrichmentTrail(), is("870970,191919"));
 
         // MarcXchange Reader and Writer does stuff to the XML namespace and structure, so in order to do a proper
         // comparison we have to run the out content through a reader and writer first.
@@ -397,7 +403,7 @@ public class MarcRecordBeanTest {
         final MarcXchangeV1Reader reader = new MarcXchangeV1Reader(bufferedInputStream, StandardCharsets.UTF_8);
         final MarcRecord mergedMarcRecord = reader.read();
         final byte[] mergedContent = marcXchangeV1Writer.write(mergedMarcRecord, StandardCharsets.UTF_8);
-        Assert.assertThat(mergedContent, is(expected.getContent()));
+        assertThat(mergedContent, is(expected.getContent()));
     }
 
     @Test
@@ -454,13 +460,13 @@ public class MarcRecordBeanTest {
 
         final Record actualRecord = bean.fetchMergedRecord(bibliographicRecordId, 191919, true, false, getMerger());
 
-        Assert.assertThat(actualRecord.getId(), is(expectedMergedRecord.getId()));
-        Assert.assertThat(actualRecord.isDeleted(), is(expectedMergedRecord.isDeleted()));
-        Assert.assertThat(actualRecord.getMimeType(), is(expectedMergedRecord.getMimeType()));
-        Assert.assertThat(actualRecord.getCreated(), is(expectedMergedRecord.getCreated()));
-        Assert.assertThat(actualRecord.getModified(), is(expectedMergedRecord.getModified()));
-        Assert.assertThat(actualRecord.getTrackingId(), is(expectedMergedRecord.getTrackingId()));
-        Assert.assertThat(actualRecord.getEnrichmentTrail(), is("870970,191919"));
+        assertThat(actualRecord.getId(), is(expectedMergedRecord.getId()));
+        assertThat(actualRecord.isDeleted(), is(expectedMergedRecord.isDeleted()));
+        assertThat(actualRecord.getMimeType(), is(expectedMergedRecord.getMimeType()));
+        assertThat(actualRecord.getCreated(), is(expectedMergedRecord.getCreated()));
+        assertThat(actualRecord.getModified(), is(expectedMergedRecord.getModified()));
+        assertThat(actualRecord.getTrackingId(), is(expectedMergedRecord.getTrackingId()));
+        assertThat(actualRecord.getEnrichmentTrail(), is("870970,191919"));
 
         // MarcXchange Reader and Writer does stuff to the XML namespace and structure, so in order to do a proper
         // comparison we have to run the out content through a reader and writer first.
@@ -470,24 +476,24 @@ public class MarcRecordBeanTest {
         MarcRecord mergedMarcRecord = reader.read();
         byte[] mergedContent = marcXchangeV1Writer.write(mergedMarcRecord, StandardCharsets.UTF_8);
 
-        Assert.assertThat(mergedContent, is(expectedMergedRecord.getContent()));
+        assertThat(mergedContent, is(expectedMergedRecord.getContent()));
 
         bean.expandRecord(actualRecord, false);
 
-        Assert.assertThat(actualRecord.getId(), is(expectedExpandedRecord.getId()));
-        Assert.assertThat(actualRecord.isDeleted(), is(expectedExpandedRecord.isDeleted()));
-        Assert.assertThat(actualRecord.getMimeType(), is(expectedExpandedRecord.getMimeType()));
-        Assert.assertThat(actualRecord.getCreated(), is(expectedExpandedRecord.getCreated()));
+        assertThat(actualRecord.getId(), is(expectedExpandedRecord.getId()));
+        assertThat(actualRecord.isDeleted(), is(expectedExpandedRecord.isDeleted()));
+        assertThat(actualRecord.getMimeType(), is(expectedExpandedRecord.getMimeType()));
+        assertThat(actualRecord.getCreated(), is(expectedExpandedRecord.getCreated()));
         // We won't compare modified date as it is set during expandRecord. Therefore we can't compare to a static value
-        Assert.assertThat(actualRecord.getTrackingId(), is(expectedExpandedRecord.getTrackingId()));
-        Assert.assertThat(actualRecord.getEnrichmentTrail(), is("870970,191919"));
+        assertThat(actualRecord.getTrackingId(), is(expectedExpandedRecord.getTrackingId()));
+        assertThat(actualRecord.getEnrichmentTrail(), is("870970,191919"));
 
         inputStream = new ByteArrayInputStream(actualRecord.getContent());
         bufferedInputStream = new BufferedInputStream(inputStream);
         reader = new MarcXchangeV1Reader(bufferedInputStream, StandardCharsets.UTF_8);
         mergedMarcRecord = reader.read();
         mergedContent = marcXchangeV1Writer.write(mergedMarcRecord, StandardCharsets.UTF_8);
-        Assert.assertThat(mergedContent, is(expectedExpandedRecord.getContent()));
+        assertThat(mergedContent, is(expectedExpandedRecord.getContent()));
     }
 
     @Test
@@ -513,7 +519,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExists(bibliographicRecordId, agencyId)).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecord(eq(bibliographicRecordId), eq(agencyId), any(MarcXMerger.class), eq(false))).thenReturn(record);
 
-        Assert.assertThat(bean.fetchRecordCollection(bibliographicRecordId, agencyId, true, false, getMerger()), is(collection));
+        assertThat(bean.fetchRecordCollection(bibliographicRecordId, agencyId, true, false, getMerger()), is(collection));
     }
 
     @Test
@@ -570,19 +576,19 @@ public class MarcRecordBeanTest {
 
         final Map<String, Record> actual = bean.fetchRecordCollection(bibliographicRecordId, 191919, true, false, getMerger());
 
-        Assert.assertThat(actual.size(), is(2));
+        assertThat(actual.size(), is(2));
 
-        Assert.assertTrue(actual.containsKey(bibliographicRecordId));
-        Assert.assertTrue(actual.containsKey(autBibliographicRecordId));
+        assertTrue(actual.containsKey(bibliographicRecordId));
+        assertTrue(actual.containsKey(autBibliographicRecordId));
 
         final Record actualCommonRecord = actual.get(bibliographicRecordId);
 
-        Assert.assertThat(actualCommonRecord.getId(), is(expectedMergedRecord.getId()));
-        Assert.assertThat(actualCommonRecord.isDeleted(), is(expectedMergedRecord.isDeleted()));
-        Assert.assertThat(actualCommonRecord.getMimeType(), is(expectedMergedRecord.getMimeType()));
-        Assert.assertThat(actualCommonRecord.getCreated(), is(expectedMergedRecord.getCreated()));
-        Assert.assertThat(actualCommonRecord.getModified(), is(expectedMergedRecord.getModified()));
-        Assert.assertThat(actualCommonRecord.getTrackingId(), is(expectedMergedRecord.getTrackingId()));
+        assertThat(actualCommonRecord.getId(), is(expectedMergedRecord.getId()));
+        assertThat(actualCommonRecord.isDeleted(), is(expectedMergedRecord.isDeleted()));
+        assertThat(actualCommonRecord.getMimeType(), is(expectedMergedRecord.getMimeType()));
+        assertThat(actualCommonRecord.getCreated(), is(expectedMergedRecord.getCreated()));
+        assertThat(actualCommonRecord.getModified(), is(expectedMergedRecord.getModified()));
+        assertThat(actualCommonRecord.getTrackingId(), is(expectedMergedRecord.getTrackingId()));
 
         InputStream inputStream = new ByteArrayInputStream(actualCommonRecord.getContent());
         BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
@@ -590,16 +596,16 @@ public class MarcRecordBeanTest {
         MarcRecord mergedMarcRecord = reader.read();
         byte[] mergedContent = marcXchangeV1Writer.write(mergedMarcRecord, StandardCharsets.UTF_8);
 
-        Assert.assertThat(mergedContent, is(expectedMergedRecord.getContent()));
+        assertThat(mergedContent, is(expectedMergedRecord.getContent()));
 
         final Record actualAutRecord = actual.get(autBibliographicRecordId);
 
-        Assert.assertThat(actualAutRecord.getId(), is(authorityRecord.getId()));
-        Assert.assertThat(actualAutRecord.isDeleted(), is(authorityRecord.isDeleted()));
-        Assert.assertThat(actualAutRecord.getMimeType(), is(authorityRecord.getMimeType()));
-        Assert.assertThat(actualAutRecord.getCreated(), is(authorityRecord.getCreated()));
-        Assert.assertThat(actualAutRecord.getModified(), is(authorityRecord.getModified()));
-        Assert.assertThat(actualAutRecord.getTrackingId(), is(authorityRecord.getTrackingId()));
+        assertThat(actualAutRecord.getId(), is(authorityRecord.getId()));
+        assertThat(actualAutRecord.isDeleted(), is(authorityRecord.isDeleted()));
+        assertThat(actualAutRecord.getMimeType(), is(authorityRecord.getMimeType()));
+        assertThat(actualAutRecord.getCreated(), is(authorityRecord.getCreated()));
+        assertThat(actualAutRecord.getModified(), is(authorityRecord.getModified()));
+        assertThat(actualAutRecord.getTrackingId(), is(authorityRecord.getTrackingId()));
 
         inputStream = new ByteArrayInputStream(actualAutRecord.getContent());
         bufferedInputStream = new BufferedInputStream(inputStream);
@@ -607,7 +613,7 @@ public class MarcRecordBeanTest {
         mergedMarcRecord = reader.read();
         mergedContent = marcXchangeV1Writer.write(mergedMarcRecord, StandardCharsets.UTF_8);
 
-        Assert.assertThat(mergedContent, is(authorityRecord.getContent()));
+        assertThat(mergedContent, is(authorityRecord.getContent()));
     }
 
     @Test
@@ -634,7 +640,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExists(bibliographicRecordId, agencyId)).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, merger, false, false)).thenReturn(record);
 
-        Assert.assertThat(bean.fetchRecordCollectionExpanded(bibliographicRecordId, agencyId, true, false, merger, true, false), is(collection));
+        assertThat(bean.fetchRecordCollectionExpanded(bibliographicRecordId, agencyId, true, false, merger, true, false), is(collection));
     }
 
     @Test
@@ -692,18 +698,18 @@ public class MarcRecordBeanTest {
 
         final Map<String, Record> actual = bean.fetchRecordCollectionExpanded(bibliographicRecordId, 191919, true, false, getMerger(), true, false);
 
-        Assert.assertThat(actual.size(), is(2));
-        Assert.assertTrue(actual.containsKey(bibliographicRecordId));
-        Assert.assertTrue(actual.containsKey(autBibliographicRecordId));
+        assertThat(actual.size(), is(2));
+        assertTrue(actual.containsKey(bibliographicRecordId));
+        assertTrue(actual.containsKey(autBibliographicRecordId));
 
         final Record actualCommonRecord = actual.get(bibliographicRecordId);
 
-        Assert.assertThat(actualCommonRecord.getId(), is(expectedExpandedRecord.getId()));
-        Assert.assertThat(actualCommonRecord.isDeleted(), is(expectedExpandedRecord.isDeleted()));
-        Assert.assertThat(actualCommonRecord.getMimeType(), is(expectedExpandedRecord.getMimeType()));
-        Assert.assertThat(actualCommonRecord.getCreated(), is(expectedExpandedRecord.getCreated()));
+        assertThat(actualCommonRecord.getId(), is(expectedExpandedRecord.getId()));
+        assertThat(actualCommonRecord.isDeleted(), is(expectedExpandedRecord.isDeleted()));
+        assertThat(actualCommonRecord.getMimeType(), is(expectedExpandedRecord.getMimeType()));
+        assertThat(actualCommonRecord.getCreated(), is(expectedExpandedRecord.getCreated()));
         // We won't compare modified date as it is set during expandRecord. Therefore we can't compare to a static value
-        Assert.assertThat(actualCommonRecord.getTrackingId(), is(expectedExpandedRecord.getTrackingId()));
+        assertThat(actualCommonRecord.getTrackingId(), is(expectedExpandedRecord.getTrackingId()));
 
         InputStream inputStream = new ByteArrayInputStream(actualCommonRecord.getContent());
         BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
@@ -711,16 +717,16 @@ public class MarcRecordBeanTest {
         MarcRecord mergedMarcRecord = reader.read();
         byte[] mergedContent = marcXchangeV1Writer.write(mergedMarcRecord, StandardCharsets.UTF_8);
 
-        Assert.assertThat(mergedContent, is(expectedExpandedRecord.getContent()));
+        assertThat(mergedContent, is(expectedExpandedRecord.getContent()));
 
         final Record actualAutRecord = actual.get(autBibliographicRecordId);
 
-        Assert.assertThat(actualAutRecord.getId(), is(authorityRecord.getId()));
-        Assert.assertThat(actualAutRecord.isDeleted(), is(authorityRecord.isDeleted()));
-        Assert.assertThat(actualAutRecord.getMimeType(), is(authorityRecord.getMimeType()));
-        Assert.assertThat(actualAutRecord.getCreated(), is(authorityRecord.getCreated()));
-        Assert.assertThat(actualAutRecord.getModified(), is(authorityRecord.getModified()));
-        Assert.assertThat(actualAutRecord.getTrackingId(), is(authorityRecord.getTrackingId()));
+        assertThat(actualAutRecord.getId(), is(authorityRecord.getId()));
+        assertThat(actualAutRecord.isDeleted(), is(authorityRecord.isDeleted()));
+        assertThat(actualAutRecord.getMimeType(), is(authorityRecord.getMimeType()));
+        assertThat(actualAutRecord.getCreated(), is(authorityRecord.getCreated()));
+        assertThat(actualAutRecord.getModified(), is(authorityRecord.getModified()));
+        assertThat(actualAutRecord.getTrackingId(), is(authorityRecord.getTrackingId()));
 
         inputStream = new ByteArrayInputStream(actualAutRecord.getContent());
         bufferedInputStream = new BufferedInputStream(inputStream);
@@ -728,7 +734,7 @@ public class MarcRecordBeanTest {
         mergedMarcRecord = reader.read();
         mergedContent = marcXchangeV1Writer.write(mergedMarcRecord, StandardCharsets.UTF_8);
 
-        Assert.assertThat(mergedContent, is(authorityRecord.getContent()));
+        assertThat(mergedContent, is(authorityRecord.getContent()));
     }
 
     @Test
@@ -757,7 +763,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExists(bibliographicRecordId, agencyId)).thenReturn(true);
         when(rawRepoDAO.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, merger, false, false)).thenReturn(record);
 
-        Assert.assertThat(bean.fetchRecordCollectionExpanded(bibliographicRecordId, originalAgencyId, true, false, merger, true, false), is(collection));
+        assertThat(bean.fetchRecordCollectionExpanded(bibliographicRecordId, originalAgencyId, true, false, merger, true, false), is(collection));
     }
 
     @Test
@@ -769,7 +775,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)).thenReturn(true);
         when(rawRepoDAO.recordExists(bibliographicRecordId, agencyId)).thenReturn(true);
 
-        Assert.assertThat(bean.recordIsActive(bibliographicRecordId, agencyId), is(true));
+        assertThat(bean.recordIsActive(bibliographicRecordId, agencyId), is(true));
     }
 
     @Test
@@ -781,10 +787,10 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)).thenReturn(true);
         when(rawRepoDAO.recordExists(bibliographicRecordId, agencyId)).thenReturn(false);
 
-        Assert.assertThat(bean.recordIsActive(bibliographicRecordId, agencyId), is(false));
+        assertThat(bean.recordIsActive(bibliographicRecordId, agencyId), is(false));
     }
 
-    @Test(expected = RecordNotFoundException.class)
+    @Test
     public void recordIsActiveTestNotFound() throws Exception {
         final MarcRecordBean bean = new MarcRecordBeanMock(globalDataSource);
         final String bibliographicRecordId = "12345678";
@@ -792,7 +798,9 @@ public class MarcRecordBeanTest {
 
         when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)).thenReturn(false);
 
-        Assert.assertThat(bean.recordIsActive(bibliographicRecordId, agencyId), is(true));
+        Assertions.assertThrows(RecordNotFoundException.class, () -> {
+            assertThat(bean.recordIsActive(bibliographicRecordId, agencyId), is(true));
+        });
     }
 
     @Test
@@ -838,17 +846,17 @@ public class MarcRecordBeanTest {
     }
 
     private void assertFindParentRelationAgency(MarcRecordBean bean) throws Exception {
-        Assert.assertThat(bean.findParentRelationAgency(COMMON, 191919), is(870970));
-        Assert.assertThat(bean.findParentRelationAgency(COMMON, 870970), is(870970));
+        assertThat(bean.findParentRelationAgency(COMMON, 191919), is(870970));
+        assertThat(bean.findParentRelationAgency(COMMON, 870970), is(870970));
 
-        Assert.assertThat(bean.findParentRelationAgency(ARTICLE, 191919), is(870971));
-        Assert.assertThat(bean.findParentRelationAgency(ARTICLE, 870971), is(870971));
+        assertThat(bean.findParentRelationAgency(ARTICLE, 191919), is(870971));
+        assertThat(bean.findParentRelationAgency(ARTICLE, 870971), is(870971));
 
-        Assert.assertThat(bean.findParentRelationAgency(LITTOLK, 191919), is(870974));
-        Assert.assertThat(bean.findParentRelationAgency(LITTOLK, 870974), is(870974));
+        assertThat(bean.findParentRelationAgency(LITTOLK, 191919), is(870974));
+        assertThat(bean.findParentRelationAgency(LITTOLK, 870974), is(870974));
 
-        Assert.assertThat(bean.findParentRelationAgency(AUTHORITY, 191919), is(870979));
-        Assert.assertThat(bean.findParentRelationAgency(AUTHORITY, 870979), is(870979));
+        assertThat(bean.findParentRelationAgency(AUTHORITY, 191919), is(870979));
+        assertThat(bean.findParentRelationAgency(AUTHORITY, 870979), is(870979));
     }
 
     @Test
@@ -860,7 +868,7 @@ public class MarcRecordBeanTest {
         when(rawRepoDAO.recordExistsMaybeDeleted(anyString(), eq(820010))).thenReturn(true);
         when(rawRepoDAO.recordExists(anyString(), eq(820010))).thenReturn(false);
 
-        Assert.assertThat(bean.findParentRelationAgency("FBS", 820010), is(820010));
+        assertThat(bean.findParentRelationAgency("FBS", 820010), is(820010));
     }
 
     @Test
@@ -874,7 +882,7 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsParents(COMMON, 191919);
 
-        Assert.assertThat(actual.size(), is(0));
+        assertThat(actual.size(), is(0));
     }
 
     @Test
@@ -894,7 +902,7 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 911116);
 
-        Assert.assertThat(actual.size(), is(0));
+        assertThat(actual.size(), is(0));
     }
 
     @Test
@@ -914,9 +922,9 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 820010);
 
-        Assert.assertThat(actual.size(), is(1));
+        assertThat(actual.size(), is(1));
         Iterator<RecordId> iterator = actual.iterator();
-        Assert.assertThat(iterator.next(), is(new RecordId("223906", 820010)));
+        assertThat(iterator.next(), is(new RecordId("223906", 820010)));
     }
 
     @Test
@@ -936,7 +944,7 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870970);
 
-        Assert.assertThat(actual.size(), is(0));
+        assertThat(actual.size(), is(0));
     }
 
     @Test
@@ -956,9 +964,9 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870970);
 
-        Assert.assertThat(actual.size(), is(1));
+        assertThat(actual.size(), is(1));
         Iterator<RecordId> iterator = actual.iterator();
-        Assert.assertThat(iterator.next(), is(new RecordId("69208045", 870979)));
+        assertThat(iterator.next(), is(new RecordId("69208045", 870979)));
     }
 
     @Test
@@ -978,13 +986,13 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870970);
 
-        Assert.assertThat(actual.size(), is(4));
+        assertThat(actual.size(), is(4));
 
         Iterator<RecordId> iterator = actual.iterator();
-        Assert.assertThat(iterator.next(), is(new RecordId("19050416", 870979)));
-        Assert.assertThat(iterator.next(), is(new RecordId("19050785", 870979)));
-        Assert.assertThat(iterator.next(), is(new RecordId("19047903", 870979)));
-        Assert.assertThat(iterator.next(), is(new RecordId("69208045", 870979)));
+        assertThat(iterator.next(), is(new RecordId("19050416", 870979)));
+        assertThat(iterator.next(), is(new RecordId("19050785", 870979)));
+        assertThat(iterator.next(), is(new RecordId("19047903", 870979)));
+        assertThat(iterator.next(), is(new RecordId("69208045", 870979)));
     }
 
     @Test
@@ -1004,10 +1012,10 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870971);
 
-        Assert.assertThat(actual.size(), is(1));
+        assertThat(actual.size(), is(1));
 
         Iterator<RecordId> iterator = actual.iterator();
-        Assert.assertThat(iterator.next(), is(new RecordId("23191083", 870970)));
+        assertThat(iterator.next(), is(new RecordId("23191083", 870970)));
     }
 
     @Test
@@ -1027,10 +1035,10 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870970);
 
-        Assert.assertThat(actual.size(), is(1));
+        assertThat(actual.size(), is(1));
 
         Iterator<RecordId> iterator = actual.iterator();
-        Assert.assertThat(iterator.next(), is(new RecordId("50434990", 870970)));
+        assertThat(iterator.next(), is(new RecordId("50434990", 870970)));
     }
 
     @Test
@@ -1050,12 +1058,12 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870974);
 
-        Assert.assertThat(actual.size(), is(3));
+        assertThat(actual.size(), is(3));
 
         Iterator<RecordId> iterator = actual.iterator();
-        Assert.assertThat(iterator.next(), is(new RecordId("68754011", 870979)));
-        Assert.assertThat(iterator.next(), is(new RecordId("68234190", 870979)));
-        Assert.assertThat(iterator.next(), is(new RecordId("46912683", 870970)));
+        assertThat(iterator.next(), is(new RecordId("68754011", 870979)));
+        assertThat(iterator.next(), is(new RecordId("68234190", 870979)));
+        assertThat(iterator.next(), is(new RecordId("46912683", 870970)));
     }
 
     @Test
@@ -1072,9 +1080,9 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsSiblingsFromMe(bibliographicRecordId, 191919);
 
-        Assert.assertThat(actual.size(), is(1));
+        assertThat(actual.size(), is(1));
         Iterator<RecordId> iterator = actual.iterator();
-        Assert.assertThat(iterator.next(), is(siblingFromMeRecordId));
+        assertThat(iterator.next(), is(siblingFromMeRecordId));
     }
 
     @Test
@@ -1091,7 +1099,7 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsSiblingsFromMe(bibliographicRecordId, 870970);
 
-        Assert.assertThat(actual.size(), is(0));
+        assertThat(actual.size(), is(0));
     }
 
     @Test
@@ -1108,9 +1116,9 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsSiblingsFromMe(bibliographicRecordId, 191919);
 
-        Assert.assertThat(actual.size(), is(1));
+        assertThat(actual.size(), is(1));
         Iterator<RecordId> iterator = actual.iterator();
-        Assert.assertThat(iterator.next(), is(siblingFromMeRecordId));
+        assertThat(iterator.next(), is(siblingFromMeRecordId));
     }
 
     @Test
@@ -1127,9 +1135,9 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsSiblingsFromMe(bibliographicRecordId, 700300);
 
-        Assert.assertThat(actual.size(), is(1));
+        assertThat(actual.size(), is(1));
         Iterator<RecordId> iterator = actual.iterator();
-        Assert.assertThat(iterator.next(), is(siblingFromMeRecordId));
+        assertThat(iterator.next(), is(siblingFromMeRecordId));
     }
 
     @Test
@@ -1145,7 +1153,7 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsSiblingsFromMe(bibliographicRecordId, 870970);
 
-        Assert.assertThat(actual.size(), is(0));
+        assertThat(actual.size(), is(0));
     }
 
     @Test
@@ -1161,7 +1169,7 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsSiblingsToMe(bibliographicRecordId, 191919);
 
-        Assert.assertThat(actual.size(), is(0));
+        assertThat(actual.size(), is(0));
     }
 
     @Test
@@ -1179,9 +1187,9 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsSiblingsToMe(bibliographicRecordId, 870970);
 
-        Assert.assertThat(actual.size(), is(1));
+        assertThat(actual.size(), is(1));
         Iterator<RecordId> iterator = actual.iterator();
-        Assert.assertThat(iterator.next(), is(siblingToMeRecordId));
+        assertThat(iterator.next(), is(siblingToMeRecordId));
     }
 
     @Test
@@ -1197,7 +1205,7 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsSiblingsToMe(bibliographicRecordId, 191919);
 
-        Assert.assertThat(actual.size(), is(0));
+        assertThat(actual.size(), is(0));
     }
 
     @Test
@@ -1213,7 +1221,7 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsSiblingsToMe(bibliographicRecordId, 700300);
 
-        Assert.assertThat(actual.size(), is(0));
+        assertThat(actual.size(), is(0));
     }
 
     @Test
@@ -1229,10 +1237,10 @@ public class MarcRecordBeanTest {
 
         Set<RecordId> actual = bean.getRelationsSiblingsToMe(bibliographicRecordId, 870970);
 
-        Assert.assertThat(actual.size(), is(2));
+        assertThat(actual.size(), is(2));
         Iterator<RecordId> iterator = actual.iterator();
-        Assert.assertThat(iterator.next(), is(new RecordId(bibliographicRecordId, 191919)));
-        Assert.assertThat(iterator.next(), is(new RecordId(bibliographicRecordId, 700300)));
+        assertThat(iterator.next(), is(new RecordId(bibliographicRecordId, 191919)));
+        assertThat(iterator.next(), is(new RecordId(bibliographicRecordId, 700300)));
     }
 
     private MarcRecord loadMarcRecord(String filename) throws Exception {
