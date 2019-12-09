@@ -3,6 +3,7 @@ package dk.dbc.rawrepo.service;
 import dk.dbc.httpclient.HttpGet;
 import dk.dbc.httpclient.PathBuilder;
 import dk.dbc.marc.binding.MarcRecord;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -87,6 +88,31 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         assertThat("collection content 285927994", actual.get("285927994"), is(getMarcRecordFromFile("sql/collection/285927994-830380.xml")));
         assertThat("collection contains 703213855", actual.containsKey("703213855"), is(true));
         assertThat("collection content 703213855", actual.get("703213855"), is(getMarcRecordFromFile("sql/collection/703213855-830380.xml")));
+    }
+
+    @Test
+    void getRecordCollection_DataIO_NotFound() {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("allow-deleted", true);
+        params.put("use-parent-agency", false);
+        params.put("keep-aut-fields", false);
+        params.put("expand", true);
+
+        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/content")
+                .bind("agencyid", "830380")
+                .bind("bibliographicrecordid", "NOTFOUND");
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build());
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            httpGet.withQueryParameter(param.getKey(), param.getValue());
+        }
+
+        final Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(204));
+
+        String entity = response.readEntity(String.class);
+        assertThat("content", entity, CoreMatchers.is(""));
     }
 
     @Test

@@ -78,7 +78,7 @@ public class RecordService {
             }
 
             if (record == null) {
-                return Response.status(Response.Status.NOT_FOUND).build();
+                return Response.status(Response.Status.NO_CONTENT).build();
             }
 
             RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record);
@@ -100,7 +100,7 @@ public class RecordService {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException ex) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}");
         }
@@ -153,6 +153,10 @@ public class RecordService {
                 record = marcRecordBean.getMarcRecordExpanded(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
             }
 
+            if (record == null) {
+                return Response.status(Response.Status.NO_CONTENT).build();
+            }
+
             res = new String(RecordObjectMapper.marcToContent(record));
 
             return Response.ok(res, MediaType.APPLICATION_XML).build();
@@ -160,7 +164,7 @@ public class RecordService {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException e) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/content");
         }
@@ -186,7 +190,7 @@ public class RecordService {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException e) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/meta");
         }
@@ -238,6 +242,8 @@ public class RecordService {
         } catch (JSONBException | InternalServerException ex) {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
+        } catch (RecordNotFoundException ex) {
+            return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/parents");
         }
@@ -279,9 +285,11 @@ public class RecordService {
             res = jsonbContext.marshall(RecordDTOMapper.recordIdToCollectionDTO(recordIds));
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
-        } catch (JSONBException | InternalServerException | RawRepoException | RecordNotFoundException ex) {
+        } catch (JSONBException | InternalServerException | RawRepoException ex) {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
+        } catch (RecordNotFoundException ex) {
+            return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/siblings-from");
         }
@@ -301,9 +309,11 @@ public class RecordService {
             res = jsonbContext.marshall(RecordDTOMapper.recordIdToCollectionDTO(recordIds));
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
-        } catch (JSONBException | InternalServerException | RawRepoException | RecordNotFoundException ex) {
+        } catch (JSONBException | InternalServerException | RawRepoException ex) {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
+        } catch (RecordNotFoundException e) {
+            return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/siblings-to");
         }
