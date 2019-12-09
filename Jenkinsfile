@@ -32,7 +32,7 @@ pipeline {
     }
 
     environment {
-        MARATHON_TOKEN = credentials("METASCRUM_MARATHON_TOKEN")
+        GITLAB_PRIVATE_TOKEN = credentials("metascrum-gitlab-api-token")
         DOCKER_IMAGE_NAME = "docker-io.dbc.dk/rawrepo-record-service"
         DOCKER_IMAGE_VERSION = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
         DOCKER_IMAGE_DIT_VERSION = "DIT-${env.BUILD_NUMBER}"
