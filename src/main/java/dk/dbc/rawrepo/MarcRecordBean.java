@@ -414,18 +414,24 @@ public class MarcRecordBean {
             final RawRepoDAO dao = createDAO(conn);
             int agencyId;
 
-            if (isRoot && !attemptToFindActiveRecord) {
-                agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, allowDeleted);
-            } else {
-                try {
-                    agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, false);
-                } catch (RawRepoExceptionRecordNotFound e) {
-                    if (allowDeleted) {
-                        agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, true);
-                    } else {
-                        throw e;
+            try {
+                if (isRoot && !attemptToFindActiveRecord) {
+                    agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, allowDeleted);
+                } else {
+                    try {
+                        agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, false);
+                    } catch (RawRepoExceptionRecordNotFound e) {
+                        if (allowDeleted) {
+                            agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, true);
+                        } else {
+                            throw e;
+                        }
                     }
                 }
+            } catch (RawRepoExceptionRecordNotFound e) {
+                // Recast exception to local type in order to catch that specific exception
+                // Otherwise RawRepoExceptionRecordNotFound will be caught as a generic RawRepoException somewhere
+                throw new RecordNotFoundException(e.getMessage());
             }
 
             if (recordIsActive(bibliographicRecordId, agencyId)) {
@@ -709,7 +715,7 @@ public class MarcRecordBean {
     }
 
     public Set<RecordId> getRelationsParents(String bibliographicRecordId, int agencyId) throws
-            InternalServerException {
+            InternalServerException, RecordNotFoundException {
         try (Connection conn = globalDataSource.getConnection()) {
             if (recordIsActive(bibliographicRecordId, agencyId)) {
                 try {
@@ -798,7 +804,7 @@ public class MarcRecordBean {
                 }
                 return result;
             }
-        } catch (SQLException | RawRepoException | RecordNotFoundException ex) {
+        } catch (SQLException | RawRepoException ex) {
             LOGGER.error(ex.getMessage(), ex);
             throw new InternalServerException(ex.getMessage(), ex);
         }
