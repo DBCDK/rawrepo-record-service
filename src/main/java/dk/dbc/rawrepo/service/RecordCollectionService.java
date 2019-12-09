@@ -138,7 +138,7 @@ public class RecordCollectionService {
 
             return Response.ok(res, MediaType.APPLICATION_XML).build();
         } catch (RecordNotFoundException ex) {
-            LOGGER.error("Record collection for {}:{} not found", bibliographicRecordId, agencyId, ex);
+            LOGGER.error(ex.getMessage());
             return Response.status(Response.Status.NO_CONTENT).build();
         } catch (Exception ex) {
             LOGGER.error("Exception during getRecord", ex);
