@@ -419,8 +419,7 @@ public class RecordService {
 
                 return Response.ok(res, MediaType.APPLICATION_JSON).build();
             } else {
-                // Unknown historic date
-                return Response.status(Response.Status.BAD_REQUEST).build();
+                return Response.status(Response.Status.NO_CONTENT).build();
             }
         } catch (JSONBException | InternalServerException | MarcReaderException ex) {
             LOGGER.error("Exception during getRecord", ex);
