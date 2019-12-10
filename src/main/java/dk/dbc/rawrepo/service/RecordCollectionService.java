@@ -138,7 +138,6 @@ public class RecordCollectionService {
 
             return Response.ok(res, MediaType.APPLICATION_XML).build();
         } catch (RecordNotFoundException ex) {
-            LOGGER.error(ex.getMessage());
             return Response.status(Response.Status.NO_CONTENT).build();
         } catch (Exception ex) {
             LOGGER.error("Exception during getRecord", ex);
@@ -206,7 +205,6 @@ public class RecordCollectionService {
             LOGGER.error("Exception during getRecordsBulk", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } catch (RecordNotFoundException ex) {
-            LOGGER.error("Record not found", ex);
             return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/records/bulk");
