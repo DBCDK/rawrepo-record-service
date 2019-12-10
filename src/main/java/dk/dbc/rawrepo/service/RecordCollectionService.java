@@ -9,6 +9,7 @@ import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
+import dk.dbc.marcxmerge.MarcXMergerException;
 import dk.dbc.rawrepo.MarcRecordBean;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.dto.RecordCollectionDTO;
@@ -109,9 +110,11 @@ public class RecordCollectionService {
             res = jsonbContext.marshall(dtoList);
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
-        } catch (Exception ex) {
+        } catch (JSONBException | MarcReaderException | InternalServerException ex) {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
+        } catch (RecordNotFoundException ex) {
+            return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}");
         }
@@ -137,12 +140,11 @@ public class RecordCollectionService {
             res = new String(RecordObjectMapper.marcRecordCollectionToContent(marcRecords));
 
             return Response.ok(res, MediaType.APPLICATION_XML).build();
-        } catch (RecordNotFoundException ex) {
-            LOGGER.error("Record collection for {}:{} not found", bibliographicRecordId, agencyId, ex);
-            return Response.status(Response.Status.NOT_FOUND).build();
-        } catch (Exception ex) {
+        } catch (MarcReaderException | InternalServerException | MarcXMergerException ex) {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
+        } catch (RecordNotFoundException ex) {
+            return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/records/{}/{}/content?allow-deleted={}&exclude-dbc-fields={}&use-parent-agency={}&expand={}&keep-aut-fields={}",
                     agencyId, bibliographicRecordId, allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields);
@@ -206,8 +208,7 @@ public class RecordCollectionService {
             LOGGER.error("Exception during getRecordsBulk", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } catch (RecordNotFoundException ex) {
-            LOGGER.error("Record not found", ex);
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/records/bulk");
         }

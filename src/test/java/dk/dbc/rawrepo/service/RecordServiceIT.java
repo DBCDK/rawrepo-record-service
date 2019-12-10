@@ -9,6 +9,7 @@ import dk.dbc.httpclient.HttpGet;
 import dk.dbc.httpclient.PathBuilder;
 import dk.dbc.rawrepo.dto.RecordDTO;
 import dk.dbc.rawrepo.dto.RecordExistsDTO;
+import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -38,11 +39,11 @@ class RecordServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
-    void getRecord() throws Exception {
+    void getRecord_Ok() {
         final HttpGet httpGet = new HttpGet(httpClient)
                 .withBaseUrl(recordServiceBaseUrl)
                 .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}")
-                        .bind("bibliographicRecordId", 50129691)
+                        .bind("bibliographicRecordId", "50129691")
                         .bind("agencyId", 191919)
                         .build());
 
@@ -55,11 +56,27 @@ class RecordServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
+    void getRecord_NotFound() {
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}")
+                        .bind("bibliographicRecordId", "NOTFOUND")
+                        .bind("agencyId", 191919)
+                        .build());
+
+        Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
+
+        String entity = response.readEntity(String.class);
+        assertThat("content", entity, is(""));
+    }
+
+    @Test
     void getMarcRecord_Merged() throws Exception {
         final HttpGet httpGet = new HttpGet(httpClient)
                 .withBaseUrl(recordServiceBaseUrl)
                 .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}/content")
-                        .bind("bibliographicRecordId", 50129691)
+                        .bind("bibliographicRecordId", "50129691")
                         .bind("agencyId", 191919)
                         .bind("mode", "merged")
                         .build());
@@ -76,7 +93,7 @@ class RecordServiceIT extends AbstractRecordServiceContainerTest {
         final HttpGet httpGet = new HttpGet(httpClient)
                 .withBaseUrl(recordServiceBaseUrl)
                 .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}/content")
-                        .bind("bibliographicRecordId", 50129691)
+                        .bind("bibliographicRecordId", "50129691")
                         .bind("agencyId", 191919)
                         .bind("mode", "merged")
                         .bind("use-parent-agency", "true")
@@ -90,11 +107,62 @@ class RecordServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
-    void exists() throws Exception {
+    void getMarcRecord_NotFound() {
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}/content")
+                        .bind("bibliographicRecordId", "NOTFOUND")
+                        .bind("agencyId", 191919)
+                        .bind("mode", "merged")
+                        .build());
+
+        Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(204));
+
+        String entity = response.readEntity(String.class);
+        assertThat("content", entity, is(""));
+    }
+
+    @Test
+    void getRecordMetaData_Found() {
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}/meta")
+                        .bind("bibliographicRecordId", "50129691")
+                        .bind("agencyId", 191919)
+                        .build());
+
+        Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        // TODO Assert the record value.
+        // The object is a marshalled Record class but Record class is abstract which means it can't be unmarshalled easily
+        //Record record = response.readEntity(Record.class);
+        //assertThat("content", record, is(nullValue()));
+    }
+
+    @Test
+    void getRecordMetaData_NotFound() {
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}/meta")
+                        .bind("bibliographicRecordId", "NOTFOUND")
+                        .bind("agencyId", 191919)
+                        .build());
+
+        Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(204));
+
+        String entity = response.readEntity(String.class);
+        assertThat("content", entity, is(""));
+    }
+
+    @Test
+    void exists_Ok() {
         final HttpGet httpGet = new HttpGet(httpClient)
                 .withBaseUrl(recordServiceBaseUrl)
                 .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}/exists")
-                        .bind("bibliographicRecordId", 50129691)
+                        .bind("bibliographicRecordId", "50129691")
                         .bind("agencyId", 191919)
                         .build());
 
@@ -104,4 +172,71 @@ class RecordServiceIT extends AbstractRecordServiceContainerTest {
         RecordExistsDTO recordExistsDTO = response.readEntity(RecordExistsDTO.class);
         assertThat("get response", recordExistsDTO.isValue(), is(true));
     }
+
+    @Test
+    void exists_NotFound() {
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}/exists")
+                        .bind("bibliographicRecordId", "NOTFOUND")
+                        .bind("agencyId", 191919)
+                        .build());
+
+        Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        RecordExistsDTO recordExistsDTO = response.readEntity(RecordExistsDTO.class);
+        assertThat("get response", recordExistsDTO.isValue(), is(false));
+    }
+
+    @Test
+    void getRelationsParents_NoParents_MarcXChange() {
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}/parents")
+                        .bind("bibliographicRecordId", "50129691")
+                        .bind("agencyId", 870970)
+                        .build());
+
+        Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        RecordIdCollectionDTO recordIdCollectionDTO = response.readEntity(RecordIdCollectionDTO.class);
+        assertThat("get response", recordIdCollectionDTO.getRecordIds().size(), is(0));
+    }
+
+    @Test
+    void getRelationsParents_NoParents_Enrichment() {
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}/parents")
+                        .bind("bibliographicRecordId", "50129691")
+                        .bind("agencyId", 191919)
+                        .build());
+
+        Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        RecordIdCollectionDTO recordIdCollectionDTO = response.readEntity(RecordIdCollectionDTO.class);
+        assertThat("get response", recordIdCollectionDTO.getRecordIds().size(), is(0));
+    }
+
+    // TODO When a parent child relation is added to this class at some point the getRelationsPatents should be updated
+
+    @Test
+    void getRelationsParents_NotFound() {
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}/parents")
+                        .bind("bibliographicRecordId", "NOTFOUND")
+                        .bind("agencyId", 191919)
+                        .build());
+
+        Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(204));
+
+        String entity = response.readEntity(String.class);
+        assertThat("content", entity, is(""));
+    }
+
 }
