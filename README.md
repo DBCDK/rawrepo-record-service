@@ -271,6 +271,20 @@ Note that the 'before' parameter selects 'up until' (exclusive) the defined date
     Valid values: YYYY-MM-DD
     Default: not set
 
+## Response codes
+### 200 Ok
+If the request was successful and data is returned the status code is 200.  
+
+### 204 No Content
+If the request is successful but no data is returned status code 204 is returned
+
+### 404 Not found
+If the request doesn't hit a valid end point 404 Not found is returned
+
+### 500 Internal server error
+If an unhandled exception occurs status code 500 is returned 
+    
+
 ## Examples
 ##### Single record with merged content:
 
