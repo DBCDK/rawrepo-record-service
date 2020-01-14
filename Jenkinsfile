@@ -112,6 +112,30 @@ pipeline {
                 }
             }
         }
+
+        stage("Update DIT") {
+            agent {
+                docker {
+                    label workerNode
+                    image "docker.dbc.dk/build-env:latest"
+                    alwaysPull true
+                }
+            }
+            when {
+                expression {
+                    (currentBuild.result == null || currentBuild.result == 'SUCCESS') && env.BRANCH_NAME == 'master'
+                }
+            }
+            steps {
+                script {
+                    dir("deploy") {
+                        sh """
+                            set-new-version services/rawrepo-record-service.yml ${env.GITLAB_PRIVATE_TOKEN} metascrum/dit-gitops-secrets ${DOCKER_IMAGE_DIT_VERSION} -b master
+						"""
+                    }
+                }
+            }
+        }
     }
 
     post {
