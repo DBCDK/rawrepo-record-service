@@ -72,7 +72,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
     public void dumpAgencyDBCMerged() throws Exception {
         AgencyParams params = new AgencyParams();
         params.setAgencies(Collections.singletonList(870970));
-        params.setMode("merged");
+        // Use default value for mode
         params.setOutputFormat("XML");
 
         final PathBuilder path = new PathBuilder("/api/v1/dump");
@@ -138,7 +138,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
     @Test
     public void dumpRecordsDBCMerged() throws Exception {
         final HashMap<String, Object> params = new HashMap<>();
-        params.put("mode", "merged");
+        // Using default value for mode
         params.put("output-format", "XML");
 
         String data = "52557135:870970";

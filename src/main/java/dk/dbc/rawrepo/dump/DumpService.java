@@ -217,7 +217,7 @@ public class DumpService {
     public Response dumpSingleRecords(String input,
                                       @DefaultValue("UTF-8") @QueryParam("output-encoding") String outputEncoding,
                                       @DefaultValue("LINE") @QueryParam("output-format") String outputFormat,
-                                      @DefaultValue("merged") @QueryParam("mode") String mode) {
+                                      @DefaultValue("MERGED") @QueryParam("mode") String mode) {
         LOGGER.info(input);
         final RecordParams params = new RecordParams();
         params.setOutputEncoding(outputEncoding);

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum Mode {
-    RAW("raw"), MERGED("merged"), EXPANDED("expanded");
+    RAW("RAW"), MERGED("MERGED"), EXPANDED("EXPANDED");
 
     private String value;
 
