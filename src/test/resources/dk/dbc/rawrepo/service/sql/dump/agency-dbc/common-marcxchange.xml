@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">52557135</subfield>
+        <subfield code="b">870970</subfield>
+        <subfield code="c">20190404022921</subfield>
+        <subfield code="d">20160823</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">e</subfield>
+    </datafield>
+    <datafield tag="008" ind1="0" ind2="0">
+        <subfield code="t">m</subfield>
+        <subfield code="u">f</subfield>
+        <subfield code="a">2016</subfield>
+        <subfield code="b">dk</subfield>
+        <subfield code="d">x</subfield>
+        <subfield code="j">f</subfield>
+        <subfield code="l">dan</subfield>
+        <subfield code="v">0</subfield>
+    </datafield>
+    <datafield tag="009" ind1="0" ind2="0">
+        <subfield code="a">a</subfield>
+        <subfield code="g">xx</subfield>
+    </datafield>
+    <datafield tag="021" ind1="0" ind2="0">
+        <subfield code="e">9788702203004</subfield>
+        <subfield code="c">ib.</subfield>
+    </datafield>
+    <datafield tag="032" ind1="0" ind2="0">
+        <subfield code="x">ACC201634</subfield>
+        <subfield code="a">DBF201637</subfield>
+        <subfield code="x">BKM201637</subfield>
+        <subfield code="x">BKX201636</subfield>
+    </datafield>
+    <datafield tag="041" ind1="0" ind2="0">
+        <subfield code="a">dan</subfield>
+        <subfield code="c">nor</subfield>
+    </datafield>
+    <datafield tag="100" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">69044638</subfield>
+        <subfield code="4">aut</subfield>
+    </datafield>
+    <datafield tag="241" ind1="0" ind2="0">
+        <subfield code="a">De ¤urolige</subfield>
+        <subfield code="r">norsk</subfield>
+    </datafield>
+    <datafield tag="245" ind1="0" ind2="0">
+        <subfield code="a">De ¤urolige</subfield>
+    </datafield>
+    <datafield tag="250" ind1="0" ind2="0">
+        <subfield code="a">1. udgave</subfield>
+        <subfield code="b">÷</subfield>
+    </datafield>
+    <datafield tag="260" ind1="0" ind2="0">
+        <subfield code="&amp;">1</subfield>
+        <subfield code="a">[Kbh.]</subfield>
+        <subfield code="b">Gyldendal</subfield>
+        <subfield code="c">2016</subfield>
+    </datafield>
+    <datafield tag="300" ind1="0" ind2="0">
+        <subfield code="a">401 sider</subfield>
+    </datafield>
+    <datafield tag="504" ind1="0" ind2="0">
+        <subfield code="&amp;">1</subfield>
+        <subfield code="a">Fortælling om at være datter af den døende filminstruktør Ingmar Bergmann, sammensat af erindringer, fiktion, dokumentarisk materiale og refleksioner. Der tegnes et billede af en broget familie, hvor kærlighed og afsavn går hånd i hånd</subfield>
+    </datafield>
+    <datafield tag="521" ind1="0" ind2="0">
+        <subfield code="&amp;">REX</subfield>
+        <subfield code="b">1. oplag</subfield>
+        <subfield code="c">2016</subfield>
+        <subfield code="k">tr. i udl.</subfield>
+    </datafield>
+    <datafield tag="600" ind1="0" ind2="0">
+        <subfield code="1"/>
+        <subfield code="a">Bergman</subfield>
+        <subfield code="h">Ingmar</subfield>
+    </datafield>
+    <datafield tag="600" ind1="0" ind2="0">
+        <subfield code="1"/>
+        <subfield code="a">Ullmann</subfield>
+        <subfield code="h">Liv</subfield>
+    </datafield>
+    <datafield tag="652" ind1="0" ind2="0">
+        <subfield code="n">85</subfield>
+        <subfield code="z">26</subfield>
+    </datafield>
+    <datafield tag="652" ind1="0" ind2="0">
+        <subfield code="o">sk</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="s">erindringer</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="s">familien</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="s">far-datter forholdet</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="s">savn</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="s">kærlighed</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="q">Sverige</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Karen Fastrup</subfield>
+        <subfield code="4">trl</subfield>
+    </datafield>
+    <datafield tag="990" ind1="0" ind2="0">
+        <subfield code="o">201637</subfield>
+        <subfield code="b">l</subfield>
+        <subfield code="b">v</subfield>
+        <subfield code="u">nt</subfield>
+    </datafield>
+    <datafield tag="991" ind1="0" ind2="0">
+        <subfield code="o">Ekspres 201636</subfield>
+    </datafield>
+    <datafield tag="991" ind1="0" ind2="0">
+        <subfield code="o">Onlineversion optaget i denne uges BKM (5 250 878 9)</subfield>
+    </datafield>
+    <datafield tag="996" ind1="0" ind2="0">
+        <subfield code="a">DBC</subfield>
+    </datafield>
+</record>
