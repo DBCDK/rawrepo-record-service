@@ -216,11 +216,13 @@ public class DumpService {
     @Produces({MediaType.TEXT_PLAIN})
     public Response dumpSingleRecords(String input,
                                       @DefaultValue("UTF-8") @QueryParam("output-encoding") String outputEncoding,
-                                      @DefaultValue("LINE") @QueryParam("output-format") String outputFormat) {
+                                      @DefaultValue("LINE") @QueryParam("output-format") String outputFormat,
+                                      @DefaultValue("merged") @QueryParam("mode") String mode) {
         LOGGER.info(input);
         final RecordParams params = new RecordParams();
         params.setOutputEncoding(outputEncoding);
         params.setOutputFormat(outputFormat);
+        params.setMode(mode);
         // The service is meant to be called from curl, so the error message should be easy to read.
         // Therefor the message is simple text instead of JSON or HTML
         try {
