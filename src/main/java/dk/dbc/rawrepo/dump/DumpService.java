@@ -169,7 +169,7 @@ public class DumpService {
                                 loopCount++;
 
                                 if (agencyType == AgencyType.DBC) {
-                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
+                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
                                 } else if (agencyType == AgencyType.FBS) {
                                     threadList.add(new MergerThreadFBS(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
                                 } else {
@@ -274,7 +274,7 @@ public class DumpService {
                                 loopCount++;
 
                                 if (agencyType == AgencyType.DBC) {
-                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
+                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
                                 } else if (agencyType == AgencyType.FBS) {
                                     threadList.add(new MergerThreadFBS(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
                                 } else {

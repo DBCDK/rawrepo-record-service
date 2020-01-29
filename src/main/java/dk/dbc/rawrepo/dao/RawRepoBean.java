@@ -6,6 +6,7 @@
 package dk.dbc.rawrepo.dao;
 
 import dk.dbc.rawrepo.RawRepoException;
+import dk.dbc.rawrepo.RecordId;
 import dk.dbc.rawrepo.dump.RecordItem;
 import dk.dbc.rawrepo.dump.RecordStatus;
 import dk.dbc.util.StopwatchInterceptor;
@@ -37,6 +38,7 @@ public class RawRepoBean {
     private static final String QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL = "SELECT bibliographicrecordid, mimetype FROM records WHERE agencyid=?";
     private static final String QUERY_AGENCIES = "SELECT DISTINCT(agencyid) FROM records";
     private static final String SET_SERVER_URL_CONFIGURATION = "INSERT INTO configurations (key, value) VALUES (?, ?) ON CONFLICT (key) DO NOTHING";
+    private static final String SELECT_RELATIONS_PARENTS = "SELECT refer_bibliographicrecordid, refer_agencyid FROM relations WHERE bibliographicrecordid=? AND agencyid=? AND refer_bibliographicrecordid <> bibliographicrecordid";
 
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
@@ -322,6 +324,48 @@ public class RawRepoBean {
         }
 
         return res;
+    }
+
+    public Set<RecordId> getRelationsParents(RecordId recordId) throws RawRepoException {
+        Set<RecordId> collection = new HashSet<>();
+        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(SELECT_RELATIONS_PARENTS)) {
+            int pos = 1;
+            stmt.setString(pos++, recordId.getBibliographicRecordId());
+            stmt.setInt(pos, recordId.getAgencyId());
+            try (ResultSet resultSet = stmt.executeQuery()) {
+                while (resultSet.next()) {
+                    collection.add(new RecordId(resultSet.getString(1), resultSet.getInt(2)));
+                }
+            }
+        } catch (SQLException ex) {
+            LOGGER.info("Caught exception: {}", ex);
+            throw new RawRepoException("Error fetching getRelationsParents relations", ex);
+        }
+        return collection;
+    }
+
+    public byte[] fetchRecordContent(RecordId recordId) throws RawRepoException {
+        byte[] res = null;
+        final String query = " SELECT convert_from(decode(content, 'base64'), 'UTF-8')" +
+                "   FROM records " +
+                "  WHERE bibliographicrecordid=?" +
+                "    AND agencyid=?";
+
+        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(query)) {
+            int pos = 1;
+            stmt.setString(pos++, recordId.getBibliographicRecordId());
+            stmt.setInt(pos, recordId.getAgencyId());
+            try (ResultSet resultSet = stmt.executeQuery()) {
+                while (resultSet.next()) {
+                    res = resultSet.getBytes(1);
+                }
+            }
+
+            return res;
+        } catch (SQLException ex) {
+            LOGGER.info("Caught exception: {}", ex.getMessage());
+            throw new RawRepoException("Error fetching records items", ex);
+        }
     }
 
     private boolean hasValue(String s) {
