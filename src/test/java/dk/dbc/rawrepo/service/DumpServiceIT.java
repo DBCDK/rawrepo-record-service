@@ -18,6 +18,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.Connection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -53,16 +55,15 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
         params.setOutputFormat("XML");
 
         final PathBuilder path = new PathBuilder("/api/v1/dump");
-        final HttpPost httpGet = new HttpPost(httpClient)
+        final HttpPost httpPost = new HttpPost(httpClient)
                 .withBaseUrl(recordServiceBaseUrl)
                 .withPathElements(path.build())
                 .withData(params, MediaType.APPLICATION_JSON);
 
-        final Response response = httpClient.execute(httpGet);
+        final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
         String content = response.readEntity(String.class);
-        LOGGER.info(content);
 
         assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-raw.xml")));
     }
@@ -75,16 +76,15 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
         params.setOutputFormat("XML");
 
         final PathBuilder path = new PathBuilder("/api/v1/dump");
-        final HttpPost httpGet = new HttpPost(httpClient)
+        final HttpPost httpPost = new HttpPost(httpClient)
                 .withBaseUrl(recordServiceBaseUrl)
                 .withPathElements(path.build())
                 .withData(params, MediaType.APPLICATION_JSON);
 
-        final Response response = httpClient.execute(httpGet);
+        final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
         String content = response.readEntity(String.class);
-        LOGGER.info(content);
 
         assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-merged.xml")));
     }
@@ -97,16 +97,90 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
         params.setOutputFormat("XML");
 
         final PathBuilder path = new PathBuilder("/api/v1/dump");
-        final HttpPost httpGet = new HttpPost(httpClient)
+        final HttpPost httpPost = new HttpPost(httpClient)
                 .withBaseUrl(recordServiceBaseUrl)
                 .withPathElements(path.build())
                 .withData(params, MediaType.APPLICATION_JSON);
 
-        final Response response = httpClient.execute(httpGet);
+        final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
         String content = response.readEntity(String.class);
-        LOGGER.info(content);
+
+        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-expanded.xml")));
+    }
+
+    @Test
+    public void dumpRecordsDBCRaw() throws Exception {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("mode", "raw");
+        params.put("output-format", "XML");
+
+        String data = "52557135:870970";
+
+        final PathBuilder path = new PathBuilder("/api/v1/dump/record");
+        final HttpPost httpPost = new HttpPost(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build())
+                .withData(data, MediaType.TEXT_PLAIN);
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            httpPost.withQueryParameter(param.getKey(), param.getValue());
+        }
+
+        final Response response = httpClient.execute(httpPost);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        String content = response.readEntity(String.class);
+
+        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-raw.xml")));
+    }
+
+    @Test
+    public void dumpRecordsDBCMerged() throws Exception {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("mode", "merged");
+        params.put("output-format", "XML");
+
+        String data = "52557135:870970";
+
+        final PathBuilder path = new PathBuilder("/api/v1/dump/record");
+        final HttpPost httpPost = new HttpPost(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build())
+                .withData(data, MediaType.TEXT_PLAIN);
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            httpPost.withQueryParameter(param.getKey(), param.getValue());
+        }
+
+        final Response response = httpClient.execute(httpPost);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        String content = response.readEntity(String.class);
+
+        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-merged.xml")));
+    }
+
+    @Test
+    public void dumpRecordsDBCExpanded() throws Exception {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("mode", "expanded");
+        params.put("output-format", "XML");
+
+        String data = "52557135:870970";
+
+        final PathBuilder path = new PathBuilder("/api/v1/dump/record");
+        final HttpPost httpPost = new HttpPost(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build())
+                .withData(data, MediaType.TEXT_PLAIN);
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            httpPost.withQueryParameter(param.getKey(), param.getValue());
+        }
+
+        final Response response = httpClient.execute(httpPost);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        String content = response.readEntity(String.class);
 
         assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-expanded.xml")));
     }
