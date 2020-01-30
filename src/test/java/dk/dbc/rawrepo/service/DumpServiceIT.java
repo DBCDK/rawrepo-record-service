@@ -36,10 +36,13 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
             saveRecord(rawrepoConnection, "sql/dump/agency-dbc/common-marcxchange.xml", MIMETYPE_MARCXCHANGE);
             saveRecord(rawrepoConnection, "sql/dump/agency-dbc/common-enrichment.xml", MIMETYPE_ENRICHMENT);
 
+            saveRecord(rawrepoConnection, "sql/dump/agency-dbc/fbs-enrichment.xml", MIMETYPE_ENRICHMENT);
+
             saveRecord(rawrepoConnection, "sql/dump/agency-dbc/authority-marcxchange.xml", MIMETYPE_AUTHORITY);
             saveRecord(rawrepoConnection, "sql/dump/agency-dbc/authority-enrichment.xml", MIMETYPE_ENRICHMENT);
 
             saveRelations(rawrepoConnection, "52557135", 191919, "52557135", 870970);
+            saveRelations(rawrepoConnection, "52557135", 710100, "52557135", 870970);
             saveRelations(rawrepoConnection, "69044638", 191919, "69044638", 870979);
             saveRelations(rawrepoConnection, "52557135", 870970, "69044638", 870979);
         } catch (Exception e) {
@@ -65,7 +68,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
 
         String content = response.readEntity(String.class);
 
-        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-raw.xml")));
+        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-raw.xml")));
     }
 
     @Test
@@ -86,7 +89,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
 
         String content = response.readEntity(String.class);
 
-        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-merged.xml")));
+        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-merged.xml")));
     }
 
     @Test
@@ -107,7 +110,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
 
         String content = response.readEntity(String.class);
 
-        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-expanded.xml")));
+        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-expanded.xml")));
     }
 
     @Test
@@ -132,7 +135,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
 
         String content = response.readEntity(String.class);
 
-        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-raw.xml")));
+        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-raw.xml")));
     }
 
     @Test
@@ -157,7 +160,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
 
         String content = response.readEntity(String.class);
 
-        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-merged.xml")));
+        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-merged.xml")));
     }
 
     @Test
@@ -182,7 +185,81 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
 
         String content = response.readEntity(String.class);
 
-        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-expanded.xml")));
+        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-expanded.xml")));
+    }
+
+    @Test
+    public void dumpRecordsFBSRaw() throws Exception {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("mode", "raw");
+        params.put("output-format", "XML");
+
+        String data = "52557135:710100";
+
+        final PathBuilder path = new PathBuilder("/api/v1/dump/record");
+        final HttpPost httpPost = new HttpPost(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build())
+                .withData(data, MediaType.TEXT_PLAIN);
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            httpPost.withQueryParameter(param.getKey(), param.getValue());
+        }
+
+        final Response response = httpClient.execute(httpPost);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        String content = response.readEntity(String.class);
+
+        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-fbs-raw.xml")));
+    }
+
+    @Test
+    public void dumpRecordsFBSMerged() throws Exception {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("output-format", "XML");
+
+        String data = "52557135:710100";
+
+        final PathBuilder path = new PathBuilder("/api/v1/dump/record");
+        final HttpPost httpPost = new HttpPost(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build())
+                .withData(data, MediaType.TEXT_PLAIN);
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            httpPost.withQueryParameter(param.getKey(), param.getValue());
+        }
+
+        final Response response = httpClient.execute(httpPost);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        String content = response.readEntity(String.class);
+
+        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-fbs-merged.xml")));
+    }
+
+    @Test
+    public void dumpRecordsFBSExpanded() throws Exception {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("mode", "expanded");
+        params.put("output-format", "XML");
+
+        String data = "52557135:710100";
+
+        final PathBuilder path = new PathBuilder("/api/v1/dump/record");
+        final HttpPost httpPost = new HttpPost(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build())
+                .withData(data, MediaType.TEXT_PLAIN);
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            httpPost.withQueryParameter(param.getKey(), param.getValue());
+        }
+
+        final Response response = httpClient.execute(httpPost);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        String content = response.readEntity(String.class);
+
+        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-fbs-expanded.xml")));
     }
 
 }
