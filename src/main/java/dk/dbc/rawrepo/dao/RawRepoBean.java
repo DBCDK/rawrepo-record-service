@@ -39,6 +39,7 @@ public class RawRepoBean {
     private static final String QUERY_AGENCIES = "SELECT DISTINCT(agencyid) FROM records";
     private static final String SET_SERVER_URL_CONFIGURATION = "INSERT INTO configurations (key, value) VALUES (?, ?) ON CONFLICT (key) DO NOTHING";
     private static final String SELECT_RELATIONS_PARENTS = "SELECT refer_bibliographicrecordid, refer_agencyid FROM relations WHERE bibliographicrecordid=? AND agencyid=? AND refer_bibliographicrecordid <> bibliographicrecordid";
+    private static final String SELECT_CONTENT_FROM_RECORDS = "SELECT convert_from(decode(content, 'base64'), 'UTF-8') FROM records WHERE bibliographicrecordid=? AND agencyid=?";
 
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
@@ -346,12 +347,7 @@ public class RawRepoBean {
 
     public byte[] fetchRecordContent(RecordId recordId) throws RawRepoException {
         byte[] res = null;
-        final String query = " SELECT convert_from(decode(content, 'base64'), 'UTF-8')" +
-                "   FROM records " +
-                "  WHERE bibliographicrecordid=?" +
-                "    AND agencyid=?";
-
-        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(query)) {
+        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(SELECT_CONTENT_FROM_RECORDS)) {
             int pos = 1;
             stmt.setString(pos++, recordId.getBibliographicRecordId());
             stmt.setInt(pos, recordId.getAgencyId());
