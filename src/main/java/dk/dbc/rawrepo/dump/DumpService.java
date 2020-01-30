@@ -8,6 +8,7 @@ package dk.dbc.rawrepo.dump;
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.openagency.client.OpenAgencyException;
+import dk.dbc.rawrepo.MarcRecordBean;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.dao.HoldingsItemsBean;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
@@ -67,6 +68,9 @@ public class DumpService {
 
     @EJB
     private RawRepoBean rawRepoBean;
+
+    @EJB
+    private MarcRecordBean marcRecordBean;
 
     @EJB
     private HoldingsItemsBean holdingsItemsBean;
@@ -171,7 +175,7 @@ public class DumpService {
                                 if (agencyType == AgencyType.DBC) {
                                     threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
                                 } else if (agencyType == AgencyType.FBS) {
-                                    threadList.add(new MergerThreadFBS(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
+                                    threadList.add(new MergerThreadFBS(rawRepoBean, marcRecordBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
                                 } else {
                                     threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
                                 }
@@ -278,7 +282,7 @@ public class DumpService {
                                 if (agencyType == AgencyType.DBC) {
                                     threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
                                 } else if (agencyType == AgencyType.FBS) {
-                                    threadList.add(new MergerThreadFBS(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
+                                    threadList.add(new MergerThreadFBS(rawRepoBean, marcRecordBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
                                 } else {
                                     threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
                                 }
