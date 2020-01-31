@@ -8,6 +8,7 @@ package dk.dbc.rawrepo.dump;
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.openagency.client.OpenAgencyException;
+import dk.dbc.rawrepo.MarcRecordBean;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.dao.HoldingsItemsBean;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
@@ -67,6 +68,9 @@ public class DumpService {
 
     @EJB
     private RawRepoBean rawRepoBean;
+
+    @EJB
+    private MarcRecordBean marcRecordBean;
 
     @EJB
     private HoldingsItemsBean holdingsItemsBean;
@@ -169,9 +173,9 @@ public class DumpService {
                                 loopCount++;
 
                                 if (agencyType == AgencyType.DBC) {
-                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
+                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
                                 } else if (agencyType == AgencyType.FBS) {
-                                    threadList.add(new MergerThreadFBS(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
+                                    threadList.add(new MergerThreadFBS(rawRepoBean, marcRecordBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
                                 } else {
                                     threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
                                 }
@@ -216,11 +220,13 @@ public class DumpService {
     @Produces({MediaType.TEXT_PLAIN})
     public Response dumpSingleRecords(String input,
                                       @DefaultValue("UTF-8") @QueryParam("output-encoding") String outputEncoding,
-                                      @DefaultValue("LINE") @QueryParam("output-format") String outputFormat) {
+                                      @DefaultValue("LINE") @QueryParam("output-format") String outputFormat,
+                                      @DefaultValue("MERGED") @QueryParam("mode") String mode) {
         LOGGER.info(input);
         final RecordParams params = new RecordParams();
         params.setOutputEncoding(outputEncoding);
         params.setOutputFormat(outputFormat);
+        params.setMode(mode);
         // The service is meant to be called from curl, so the error message should be easy to read.
         // Therefor the message is simple text instead of JSON or HTML
         try {
@@ -274,9 +280,9 @@ public class DumpService {
                                 loopCount++;
 
                                 if (agencyType == AgencyType.DBC) {
-                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
+                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
                                 } else if (agencyType == AgencyType.FBS) {
-                                    threadList.add(new MergerThreadFBS(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
+                                    threadList.add(new MergerThreadFBS(rawRepoBean, marcRecordBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
                                 } else {
                                     threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
                                 }

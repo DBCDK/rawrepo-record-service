@@ -8,6 +8,7 @@ public abstract class Params {
 
     String outputEncoding;
     String outputFormat;
+    String mode;
 
     public String getOutputEncoding() {
         return outputEncoding;
@@ -25,6 +26,14 @@ public abstract class Params {
         this.outputFormat = outputFormat;
     }
 
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
     List<ParamsValidationItem> validateParams() {
         final List<ParamsValidationItem> result = new ArrayList<>();
 
@@ -34,7 +43,7 @@ public abstract class Params {
             try {
                 OutputFormat.fromString(this.outputFormat);
             } catch (IllegalArgumentException e) {
-                result.add(new ParamsValidationItem("outputFormat", "The value " + this.outputFormat + " is not a valid value. Allowed values are: " + OutputFormat.validValues()));
+                result.add(new ParamsValidationItem("outputFormat", "The value '" + this.outputFormat + "' is not a valid value. Allowed values are: " + OutputFormat.validValues()));
             }
         }
 
@@ -42,7 +51,17 @@ public abstract class Params {
             this.outputEncoding = "UTF-8"; // Set default value
         } else {
             if (!("DANMARC2".equalsIgnoreCase(this.outputEncoding) || Charset.availableCharsets().containsKey(this.outputEncoding))) {
-                result.add(new ParamsValidationItem("outputEncoding", "The value " + this.outputEncoding + " is not a valid charset"));
+                result.add(new ParamsValidationItem("outputEncoding", "The value '" + this.outputEncoding + "' is not a valid charset"));
+            }
+        }
+
+        if (this.mode == null) {
+            this.mode = Mode.MERGED.toString();
+        } else {
+            try {
+                Mode.fromString(this.mode);
+            } catch (IllegalArgumentException e) {
+                result.add(new ParamsValidationItem("mode", "The value '" + this.mode + "' is not a valid value. Allowed values are: " + Mode.validValues()));
             }
         }
 

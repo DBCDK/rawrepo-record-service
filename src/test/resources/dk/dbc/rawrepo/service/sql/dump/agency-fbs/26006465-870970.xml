@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">26006465</subfield>
+        <subfield code="b">870970</subfield>
+        <subfield code="c">20100208060943</subfield>
+        <subfield code="d">20051117</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">e</subfield>
+    </datafield>
+    <datafield tag="008" ind1="0" ind2="0">
+        <subfield code="t">m</subfield>
+        <subfield code="u">r</subfield>
+        <subfield code="a">2005</subfield>
+        <subfield code="z">2005</subfield>
+        <subfield code="b">dk</subfield>
+        <subfield code="k">a</subfield>
+        <subfield code="l">dan</subfield>
+        <subfield code="v">0</subfield>
+    </datafield>
+    <datafield tag="009" ind1="0" ind2="0">
+        <subfield code="a">a</subfield>
+        <subfield code="g">xx</subfield>
+    </datafield>
+    <datafield tag="021" ind1="0" ind2="0">
+        <subfield code="e">9788759524848</subfield>
+        <subfield code="c">ib.</subfield>
+        <subfield code="d">kr. 299,00</subfield>
+    </datafield>
+    <datafield tag="021" ind1="0" ind2="0">
+        <subfield code="a">87-595-2484-7</subfield>
+    </datafield>
+    <datafield tag="032" ind1="0" ind2="0">
+        <subfield code="x">ACC200546</subfield>
+        <subfield code="a">DBF200550</subfield>
+        <subfield code="x">SFD200550</subfield>
+        <subfield code="x">DAT200608</subfield>
+    </datafield>
+    <datafield tag="100" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">68774608</subfield>
+    </datafield>
+    <datafield tag="245" ind1="0" ind2="0">
+        <subfield code="a">Vokseværk</subfield>
+        <subfield code="e">Poul Nyrup Rasmussen</subfield>
+    </datafield>
+    <datafield tag="250" ind1="0" ind2="0">
+        <subfield code="a">1. udgave</subfield>
+        <subfield code="b">÷</subfield>
+        <subfield code="x">2. oplag</subfield>
+    </datafield>
+    <datafield tag="260" ind1="0" ind2="0">
+        <subfield code="&amp;">1</subfield>
+        <subfield code="a">[Kbh.]</subfield>
+        <subfield code="b">Lindhardt og Ringhof</subfield>
+        <subfield code="c">2005</subfield>
+        <subfield code="k">Nørhaven Book</subfield>
+    </datafield>
+    <datafield tag="300" ind1="0" ind2="0">
+        <subfield code="a">436 sider, tavler</subfield>
+    </datafield>
+    <datafield tag="504" ind1="0" ind2="0">
+        <subfield code="&amp;">1</subfield>
+        <subfield code="a">Tidligere statsminister Poul Nyrup Rasmussen (f. 1943) beretter om sit liv fra han ankommer til København i 1963, til han tiltræder som statsminister i 1993, herunder om arbejdet i fagbevægelsen som økonom i LO og Lønmodtagernes Dyrtidsfond samt om vejen til formandsposten i Socialdemokratiet</subfield>
+    </datafield>
+    <datafield tag="512" ind1="0" ind2="0">
+        <subfield code="a">På smudsomslaget: Erindringer 1963-93</subfield>
+    </datafield>
+    <datafield tag="520" ind1="0" ind2="0">
+        <subfield code="a">Tidligere: 1. udgave. 2005</subfield>
+    </datafield>
+    <datafield tag="521" ind1="0" ind2="0">
+        <subfield code="&amp;">REX</subfield>
+        <subfield code="a">[1. oplag]</subfield>
+        <subfield code="c">2005</subfield>
+    </datafield>
+    <datafield tag="521" ind1="0" ind2="0">
+        <subfield code="b">2. oplag</subfield>
+        <subfield code="c">2005</subfield>
+    </datafield>
+    <datafield tag="526" ind1="0" ind2="0">
+        <subfield code="&amp;">1</subfield>
+        <subfield code="i">2. del af</subfield>
+        <subfield code="t">Rødder</subfield>
+        <subfield code="b">. Seriens indhold se denne</subfield>
+    </datafield>
+    <datafield tag="600" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">68774608</subfield>
+    </datafield>
+    <datafield tag="610" ind1="0" ind2="0">
+        <subfield code="1"/>
+        <subfield code="a">Socialdemokratiet</subfield>
+    </datafield>
+    <datafield tag="652" ind1="0" ind2="0">
+        <subfield code="å">1</subfield>
+        <subfield code="m">99.4</subfield>
+        <subfield code="a">Nyrup Rasmussen</subfield>
+        <subfield code="h">Poul</subfield>
+    </datafield>
+    <datafield tag="652" ind1="0" ind2="0">
+        <subfield code="p">32.269</subfield>
+        <subfield code="a">Socialdemokraterne</subfield>
+    </datafield>
+    <datafield tag="652" ind1="0" ind2="0">
+        <subfield code="p">96.72</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="f">historie</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="f">politiske forhold</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="f">politikere</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="f">politik</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="f">politiske partier</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="i">1960-1969</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="i">1970-1979</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="i">1980-1989</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="i">1990-1999</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="e">Danmark</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="o">erindringer</subfield>
+    </datafield>
+    <datafield tag="900" ind1="0" ind2="0">
+        <subfield code="a">Rasmussen</subfield>
+        <subfield code="h">Poul Nyrup</subfield>
+        <subfield code="z">652/1(a,h)</subfield>
+    </datafield>
+    <datafield tag="996" ind1="0" ind2="0">
+        <subfield code="a">DBC</subfield>
+    </datafield>
+</record>
