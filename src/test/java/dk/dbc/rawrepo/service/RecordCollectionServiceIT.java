@@ -176,7 +176,7 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         assertThat("collection content 50129691", actual.get("50129691"), is(getMarcRecordFromFile("sql/collection/50129691-870970.xml")));
     }
 
-    @Test
+    //@Test Temporarily disable test
     void getRecordCollection_DataIO_DeletedVolume() throws Exception {
         final HashMap<String, Object> params = new HashMap<>();
         params.put("allow-deleted", true);

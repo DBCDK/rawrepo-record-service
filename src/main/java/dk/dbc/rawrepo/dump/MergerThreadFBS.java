@@ -17,9 +17,10 @@ import dk.dbc.marc.writer.MarcXchangeV1Writer;
 import dk.dbc.marcrecord.ExpandCommonMarcRecord;
 import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.marcxmerge.MarcXMergerException;
-import dk.dbc.rawrepo.MarcRecordBean;
+import dk.dbc.rawrepo.RecordBean;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.RecordId;
+import dk.dbc.rawrepo.RecordRelationsBean;
 import dk.dbc.rawrepo.dao.RawRepoBean;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
@@ -52,11 +53,11 @@ public class MergerThreadFBS implements Callable<Boolean> {
     private int agencyId;
     private Mode mode;
     private MarcXMerger merger;
-    private MarcRecordBean marcRecordBean;
+    private RecordRelationsBean recordBean;
 
-    MergerThreadFBS(RawRepoBean rawRepoBean, MarcRecordBean marcRecordBean, HashMap<String, String> recordSet, RecordByteWriter writer, int agencyId, String modeAsString) {
+    MergerThreadFBS(RawRepoBean rawRepoBean, RecordRelationsBean recordRelationsBean, HashMap<String, String> recordSet, RecordByteWriter writer, int agencyId, String modeAsString) {
         this.rawRepoBean = rawRepoBean;
-        this.marcRecordBean = marcRecordBean;
+        this.recordBean = recordRelationsBean;
         this.recordSet = recordSet;
         this.writer = writer;
         this.agencyId = agencyId;
@@ -137,7 +138,7 @@ public class MergerThreadFBS implements Callable<Boolean> {
                                 if (EXPANDABLE_AGENCIES.contains(agencyId)) {
                                     expandableRecordId = new RecordId(item.getBibliographicRecordId(), agencyId);
                                 } else {
-                                    Set<RecordId> relationsSiblings = marcRecordBean.getRelationsSiblingsFromMe(item.getBibliographicRecordId(), agencyId);
+                                    Set<RecordId> relationsSiblings = recordBean.getRelationsSiblingsFromMe(item.getBibliographicRecordId(), agencyId);
                                     for (int expandableAgencyId : EXPANDABLE_AGENCIES) {
                                         RecordId potentialExpandableRecordId = new RecordId(item.getBibliographicRecordId(), expandableAgencyId);
                                         if (relationsSiblings.contains(potentialExpandableRecordId)) {
