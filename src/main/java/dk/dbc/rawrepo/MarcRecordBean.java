@@ -8,15 +8,10 @@ import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.rawrepo.service.RecordObjectMapper;
 import dk.dbc.util.Timed;
-import org.slf4j.ext.XLogger;
-import org.slf4j.ext.XLoggerFactory;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.sql.DataSource;
-import java.sql.Connection;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -25,7 +20,6 @@ import static dk.dbc.marcxmerge.MarcXChangeMimeType.isMarcXChange;
 
 @Stateless
 public class MarcRecordBean {
-    private static final XLogger LOGGER = XLoggerFactory.getXLogger(RecordSimpleBean.class);
 
     @EJB
     private OpenAgencyBean openAgency;

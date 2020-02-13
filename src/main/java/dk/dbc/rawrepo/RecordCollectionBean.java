@@ -1,13 +1,9 @@
 package dk.dbc.rawrepo;
 
 import dk.dbc.marcxmerge.MarcXChangeMimeType;
-import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.marcxmerge.MarcXMergerException;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
-import dk.dbc.rawrepo.pool.CustomMarcXMergerPool;
-import dk.dbc.rawrepo.pool.DefaultMarcXMergerPool;
-import dk.dbc.rawrepo.pool.ObjectPool;
 import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
