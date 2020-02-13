@@ -1,6 +1,5 @@
 package dk.dbc.rawrepo;
 
-import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marcxmerge.MarcXChangeMimeType;
 import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.marcxmerge.MarcXMergerException;
@@ -38,9 +37,6 @@ public class RecordCollectionBean {
     @EJB
     RecordRelationsBean recordRelationsBean;
 
-    private final ObjectPool<MarcXMerger> customMarcXMergerPool = new CustomMarcXMergerPool();
-    private final ObjectPool<MarcXMerger> defaultMarcXMergerPool = new DefaultMarcXMergerPool();
-
     // Constructor used for mocking
     RecordCollectionBean(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -49,14 +45,6 @@ public class RecordCollectionBean {
     // Default constructor - required as there is another constructor
     public RecordCollectionBean() {
 
-    }
-
-    private ObjectPool<MarcXMerger> getMergerPool(boolean useParentAgency) {
-        if (useParentAgency) {
-            return customMarcXMergerPool;
-        } else {
-            return defaultMarcXMergerPool;
-        }
     }
 
     @Timed
@@ -68,7 +56,7 @@ public class RecordCollectionBean {
                                                           boolean expand,
                                                           boolean keepAutFields,
                                                           boolean excludeAutRecords) throws InternalServerException, RecordNotFoundException {
-        final Map<String, Record> collection= new HashMap<>();
+        final Map<String, Record> collection = new HashMap<>();
         final Map<String, Record> result = new HashMap<>();
         try (Connection conn = dataSource.getConnection()) {
             try {

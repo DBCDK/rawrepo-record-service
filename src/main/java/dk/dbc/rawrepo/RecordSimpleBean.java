@@ -1,12 +1,8 @@
 package dk.dbc.rawrepo;
 
-import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
-import dk.dbc.rawrepo.pool.CustomMarcXMergerPool;
-import dk.dbc.rawrepo.pool.DefaultMarcXMergerPool;
-import dk.dbc.rawrepo.pool.ObjectPool;
 import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -55,7 +51,7 @@ public class RecordSimpleBean {
             throw new RuntimeException(ex);
         }
     }
-    
+
     public boolean recordIsActive(String bibliographicRecordId, int agencyId) throws RawRepoException, RecordNotFoundException {
         try (Connection conn = dataSource.getConnection()) {
             final RawRepoDAO dao = createDAO(conn);

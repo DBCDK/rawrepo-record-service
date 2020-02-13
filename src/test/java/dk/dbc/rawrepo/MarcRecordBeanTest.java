@@ -23,11 +23,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 public class MarcRecordBeanTest {
-    @Mock
-    private DataSource globalDataSource;
-
-    @Mock
-    private RawRepoDAO rawRepoDAO;
 
     @Mock
     private RecordBean recordBean;
@@ -41,28 +36,21 @@ public class MarcRecordBeanTest {
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
 
     private class MarcRecordBeanMock extends MarcRecordBean {
-        MarcRecordBeanMock(DataSource globalDataSource, RecordBean recordBean, RecordCollectionBean recordCollectionBean) {
-            super(globalDataSource);
+        MarcRecordBeanMock(RecordBean recordBean, RecordCollectionBean recordCollectionBean) {
+            super();
 
             this.relationHints = relationHintsOpenAgency;
             this.recordBean = recordBean;
             this.recordCollectionBean = recordCollectionBean;
         }
-
-        @Override
-        protected RawRepoDAO createDAO(Connection conn) {
-            rawRepoDAO.relationHints = this.relationHints;
-
-            return rawRepoDAO;
-        }
     }
 
     private MarcRecordBeanMock initMarcRecordBeanMock() {
-        return new MarcRecordBeanMock(globalDataSource, recordBean, recordCollectionBean);
+        return new MarcRecordBeanMock(recordBean, recordCollectionBean);
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 

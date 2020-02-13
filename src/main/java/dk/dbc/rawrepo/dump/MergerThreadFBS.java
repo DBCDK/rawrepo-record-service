@@ -17,7 +17,6 @@ import dk.dbc.marc.writer.MarcXchangeV1Writer;
 import dk.dbc.marcrecord.ExpandCommonMarcRecord;
 import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.marcxmerge.MarcXMergerException;
-import dk.dbc.rawrepo.RecordBean;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.RecordId;
 import dk.dbc.rawrepo.RecordRelationsBean;

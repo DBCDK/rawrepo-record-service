@@ -22,14 +22,10 @@ import java.util.HashSet;
 import java.util.Map;
 
 import static dk.dbc.marcxmerge.MarcXChangeMimeType.isMarcXChange;
-import static dk.dbc.rawrepo.RecordBeanUtils.removePrivateFields;
 
 @Stateless
 public class MarcRecordBean {
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(RecordSimpleBean.class);
-
-    @Resource(lookup = "jdbc/rawrepo")
-    private DataSource dataSource;
 
     @EJB
     private OpenAgencyBean openAgency;
@@ -41,22 +37,6 @@ public class MarcRecordBean {
     RecordCollectionBean recordCollectionBean;
 
     RelationHintsOpenAgency relationHints;
-
-    // Constructor used for mocking
-    MarcRecordBean(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    // Default constructor - required as there is another constructor
-    public MarcRecordBean() {
-
-    }
-
-    protected RawRepoDAO createDAO(Connection conn) throws RawRepoException {
-        final RawRepoDAO.Builder rawRepoBuilder = RawRepoDAO.builder(conn);
-        rawRepoBuilder.relationHints(relationHints);
-        return rawRepoBuilder.build();
-    }
 
     @PostConstruct
     public void init() {
