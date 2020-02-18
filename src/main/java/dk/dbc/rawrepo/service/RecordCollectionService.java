@@ -171,23 +171,11 @@ public class RecordCollectionService {
     @Timed
     public Response getRecordContentCollectionDataIO(@PathParam("agencyid") int agencyId,
                                                      @PathParam("bibliographicrecordid") String bibliographicRecordId,
-                                                     @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
-                                                     @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
-                                                     @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
-                                                     @DefaultValue("false") @QueryParam("expand") boolean expand,
-                                                     @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields,
-                                                     @DefaultValue("false") @QueryParam("exclude-aut-records") boolean excludeAutRecords) {
+                                                     @DefaultValue("false") @QueryParam("expand") boolean expand) {
         String res;
 
         try {
-            final Collection<MarcRecord> marcRecords = marcRecordBean.getMarcRecordCollection(bibliographicRecordId,
-                    agencyId,
-                    allowDeleted,
-                    excludeDBCFields,
-                    useParentAgency,
-                    expand,
-                    keepAutFields,
-                    excludeAutRecords);
+            final Collection<MarcRecord> marcRecords = marcRecordBean.getDataIOMarcRecordCollection(bibliographicRecordId, agencyId, expand);
 
             res = new String(RecordObjectMapper.marcRecordCollectionToContent(marcRecords));
 
@@ -198,8 +186,7 @@ public class RecordCollectionService {
         } catch (RecordNotFoundException ex) {
             return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
-            LOGGER.info("v1/records/{}/{}/content?allow-deleted={}&exclude-dbc-fields={}&use-parent-agency={}&expand={}&keep-aut-fields={}",
-                    agencyId, bibliographicRecordId, allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields);
+            LOGGER.info("v1/records/{}/{}/dataio?expand={}", agencyId, bibliographicRecordId, expand);
         }
     }
 

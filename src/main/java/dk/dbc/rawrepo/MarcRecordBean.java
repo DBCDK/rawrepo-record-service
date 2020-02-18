@@ -12,6 +12,7 @@ import dk.dbc.util.Timed;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -76,7 +77,8 @@ public class MarcRecordBean {
     }
 
     @Timed
-    public Collection<MarcRecord> getMarcRecordCollection(String bibliographicRecordId, int agencyId,
+    public Collection<MarcRecord> getMarcRecordCollection(String bibliographicRecordId,
+                                                          int agencyId,
                                                           boolean allowDeleted,
                                                           boolean excludeDBCFields,
                                                           boolean useParentAgency,
@@ -92,6 +94,22 @@ public class MarcRecordBean {
                 keepAutFields,
                 excludeAutRecords);
 
+        return recordsToMarcRecords(collection);
+    }
+
+    @Timed
+    public Collection<MarcRecord> getDataIOMarcRecordCollection(String bibliographicRecordId,
+                                                                int agencyId,
+                                                                boolean expand) throws InternalServerException, RecordNotFoundException, MarcXMergerException, MarcReaderException {
+        final Map<String, Record> collection = recordCollectionBean.getDataIORecordCollection(bibliographicRecordId,
+                agencyId,
+                expand);
+
+        return recordsToMarcRecords(collection);
+    }
+
+    @NotNull
+    private Collection<MarcRecord> recordsToMarcRecords(Map<String, Record> collection) throws MarcXMergerException, MarcReaderException {
         final Collection<MarcRecord> marcRecords = new HashSet<>();
 
         for (Map.Entry<String, Record> entry : collection.entrySet()) {
@@ -107,4 +125,5 @@ public class MarcRecordBean {
 
         return marcRecords;
     }
+
 }

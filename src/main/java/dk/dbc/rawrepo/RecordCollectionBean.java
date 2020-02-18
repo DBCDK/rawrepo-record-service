@@ -91,6 +91,44 @@ public class RecordCollectionBean {
         }
     }
 
+    public Map<String, Record> getDataIORecordCollection(String bibliographicRecordId,
+                                                         int originalAgencyId,
+                                                         boolean expand) throws InternalServerException, RecordNotFoundException {
+        final Map<String, Record> collection = new HashMap<>();
+        final Map<String, Record> result = new HashMap<>();
+        try (Connection conn = dataSource.getConnection()) {
+            try {
+                fetchDataIORecordCollection(collection, bibliographicRecordId, originalAgencyId, expand, true);
+
+                for (Map.Entry<String, Record> entry : collection.entrySet()) {
+                    final Record rawRecord = entry.getValue();
+                    if (!isMarcXChange(rawRecord.getMimeType())) {
+                        throw new MarcXMergerException("Cannot make marcx:collection from mimetype: " + rawRecord.getMimeType());
+                    }
+
+                    // excludeAutRecords indicate authority records should be thrown away unless it is the requested record
+                    if (MarcXChangeMimeType.AUTHORITY.equals(rawRecord.getMimeType()) && !bibliographicRecordId.equals(rawRecord.getId().getBibliographicRecordId())) {
+                        continue;
+                    }
+
+                    result.put(entry.getKey(), rawRecord);
+                }
+
+                return result;
+            } catch (RawRepoException e) {
+                conn.rollback();
+                LOGGER.error(e.getMessage(), e);
+                throw new InternalServerException(e.getMessage(), e);
+            } catch (MarcXMergerException e) {
+                LOGGER.error(e.getMessage(), e);
+                throw new InternalServerException(e.getMessage(), e);
+            }
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new InternalServerException(e.getMessage(), e);
+        }
+    }
+
     private void fetchRecordCollection(Map<String, Record> collection,
                                        String bibliographicRecordId,
                                        int agencyId,
@@ -136,6 +174,28 @@ public class RecordCollectionBean {
                     continue;
                 }
                 fetchRecordCollectionExpanded(collection, parent.getBibliographicRecordId(), agencyId, allowDeleted, excludeDBCFields, useParentAgency, keepAutFields, excludeAutRecords);
+            }
+        }
+    }
+
+    private void fetchDataIORecordCollection(Map<String, Record> collection,
+                                             String bibliographicRecordId,
+                                             int agencyId,
+                                             boolean expand,
+                                             boolean isVolume) throws RecordNotFoundException, InternalServerException, RawRepoException {
+        if (!collection.containsKey(bibliographicRecordId)) {
+            final Record record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, expand, isVolume);
+            collection.put(bibliographicRecordId, record);
+
+            final int mostCommonAgency = recordRelationsBean.findParentRelationAgency(bibliographicRecordId, agencyId);
+            final Set<RecordId> parents = recordRelationsBean.getRelationsParents(bibliographicRecordId, mostCommonAgency);
+
+            for (RecordId parent : parents) {
+                // If this parent is an authority record and includeAut is false then skip parent
+                if (870979 == parent.agencyId) {
+                    continue;
+                }
+                fetchDataIORecordCollection(collection, parent.getBibliographicRecordId(), agencyId, expand, false);
             }
         }
     }

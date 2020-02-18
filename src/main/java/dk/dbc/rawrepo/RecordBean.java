@@ -143,7 +143,7 @@ public class RecordBean {
     }
 
     private Record getRawRepoRecord(String bibliographicRecordId,
-                                    int agencyId,
+                                    int originalAgencyId,
                                     boolean allowDeleted,
                                     boolean excludeDBCFields,
                                     boolean useParentAgency,
@@ -151,13 +151,11 @@ public class RecordBean {
                                     boolean keepAutFields) throws InternalServerException, RecordNotFoundException {
         try (Connection conn = dataSource.getConnection()) {
             try {
-                final RawRepoDAO dao = createDAO(conn);
-                final Record rawRecord;
                 final ObjectPool<MarcXMerger> mergePool = getMergerPool(useParentAgency);
                 final MarcXMerger merger = mergePool.checkOut();
-                final int correctedAgencyId = dao.agencyFor(bibliographicRecordId, agencyId, allowDeleted);
+                final int correctedAgencyId = findMostRelevantAgencyId(bibliographicRecordId, originalAgencyId, allowDeleted);
 
-                rawRecord = fetchMostRelevantRecord(bibliographicRecordId, correctedAgencyId, allowDeleted, merger, doExpand, keepAutFields);
+                final Record rawRecord = fetchRecord(bibliographicRecordId, originalAgencyId, correctedAgencyId, allowDeleted, merger, doExpand, keepAutFields);
 
                 mergePool.checkIn(merger);
 
@@ -175,6 +173,38 @@ public class RecordBean {
                 LOGGER.error(ex.getMessage(), ex);
                 throw new InternalServerException(ex.getMessage(), ex);
             } catch (MarcReaderException ex) {
+                LOGGER.error(ex.getMessage(), ex);
+                throw new InternalServerException(ex.getMessage(), ex);
+            }
+        } catch (SQLException ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            throw new InternalServerException(ex.getMessage(), ex);
+        }
+    }
+
+    public Record getDataIORawRepoRecord(String bibliographicRecordId,
+                                         int originalAgencyId,
+                                         boolean expand,
+                                         boolean isVolume) throws InternalServerException, RecordNotFoundException {
+        try (Connection conn = dataSource.getConnection()) {
+            try {
+                final boolean allowDeleted = true;
+                final ObjectPool<MarcXMerger> mergePool = getMergerPool(false);
+                final MarcXMerger merger = mergePool.checkOut();
+                // isVolume determines whether or not deleted records should be found
+                // I.e. if it is a volume record then allow a deleted volume record
+                // But for section or head deleted record is not allowed
+                final int correctedAgencyId = findMostRelevantAgencyId(bibliographicRecordId, originalAgencyId, isVolume);
+
+                final Record rawRecord = fetchRecord(bibliographicRecordId, originalAgencyId, correctedAgencyId, allowDeleted, merger, expand, true);
+
+                mergePool.checkIn(merger);
+
+                return rawRecord;
+            } catch (RawRepoExceptionRecordNotFound ex) {
+                return null;
+            } catch (RawRepoException ex) {
+                conn.rollback();
                 LOGGER.error(ex.getMessage(), ex);
                 throw new InternalServerException(ex.getMessage(), ex);
             }
@@ -207,6 +237,21 @@ public class RecordBean {
         throw new RecordNotFoundException("Parent agency for record with bibliographicRecordId " + bibliographicRecordId + " could not be found");
     }
 
+    private int findMostRelevantAgencyId(String bibliographicRecordId, int originalAgencyId, boolean allowDeleted) throws RecordNotFoundException, RawRepoException {
+        try (Connection conn = dataSource.getConnection()) {
+            final RawRepoDAO dao = createDAO(conn);
+
+            try {
+                return dao.agencyFor(bibliographicRecordId, originalAgencyId, allowDeleted);
+            } catch (RawRepoExceptionRecordNotFound e) {
+                throw new RecordNotFoundException(e.getMessage());
+            }
+        } catch (SQLException ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            throw new RawRepoException(ex.getMessage(), ex);
+        }
+    }
+
     /**
      * This function returns a merged deleted record.
      * <p>
@@ -216,37 +261,16 @@ public class RecordBean {
      * Note: this function is only intended for 191919 records but might work with other agencies
      *
      * @param bibliographicRecordId Id of the record
-     * @param originalAgencyId      Agency of the child/enrichment record
+     * @param agencyId      Agency of the child/enrichment record
      * @param merger                Merge object
      * @return Record object with merged values from the input record and its parent record
      * @throws RawRepoException
      * @throws RecordNotFoundException
      * @throws InternalServerException
      */
-    private Record fetchMostRelevantRecord(String bibliographicRecordId, int originalAgencyId, boolean allowDeleted, MarcXMerger merger, boolean doExpand, boolean keepAutField) throws InternalServerException, RawRepoException, RecordNotFoundException {
+    private Record fetchRecord(String bibliographicRecordId, int originalAgencyId, int agencyId, boolean allowDeleted, MarcXMerger merger, boolean doExpand, boolean keepAutField) throws InternalServerException, RawRepoException, RecordNotFoundException {
         try (Connection conn = dataSource.getConnection()) {
             final RawRepoDAO dao = createDAO(conn);
-            int agencyId;
-
-            try {
-                if (!allowDeleted || recordSimpleBean.recordIsActive(bibliographicRecordId, originalAgencyId)) {
-                    agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, allowDeleted);
-                } else {
-                    try {
-                        agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, false);
-                    } catch (RawRepoExceptionRecordNotFound e) {
-                        if (allowDeleted) {
-                            agencyId = dao.agencyFor(bibliographicRecordId, originalAgencyId, true);
-                        } else {
-                            throw e;
-                        }
-                    }
-                }
-            } catch (RawRepoExceptionRecordNotFound e) {
-                // Recast exception to local type in order to catch that specific exception
-                // Otherwise RawRepoExceptionRecordNotFound will be caught as a generic RawRepoException somewhere
-                throw new RecordNotFoundException(e.getMessage());
-            }
 
             if (recordSimpleBean.recordIsActive(bibliographicRecordId, agencyId)) {
                 if (doExpand) {
@@ -341,7 +365,6 @@ public class RecordBean {
 
                     for (RecordId parentId : autParents) {
                         if ("870979".equals(Integer.toString(parentId.getAgencyId()))) {
-                            LOGGER.info("expandRecord - E");
                             autRecords.put(parentId.getBibliographicRecordId(), recordSimpleBean.fetchRecord(parentId.getBibliographicRecordId(), parentId.getAgencyId()));
                         }
                     }
