@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <marcx:record xmlns:marcx="info:lc/xmlns/marcxchange-v1" format="danMARC2" type="Bibliographic">
-    <marcx:leader>00000d    2200000   4500</marcx:leader>
+    <marcx:leader>00000n    2200000   4500</marcx:leader>
     <marcx:datafield ind1="0" ind2="0" tag="001">
         <marcx:subfield code="a">50129691</marcx:subfield>
         <marcx:subfield code="b">770600</marcx:subfield>
