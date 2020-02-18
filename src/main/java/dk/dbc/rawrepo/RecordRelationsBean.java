@@ -208,7 +208,6 @@ public class RecordRelationsBean {
             InternalServerException, RawRepoException, RecordNotFoundException {
         try (Connection conn = dataSource.getConnection()) {
             if (recordSimpleBean.recordIsActive(bibliographicRecordId, agencyId)) {
-                LOGGER.info("1");
                 try {
                     final RawRepoDAO dao = createDAO(conn);
 
@@ -221,13 +220,10 @@ public class RecordRelationsBean {
                     throw new InternalServerException(ex.getMessage(), ex);
                 }
             } else {
-                LOGGER.info("2");
                 final Set<RecordId> result = new HashSet<>();
                 final RawRepoDAO dao = createDAO(conn);
                 final List<Integer> potentialSiblingsFromMeAgencies = relationHints.getAgencyPriority(agencyId);
-                LOGGER.info(potentialSiblingsFromMeAgencies.toString());
                 final Set<Integer> agenciesForRecord = dao.allAgenciesForBibliographicRecordId(bibliographicRecordId);
-                LOGGER.info(agenciesForRecord.toString());
 
                 for (Integer potentialSiblingsFromMeAgency : potentialSiblingsFromMeAgencies) {
                     if (!potentialSiblingsFromMeAgency.equals(agencyId) && agenciesForRecord.contains(potentialSiblingsFromMeAgency)) {
