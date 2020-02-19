@@ -196,6 +196,7 @@ public class RecordRelationsBean {
      * @throws InternalServerException If there is an unhandled exception
      * @throws RawRepoException        If rawrepo throws an exception
      */
+    @SuppressWarnings("PMD")
     public boolean parentIsActive(String bibliographicRecordId,
                                   int agencyId) throws RecordNotFoundException, InternalServerException, RawRepoException {
         final int mostCommonAgency = findParentRelationAgency(bibliographicRecordId, agencyId);
