@@ -155,7 +155,7 @@ public class RecordBean {
                 final MarcXMerger merger = mergePool.checkOut();
                 final int correctedAgencyId = findMostRelevantAgencyId(bibliographicRecordId, originalAgencyId, allowDeleted);
 
-                final Record rawRecord = fetchRecord(bibliographicRecordId, originalAgencyId, correctedAgencyId, allowDeleted, merger, doExpand, keepAutFields);
+                final Record rawRecord = fetchRecord(bibliographicRecordId, originalAgencyId, correctedAgencyId, merger, doExpand, keepAutFields);
 
                 mergePool.checkIn(merger);
 
@@ -196,7 +196,7 @@ public class RecordBean {
                 // But for section or head deleted record is not allowed
                 final int correctedAgencyId = findMostRelevantAgencyId(bibliographicRecordId, originalAgencyId, isVolume);
 
-                final Record rawRecord = fetchRecord(bibliographicRecordId, originalAgencyId, correctedAgencyId, allowDeleted, merger, expand, true);
+                final Record rawRecord = fetchRecord(bibliographicRecordId, originalAgencyId, correctedAgencyId, merger, expand, true);
 
                 mergePool.checkIn(merger);
 
@@ -268,7 +268,7 @@ public class RecordBean {
      * @throws RecordNotFoundException
      * @throws InternalServerException
      */
-    private Record fetchRecord(String bibliographicRecordId, int originalAgencyId, int agencyId, boolean allowDeleted, MarcXMerger merger, boolean doExpand, boolean keepAutField) throws InternalServerException, RawRepoException, RecordNotFoundException {
+    private Record fetchRecord(String bibliographicRecordId, int originalAgencyId, int agencyId, MarcXMerger merger, boolean doExpand, boolean keepAutField) throws InternalServerException, RawRepoException, RecordNotFoundException {
         try (Connection conn = dataSource.getConnection()) {
             final RawRepoDAO dao = createDAO(conn);
 
