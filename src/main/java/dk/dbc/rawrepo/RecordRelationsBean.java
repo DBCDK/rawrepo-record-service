@@ -185,28 +185,26 @@ public class RecordRelationsBean {
     /**
      * This function traverses the parents and if the is a record of the given agency, and that record is active then
      * true is returned, otherwise false.
-     *
+     * <p>
      * In short this function is used to determine if a deleted volume for an agency should be included in the DataIO
      * collection or not
      *
      * @param bibliographicRecordId Id of the record to find the records for
-     * @param agencyId The original agency
+     * @param agencyId              The original agency
      * @return True if there is an active parent for the given agency, otherwise false
      * @throws RecordNotFoundException If the record isn't found
      * @throws InternalServerException If there is an unhandled exception
-     * @throws RawRepoException If rawrepo throws an exception
+     * @throws RawRepoException        If rawrepo throws an exception
      */
     public boolean parentIsActive(String bibliographicRecordId,
-                           int agencyId) throws RecordNotFoundException, InternalServerException, RawRepoException {
+                                  int agencyId) throws RecordNotFoundException, InternalServerException, RawRepoException {
         final int mostCommonAgency = findParentRelationAgency(bibliographicRecordId, agencyId);
         final Set<RecordId> parents = getRelationsParents(bibliographicRecordId, mostCommonAgency);
         for (RecordId parent : parents) {
             Set<Integer> parentAgencies = getAllAgenciesForBibliographicRecordId(parent.getBibliographicRecordId());
             for (int parentAgency : parentAgencies) {
                 if (parentAgency == agencyId) {
-                    if (recordSimpleBean.recordExists(parent.getBibliographicRecordId(), parentAgency, true)) {
-                        return recordSimpleBean.recordIsActive(parent.getBibliographicRecordId(), parentAgency);
-                    }
+                    return recordSimpleBean.recordIsActive(parent.getBibliographicRecordId(), parentAgency);
                 }
             }
             return parentIsActive(parent.getBibliographicRecordId(), agencyId);
