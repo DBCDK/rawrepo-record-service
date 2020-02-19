@@ -21,6 +21,8 @@ import static dk.dbc.rawrepo.BeanTestHelper.createRecordMock;
 import static dk.dbc.rawrepo.BeanTestHelper.loadMarcRecord;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -519,6 +521,86 @@ public class RecordRelationsBeanTest {
 
         assertThat(bean.findParentRelationAgency(AUTHORITY, 191919), is(870979));
         assertThat(bean.findParentRelationAgency(AUTHORITY, 870979), is(870979));
+    }
+
+    @Test
+    void parentIsActiveTest_SameAgencyParent_Active() throws Exception {
+        final RecordRelationsBean bean = new RecordRelationsBeanMock(globalDataSource, recordSimpleBean);
+
+        final String bibliographicRecordIdVolume = "B";
+        final String bibliographicRecordIdHead = "H";
+        final int agencyIdVolume = 700300;
+        final Set<RecordId> parents = Collections.singleton(new RecordId(bibliographicRecordIdHead, 870970));
+
+        when(recordSimpleBean.recordExists(bibliographicRecordIdVolume, 870970, true)).thenReturn(true);
+        when(recordSimpleBean.recordExists(bibliographicRecordIdHead, 870970, true)).thenReturn(true);
+        when(rawRepoDAO.getRelationsParents(new RecordId(bibliographicRecordIdVolume, 870970))).thenReturn(parents);
+        when(rawRepoDAO.getRelationsParents(new RecordId(bibliographicRecordIdHead, 870970))).thenReturn(Collections.EMPTY_SET);
+        when(recordSimpleBean.recordIsActive(bibliographicRecordIdVolume, 870970)).thenReturn(true);
+        when(recordSimpleBean.recordIsActive(bibliographicRecordIdHead, 870970)).thenReturn(true);
+        when(rawRepoDAO.allAgenciesForBibliographicRecordId(bibliographicRecordIdHead)).thenReturn(new HashSet<>(Arrays.asList(191919, 870970, agencyIdVolume)));
+        when(recordSimpleBean.recordExists(bibliographicRecordIdHead, agencyIdVolume, true)).thenReturn(true);
+        when(recordSimpleBean.recordIsActive(bibliographicRecordIdHead, agencyIdVolume)).thenReturn(true);
+
+        assertTrue(bean.parentIsActive(bibliographicRecordIdVolume, agencyIdVolume));
+    }
+
+    @Test
+    void parentIsActiveTest_SameAgencyParent_Deleted() throws Exception {
+        final RecordRelationsBean bean = new RecordRelationsBeanMock(globalDataSource, recordSimpleBean);
+
+        final String bibliographicRecordIdVolume = "B";
+        final String bibliographicRecordIdHead = "H";
+        final int agencyIdVolume = 700300;
+        final Set<RecordId> parents = Collections.singleton(new RecordId(bibliographicRecordIdHead, 870970));
+
+        when(recordSimpleBean.recordExists(bibliographicRecordIdVolume, 870970, true)).thenReturn(true);
+        when(recordSimpleBean.recordExists(bibliographicRecordIdHead, 870970, true)).thenReturn(true);
+        when(rawRepoDAO.getRelationsParents(new RecordId(bibliographicRecordIdVolume, 870970))).thenReturn(parents);
+        when(rawRepoDAO.getRelationsParents(new RecordId(bibliographicRecordIdHead, 870970))).thenReturn(Collections.EMPTY_SET);
+        when(recordSimpleBean.recordIsActive(bibliographicRecordIdVolume, 870970)).thenReturn(true);
+        when(recordSimpleBean.recordIsActive(bibliographicRecordIdHead, 870970)).thenReturn(true);
+        when(rawRepoDAO.allAgenciesForBibliographicRecordId(bibliographicRecordIdHead)).thenReturn(new HashSet<>(Arrays.asList(191919, 870970, agencyIdVolume)));
+        when(recordSimpleBean.recordExists(bibliographicRecordIdHead, agencyIdVolume, true)).thenReturn(true);
+        when(recordSimpleBean.recordIsActive(bibliographicRecordIdHead, agencyIdVolume)).thenReturn(false);
+
+        assertFalse(bean.parentIsActive(bibliographicRecordIdVolume, agencyIdVolume));
+    }
+
+    @Test
+    void parentIsActiveTest_NoSameAgencyParent() throws Exception {
+        final RecordRelationsBean bean = new RecordRelationsBeanMock(globalDataSource, recordSimpleBean);
+
+        final String bibliographicRecordIdVolume = "B";
+        final String bibliographicRecordIdHead = "H";
+        final int agencyIdVolume = 700300;
+        final Set<RecordId> parents = Collections.singleton(new RecordId(bibliographicRecordIdHead, 870970));
+
+        when(recordSimpleBean.recordExists(bibliographicRecordIdVolume, 870970, true)).thenReturn(true);
+        when(recordSimpleBean.recordExists(bibliographicRecordIdHead, 870970, true)).thenReturn(true);
+        when(rawRepoDAO.getRelationsParents(new RecordId(bibliographicRecordIdVolume, 870970))).thenReturn(parents);
+        when(rawRepoDAO.getRelationsParents(new RecordId(bibliographicRecordIdHead, 870970))).thenReturn(Collections.EMPTY_SET);
+        when(recordSimpleBean.recordIsActive(bibliographicRecordIdVolume, 870970)).thenReturn(true);
+        when(recordSimpleBean.recordIsActive(bibliographicRecordIdHead, 870970)).thenReturn(true);
+        when(rawRepoDAO.allAgenciesForBibliographicRecordId(bibliographicRecordIdHead)).thenReturn(new HashSet<>(Arrays.asList(191919, 870970)));
+        when(recordSimpleBean.recordExists(bibliographicRecordIdHead, 870970, true)).thenReturn(true);
+        when(recordSimpleBean.recordIsActive(bibliographicRecordIdHead, 870970)).thenReturn(true);
+
+        assertFalse(bean.parentIsActive(bibliographicRecordIdVolume, agencyIdVolume));
+    }
+
+    @Test
+    void parentIsActiveTest_NoParents() throws Exception {
+        final RecordRelationsBean bean = new RecordRelationsBeanMock(globalDataSource, recordSimpleBean);
+
+        final String bibliographicRecordIdVolume = "B";
+        final int agencyIdVolume = 700300;
+
+        when(recordSimpleBean.recordExists(bibliographicRecordIdVolume, 870970, true)).thenReturn(true);
+        when(rawRepoDAO.getRelationsParents(new RecordId(bibliographicRecordIdVolume, 870970))).thenReturn(Collections.EMPTY_SET);
+        when(recordSimpleBean.recordIsActive(bibliographicRecordIdVolume, 870970)).thenReturn(true);
+
+        assertFalse(bean.parentIsActive(bibliographicRecordIdVolume, agencyIdVolume));
     }
 
 }

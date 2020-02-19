@@ -33,6 +33,14 @@ public class BeanTestHelper {
         return mock;
     }
 
+    public static Record createRecordMock(String bibliographicRecordId, int agencyId, String mimetype, boolean deleted) {
+        Record mock = new RawRepoRecordMock(bibliographicRecordId, agencyId);
+        mock.setMimeType(mimetype);
+        mock.setDeleted(deleted);
+
+        return mock;
+    }
+
     public static Instant getInstant(String s) {
         LocalDate localDate = LocalDate.parse(s);
         LocalDateTime localDateTime = localDate.atStartOfDay();

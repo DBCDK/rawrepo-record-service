@@ -98,7 +98,7 @@ public class RecordCollectionBean {
         final Map<String, Record> result = new HashMap<>();
         try (Connection conn = dataSource.getConnection()) {
             try {
-                fetchDataIORecordCollection(collection, bibliographicRecordId, originalAgencyId, expand, true);
+                fetchDataIORecordCollection(collection, bibliographicRecordId, originalAgencyId, expand, true, false);
 
                 for (Map.Entry<String, Record> entry : collection.entrySet()) {
                     final Record rawRecord = entry.getValue();
@@ -178,13 +178,33 @@ public class RecordCollectionBean {
         }
     }
 
+
+
     private void fetchDataIORecordCollection(Map<String, Record> collection,
                                              String bibliographicRecordId,
                                              int agencyId,
                                              boolean expand,
-                                             boolean isVolume) throws RecordNotFoundException, InternalServerException, RawRepoException {
+                                             boolean isRoot,
+                                             boolean allowDeletedParent) throws RecordNotFoundException, InternalServerException, RawRepoException {
         if (!collection.containsKey(bibliographicRecordId)) {
-            final Record record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, expand, isVolume);
+            boolean newAllowDeletedParent = allowDeletedParent;
+            Record record;
+            if (isRoot) {
+                if (recordRelationsBean.parentIsActive(bibliographicRecordId, agencyId)) {
+                    record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, expand, false);
+                } else {
+                    record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, expand, true);
+                }
+
+                // Root record is of the correct agencyId
+                if (record.getId().getAgencyId() == agencyId) {
+                    newAllowDeletedParent = false;
+                } else {
+                    newAllowDeletedParent = true;
+                }
+            } else {
+                record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, expand, allowDeletedParent);
+            }
             collection.put(bibliographicRecordId, record);
 
             final int mostCommonAgency = recordRelationsBean.findParentRelationAgency(bibliographicRecordId, agencyId);
@@ -195,7 +215,7 @@ public class RecordCollectionBean {
                 if (870979 == parent.agencyId) {
                     continue;
                 }
-                fetchDataIORecordCollection(collection, parent.getBibliographicRecordId(), agencyId, expand, false);
+                fetchDataIORecordCollection(collection, parent.getBibliographicRecordId(), agencyId, expand, false, newAllowDeletedParent);
             }
         }
     }
