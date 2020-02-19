@@ -188,7 +188,6 @@ public class RecordBean {
                                          boolean isVolume) throws InternalServerException, RecordNotFoundException {
         try (Connection conn = dataSource.getConnection()) {
             try {
-                final boolean allowDeleted = true;
                 final ObjectPool<MarcXMerger> mergePool = getMergerPool(false);
                 final MarcXMerger merger = mergePool.checkOut();
                 // isVolume determines whether or not deleted records should be found
