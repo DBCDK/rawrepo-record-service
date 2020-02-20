@@ -186,28 +186,22 @@ public class RecordBean {
                                          int originalAgencyId,
                                          boolean expand,
                                          boolean isVolume) throws InternalServerException, RecordNotFoundException {
-        try (Connection conn = dataSource.getConnection()) {
-            try {
-                final ObjectPool<MarcXMerger> mergePool = getMergerPool(false);
-                final MarcXMerger merger = mergePool.checkOut();
-                // isVolume determines whether or not deleted records should be found
-                // I.e. if it is a volume record then allow a deleted volume record
-                // But for section or head deleted record is not allowed
-                final int correctedAgencyId = findMostRelevantAgencyId(bibliographicRecordId, originalAgencyId, isVolume);
+        try {
+            final ObjectPool<MarcXMerger> mergePool = getMergerPool(false);
+            final MarcXMerger merger = mergePool.checkOut();
+            // isVolume determines whether or not deleted records should be found
+            // I.e. if it is a volume record then allow a deleted volume record
+            // But for section or head deleted record is not allowed
+            final int correctedAgencyId = findMostRelevantAgencyId(bibliographicRecordId, originalAgencyId, isVolume);
 
-                final Record rawRecord = fetchRecord(bibliographicRecordId, originalAgencyId, correctedAgencyId, merger, expand, true);
+            final Record rawRecord = fetchRecord(bibliographicRecordId, originalAgencyId, correctedAgencyId, merger, expand, true);
 
-                mergePool.checkIn(merger);
+            mergePool.checkIn(merger);
 
-                return rawRecord;
-            } catch (RawRepoExceptionRecordNotFound ex) {
-                return null;
-            } catch (RawRepoException ex) {
-                conn.rollback();
-                LOGGER.error(ex.getMessage(), ex);
-                throw new InternalServerException(ex.getMessage(), ex);
-            }
-        } catch (SQLException ex) {
+            return rawRecord;
+        } catch (RawRepoExceptionRecordNotFound ex) {
+            return null;
+        } catch (RawRepoException ex) {
             LOGGER.error(ex.getMessage(), ex);
             throw new InternalServerException(ex.getMessage(), ex);
         }
@@ -260,7 +254,7 @@ public class RecordBean {
      * Note: this function is only intended for 191919 records but might work with other agencies
      *
      * @param bibliographicRecordId Id of the record
-     * @param agencyId      Agency of the child/enrichment record
+     * @param agencyId              Agency of the child/enrichment record
      * @param merger                Merge object
      * @return Record object with merged values from the input record and its parent record
      * @throws RawRepoException
