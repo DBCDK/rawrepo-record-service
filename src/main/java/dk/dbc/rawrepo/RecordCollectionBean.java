@@ -190,6 +190,9 @@ public class RecordCollectionBean {
             boolean newAllowDeletedParent = allowDeletedParent;
             Record record;
             if (isRoot) {
+                // In most cases we want the deleted volume enrichment. However in the situation where there is an active
+                // section or head enrichment for the FBS agency and a deleted volume record the collection should instead
+                // include the active common volume and the active head/section enrichment
                 if (recordRelationsBean.parentIsActive(bibliographicRecordId, agencyId)) {
                     record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, expand, false);
                 } else {

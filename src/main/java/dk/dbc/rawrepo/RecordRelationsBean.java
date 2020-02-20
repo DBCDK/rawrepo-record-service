@@ -183,7 +183,7 @@ public class RecordRelationsBean {
     }
 
     /**
-     * This function traverses the parents and if the is a record of the given agency, and that record is active then
+     * This function traverses the parents and if there is a record of the given agency, and that record is active then
      * true is returned, otherwise false.
      * <p>
      * In short this function is used to determine if a deleted volume for an agency should be included in the DataIO
@@ -199,9 +199,13 @@ public class RecordRelationsBean {
     @SuppressWarnings("PMD")
     public boolean parentIsActive(String bibliographicRecordId,
                                   int agencyId) throws RecordNotFoundException, InternalServerException, RawRepoException {
+        // There are no relations on richments other than to the common records. So in order to find the parent section
+        // or head record we have to look at the common volume's parents
         final int mostCommonAgency = findParentRelationAgency(bibliographicRecordId, agencyId);
         final Set<RecordId> parents = getRelationsParents(bibliographicRecordId, mostCommonAgency);
         for (RecordId parent : parents) {
+            // The parent will be a common record. In order to see if there is an enrichment for the original agency
+            // we have to look at all records with that bibliographic record id
             Set<Integer> parentAgencies = getAllAgenciesForBibliographicRecordId(parent.getBibliographicRecordId());
             for (int parentAgency : parentAgencies) {
                 if (parentAgency == agencyId) {
