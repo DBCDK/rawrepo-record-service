@@ -12,6 +12,8 @@ import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marcxmerge.MarcXMergerException;
 import dk.dbc.rawrepo.MarcRecordBean;
 import dk.dbc.rawrepo.Record;
+import dk.dbc.rawrepo.RecordBean;
+import dk.dbc.rawrepo.RecordCollectionBean;
 import dk.dbc.rawrepo.dto.RecordCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordDTO;
 import dk.dbc.rawrepo.dto.RecordDTOMapper;
@@ -64,6 +66,12 @@ public class RecordCollectionService {
     @EJB
     private MarcRecordBean marcRecordBean;
 
+    @EJB
+    private RecordCollectionBean recordCollectionBean;
+
+    @EJB
+    private RecordBean recordBean;
+
     @Inject
     @ConfigProperty(name = "DUMP_THREAD_COUNT", defaultValue = "8")
     private int THREAD_COUNT;
@@ -78,7 +86,6 @@ public class RecordCollectionService {
     public Response getRecordCollection(@PathParam("agencyid") int agencyId,
                                         @PathParam("bibliographicrecordid") String bibliographicRecordId,
                                         @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
-                                        @DefaultValue("false") @QueryParam("for-corepo") boolean forCorepo,
                                         @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                         @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                         @DefaultValue("false") @QueryParam("expand") boolean expand,
@@ -89,7 +96,7 @@ public class RecordCollectionService {
 
         try {
 
-            Map<String, Record> collection = marcRecordBean.getRawRepoRecordCollection(bibliographicRecordId, agencyId, allowDeleted, forCorepo, excludeDBCFields, useParentAgency, expand, keepAutFields, excludeAutRecords);
+            Map<String, Record> collection = recordCollectionBean.getRawRepoRecordCollection(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields, excludeAutRecords);
 
             RecordCollectionDTO dtoList = RecordDTOMapper.recordCollectionToDTO(collection);
 
@@ -127,15 +134,22 @@ public class RecordCollectionService {
     public Response getRecordContentCollection(@PathParam("agencyid") int agencyId,
                                                @PathParam("bibliographicrecordid") String bibliographicRecordId,
                                                @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
-                                               @DefaultValue("false") @QueryParam("for-corepo") boolean forCorepo,
                                                @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                                @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                                @DefaultValue("false") @QueryParam("expand") boolean expand,
-                                               @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields) {
+                                               @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields,
+                                               @DefaultValue("false") @QueryParam("exclude-aut-records") boolean excludeAutRecords) {
         String res;
 
         try {
-            Collection<MarcRecord> marcRecords = marcRecordBean.getMarcRecordCollection(bibliographicRecordId, agencyId, allowDeleted, forCorepo, excludeDBCFields, useParentAgency, expand, keepAutFields);
+            Collection<MarcRecord> marcRecords = marcRecordBean.getMarcRecordCollection(bibliographicRecordId,
+                    agencyId,
+                    allowDeleted,
+                    excludeDBCFields,
+                    useParentAgency,
+                    expand,
+                    keepAutFields,
+                    excludeAutRecords);
 
             res = new String(RecordObjectMapper.marcRecordCollectionToContent(marcRecords));
 
@@ -148,6 +162,31 @@ public class RecordCollectionService {
         } finally {
             LOGGER.info("v1/records/{}/{}/content?allow-deleted={}&exclude-dbc-fields={}&use-parent-agency={}&expand={}&keep-aut-fields={}",
                     agencyId, bibliographicRecordId, allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields);
+        }
+    }
+
+    @GET
+    @Path("v1/records/{agencyid}/{bibliographicrecordid}/dataio/")
+    @Produces({MediaType.APPLICATION_XML})
+    @Timed
+    public Response getRecordContentCollectionDataIO(@PathParam("agencyid") int agencyId,
+                                                     @PathParam("bibliographicrecordid") String bibliographicRecordId,
+                                                     @DefaultValue("false") @QueryParam("expand") boolean expand) {
+        String res;
+
+        try {
+            final Collection<MarcRecord> marcRecords = marcRecordBean.getDataIOMarcRecordCollection(bibliographicRecordId, agencyId, expand);
+
+            res = new String(RecordObjectMapper.marcRecordCollectionToContent(marcRecords));
+
+            return Response.ok(res, MediaType.APPLICATION_XML).build();
+        } catch (MarcReaderException | InternalServerException | MarcXMergerException ex) {
+            LOGGER.error("Exception during getRecord", ex);
+            return Response.serverError().build();
+        } catch (RecordNotFoundException ex) {
+            return Response.status(Response.Status.NO_CONTENT).build();
+        } finally {
+            LOGGER.info("v1/records/{}/{}/dataio?expand={}", agencyId, bibliographicRecordId, expand);
         }
     }
 
@@ -174,9 +213,9 @@ public class RecordCollectionService {
             Record rawrepoRecord;
             for (RecordIdDTO idDTO : recordIdCollectionDTO.getRecordIds()) {
                 if (expand) {
-                    rawrepoRecord = marcRecordBean.getRawRepoRecordExpanded(idDTO.getBibliographicRecordId(), idDTO.getAgencyId(), allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
+                    rawrepoRecord = recordBean.getRawRepoRecordExpanded(idDTO.getBibliographicRecordId(), idDTO.getAgencyId(), allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
                 } else {
-                    rawrepoRecord = marcRecordBean.getRawRepoRecordMerged(idDTO.getBibliographicRecordId(), idDTO.getAgencyId(), allowDeleted, excludeDBCFields, useParentAgency);
+                    rawrepoRecord = recordBean.getRawRepoRecordMerged(idDTO.getBibliographicRecordId(), idDTO.getAgencyId(), allowDeleted, excludeDBCFields, useParentAgency);
                 }
 
                 // Ignore records that doesn't exist

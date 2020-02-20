@@ -46,7 +46,7 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
             saveRecord(rawrepoConnection, "sql/collection/05395721-870970.xml", MIMETYPE_MARCXCHANGE); // Deleted
             saveRecord(rawrepoConnection, "sql/collection/05395721-191919.xml", MIMETYPE_ENRICHMENT); // Deleted
             saveRecord(rawrepoConnection, "sql/collection/05395721-770600.xml", MIMETYPE_ENRICHMENT); // Deleted
-            // No relations as all 05395721 records are deleted
+            // No relations as every 05395721 records are deleted
 
             saveRecord(rawrepoConnection, "sql/collection/37408115-870971.xml", MIMETYPE_MARCXCHANGE); // Article, deleted
             saveRecord(rawrepoConnection, "sql/collection/37408115-191919.xml", MIMETYPE_ENRICHMENT); // Article, deleted
@@ -63,12 +63,9 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
     @Test
     void getRecordCollection_DataIO_Ok() throws Exception {
         final HashMap<String, Object> params = new HashMap<>();
-        params.put("allow-deleted", true);
-        params.put("use-parent-agency", false);
-        params.put("keep-aut-fields", false);
         params.put("expand", true);
 
-        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/content")
+        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/dataio")
                 .bind("agencyid", "830380")
                 .bind("bibliographicrecordid", "285927994");
         final HttpGet httpGet = new HttpGet(httpClient)
@@ -93,12 +90,9 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
     @Test
     void getRecordCollection_DataIO_NotFound() {
         final HashMap<String, Object> params = new HashMap<>();
-        params.put("allow-deleted", true);
-        params.put("use-parent-agency", false);
-        params.put("keep-aut-fields", false);
         params.put("expand", true);
 
-        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/content")
+        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/dataio")
                 .bind("agencyid", "830380")
                 .bind("bibliographicrecordid", "NOTFOUND");
         final HttpGet httpGet = new HttpGet(httpClient)
@@ -116,15 +110,11 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
-    void getRecordCollection_DataIO_Ok_ForCorepo() throws Exception {
+    void getRecordCollection_DataIO_LocalVolume() throws Exception {
         final HashMap<String, Object> params = new HashMap<>();
-        params.put("allow-deleted", true);
-        params.put("use-parent-agency", false);
-        params.put("keep-aut-fields", false);
         params.put("expand", true);
-        params.put("for-corepo", true);
 
-        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/content")
+        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/dataio")
                 .bind("agencyid", "830380")
                 .bind("bibliographicrecordid", "285927994");
         final HttpGet httpGet = new HttpGet(httpClient)
@@ -149,12 +139,9 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
     @Test
     void getRecordCollection_DataIO_DeletedHead() throws Exception {
         final HashMap<String, Object> params = new HashMap<>();
-        params.put("allow-deleted", true);
-        params.put("use-parent-agency", false);
-        params.put("keep-aut-fields", false);
         params.put("expand", true);
 
-        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/content")
+        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/dataio")
                 .bind("agencyid", "770700")
                 .bind("bibliographicrecordid", "05395720");
         final HttpGet httpGet = new HttpGet(httpClient)
@@ -177,14 +164,39 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
-    void getRecordCollection_DataIO_DeletedVolume() throws Exception {
+    void getRecordCollection_Common_DeletedHead() throws Exception {
         final HashMap<String, Object> params = new HashMap<>();
-        params.put("allow-deleted", true);
-        params.put("use-parent-agency", false);
-        params.put("keep-aut-fields", false);
         params.put("expand", true);
+        params.put("allow-deleted", true);
 
         final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/content")
+                .bind("agencyid", "770700")
+                .bind("bibliographicrecordid", "05395720");
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build());
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            httpGet.withQueryParameter(param.getKey(), param.getValue());
+        }
+
+        final Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        final String collection = response.readEntity(String.class);
+
+        final HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        assertThat("collection contains 05395720", actual.containsKey("05395720"), is(true));
+        assertThat("collection content 05395720", actual.get("05395720"), is(getMarcRecordFromFile("sql/collection/05395720-770700-merged.xml")));
+        assertThat("collection contains 50129691", actual.containsKey("50129691"), is(true));
+        assertThat("collection content 50129691", actual.get("50129691"), is(getMarcRecordFromFile("sql/collection/50129691-770700-merged.xml")));
+    }
+
+    @Test
+    void getRecordCollection_DataIO_DeletedVolume() throws Exception {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("expand", true);
+
+        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/dataio")
                 .bind("agencyid", "770600")
                 .bind("bibliographicrecordid", "05395720");
         final HttpGet httpGet = new HttpGet(httpClient)
@@ -209,13 +221,9 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
     @Test
     void getRecordCollection_DataIO_DeletedVolume_ForCorepo() throws Exception {
         final HashMap<String, Object> params = new HashMap<>();
-        params.put("allow-deleted", true);
-        params.put("use-parent-agency", false);
-        params.put("keep-aut-fields", false);
         params.put("expand", true);
-        params.put("for-corepo", true);
 
-        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/content")
+        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/dataio")
                 .bind("agencyid", "770600")
                 .bind("bibliographicrecordid", "05395720");
         final HttpGet httpGet = new HttpGet(httpClient)
@@ -232,7 +240,7 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
 
         HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
         assertThat("collection contains 05395720", actual.containsKey("05395720"), is(true));
-        assertThat("collection content 05395720", actual.get("05395720"), is(getMarcRecordFromFile("sql/collection/05395720-870970.xml")));
+        assertThat("collection content 05395720", actual.get("05395720"), is(getMarcRecordFromFile("sql/collection/05395720-770600-merged.xml")));
         assertThat("collection contains 50129691", actual.containsKey("50129691"), is(true));
         assertThat("collection content 50129691", actual.get("50129691"), is(getMarcRecordFromFile("sql/collection/50129691-870970.xml")));
     }
@@ -240,12 +248,9 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
     @Test
     void getRecordCollection_DataIO_DeletedCommonVolume() throws Exception {
         final HashMap<String, Object> params = new HashMap<>();
-        params.put("allow-deleted", true);
-        params.put("use-parent-agency", false);
-        params.put("keep-aut-fields", false);
         params.put("expand", true);
 
-        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/content")
+        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/dataio")
                 .bind("agencyid", "770600")
                 .bind("bibliographicrecordid", "05395721");
         final HttpGet httpGet = new HttpGet(httpClient)
@@ -270,13 +275,9 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
     @Test
     void getRecordCollection_DataIO_DeletedCommonVolume_ForCorepo() throws Exception {
         final HashMap<String, Object> params = new HashMap<>();
-        params.put("allow-deleted", true);
-        params.put("use-parent-agency", false);
-        params.put("keep-aut-fields", false);
         params.put("expand", true);
-        params.put("for-corepo", true);
 
-        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/content")
+        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/dataio")
                 .bind("agencyid", "770600")
                 .bind("bibliographicrecordid", "05395721");
         final HttpGet httpGet = new HttpGet(httpClient)

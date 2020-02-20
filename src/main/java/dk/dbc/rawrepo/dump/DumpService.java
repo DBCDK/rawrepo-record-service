@@ -8,8 +8,8 @@ package dk.dbc.rawrepo.dump;
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.openagency.client.OpenAgencyException;
-import dk.dbc.rawrepo.MarcRecordBean;
 import dk.dbc.rawrepo.RawRepoException;
+import dk.dbc.rawrepo.RecordRelationsBean;
 import dk.dbc.rawrepo.dao.HoldingsItemsBean;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.dao.RawRepoBean;
@@ -35,7 +35,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.StringReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -70,7 +69,7 @@ public class DumpService {
     private RawRepoBean rawRepoBean;
 
     @EJB
-    private MarcRecordBean marcRecordBean;
+    private RecordRelationsBean recordRelationsBean;
 
     @EJB
     private HoldingsItemsBean holdingsItemsBean;
@@ -94,24 +93,21 @@ public class DumpService {
         }
 
         try {
-            StreamingOutput output = new StreamingOutput() {
-                @Override
-                public void write(OutputStream out) throws WebApplicationException {
-                    try {
-                        for (Integer agencyId : params.getAgencies()) {
-                            final AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
-                            final HashMap<String, String> record = getRecords(agencyId, params);
-                            final HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params, true);
+            StreamingOutput output = out -> {
+                try {
+                    for (Integer agencyId : params.getAgencies()) {
+                        final AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
+                        final HashMap<String, String> record = getRecords(agencyId, params);
+                        final HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params, true);
 
-                            final BibliographicIdResultSet bibliographicIdResultSet = new
-                                    BibliographicIdResultSet(params, agencyType, SLICE_SIZE, record, holdings);
+                        final BibliographicIdResultSet bibliographicIdResultSet = new
+                                BibliographicIdResultSet(params, agencyType, SLICE_SIZE, record, holdings);
 
-                            out.write(String.format("%s: %s%n", agencyId, bibliographicIdResultSet.size()).getBytes());
-                        }
-                    } catch (OpenAgencyException | RawRepoException | SQLException | IOException e) {
-                        LOGGER.error("Caught exception during write", e);
-                        throw new WebApplicationException("Caught exception during write", e);
+                        out.write(String.format("%s: %s%n", agencyId, bibliographicIdResultSet.size()).getBytes());
                     }
+                } catch (OpenAgencyException | RawRepoException | SQLException | IOException e) {
+                    LOGGER.error("Caught exception during write", e);
+                    throw new WebApplicationException("Caught exception during write", e);
                 }
             };
 
@@ -149,57 +145,54 @@ public class DumpService {
         LOGGER.info("Got request: {}", params);
 
         try {
-            StreamingOutput output = new StreamingOutput() {
-                @Override
-                public void write(OutputStream out) throws WebApplicationException {
-                    try {
-                        for (Integer agencyId : params.getAgencies()) {
-                            final RecordByteWriter recordByteWriter = new RecordByteWriter(out, params);
-                            recordByteWriter.writeHeader();
-                            final AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
-                            final HashMap<String, String> record = getRecords(agencyId, params);
-                            final HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params, false);
+            StreamingOutput output = out -> {
+                try {
+                    for (Integer agencyId : params.getAgencies()) {
+                        final RecordByteWriter recordByteWriter = new RecordByteWriter(out, params);
+                        recordByteWriter.writeHeader();
+                        final AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
+                        final HashMap<String, String> record = getRecords(agencyId, params);
+                        final HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params, false);
 
-                            LOGGER.info("Opening connection and RecordResultSet...");
-                            final BibliographicIdResultSet bibliographicIdResultSet = new
-                                    BibliographicIdResultSet(params, agencyType, SLICE_SIZE, record, holdings);
+                        LOGGER.info("Opening connection and RecordResultSet...");
+                        final BibliographicIdResultSet bibliographicIdResultSet = new
+                                BibliographicIdResultSet(params, agencyType, SLICE_SIZE, record, holdings);
 
-                            LOGGER.info("Found {} records", bibliographicIdResultSet.size());
-                            List<Callable<Boolean>> threadList = new ArrayList<>();
+                        LOGGER.info("Found {} records", bibliographicIdResultSet.size());
+                        List<Callable<Boolean>> threadList = new ArrayList<>();
 
-                            int loopCount = 0;
+                        int loopCount = 0;
 
-                            do {
-                                loopCount++;
+                        do {
+                            loopCount++;
 
-                                if (agencyType == AgencyType.DBC) {
-                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
-                                } else if (agencyType == AgencyType.FBS) {
-                                    threadList.add(new MergerThreadFBS(rawRepoBean, marcRecordBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
-                                } else {
-                                    threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
-                                }
+                            if (agencyType == AgencyType.DBC) {
+                                threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
+                            } else if (agencyType == AgencyType.FBS) {
+                                threadList.add(new MergerThreadFBS(rawRepoBean, recordRelationsBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
+                            } else {
+                                threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
+                            }
 
-                                // Execute the threads when either the outstanding thread count has reached max or it is the last loop
-                                if (loopCount % MAX_THREAD_COUNT == 0 || !bibliographicIdResultSet.hasNext()) {
-                                    final List<Future<Boolean>> futures = executor.invokeAll(threadList);
-                                    for (Future f : futures) {
-                                        try {
-                                            f.get(); // We don't care about the result, we just want to see if there was an exception during execution
-                                        } catch (ExecutionException e) {
-                                            throw new WebApplicationException(e.getMessage(), e);
-                                        }
+                            // Execute the threads when either the outstanding thread count has reached max or it is the last loop
+                            if (loopCount % MAX_THREAD_COUNT == 0 || !bibliographicIdResultSet.hasNext()) {
+                                final List<Future<Boolean>> futures = executor.invokeAll(threadList);
+                                for (Future f : futures) {
+                                    try {
+                                        f.get(); // We don't care about the result, we just want to see if there was an exception during execution
+                                    } catch (ExecutionException e) {
+                                        throw new WebApplicationException(e.getMessage(), e);
                                     }
-                                    threadList = new ArrayList<>(); // Reset list to clean up old done threads
                                 }
-                            } while (bibliographicIdResultSet.hasNext());
+                                threadList = new ArrayList<>(); // Reset list to clean up old done threads
+                            }
+                        } while (bibliographicIdResultSet.hasNext());
 
-                            recordByteWriter.writeFooter();
-                        }
-                    } catch (OpenAgencyException | InterruptedException | RawRepoException | SQLException | IOException ex) {
-                        LOGGER.error("Caught exception during write", ex);
-                        throw new WebApplicationException("Caught exception during write", ex);
+                        recordByteWriter.writeFooter();
                     }
+                } catch (OpenAgencyException | InterruptedException | RawRepoException | SQLException | IOException ex) {
+                    LOGGER.error("Caught exception during write", ex);
+                    throw new WebApplicationException("Caught exception during write", ex);
                 }
             };
 
@@ -257,56 +250,53 @@ public class DumpService {
         LOGGER.info("Got request: {}", params);
 
         try {
-            StreamingOutput output = new StreamingOutput() {
-                @Override
-                public void write(OutputStream out) throws WebApplicationException {
-                    try {
-                        for (Integer agencyId : params.getAgencies()) {
-                            final RecordByteWriter recordByteWriter = new RecordByteWriter(out, params);
-                            recordByteWriter.writeHeader();
-                            final AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
-                            final HashMap<String, String> record = getRecords(agencyId, params);
+            StreamingOutput output = out -> {
+                try {
+                    for (Integer agencyId : params.getAgencies()) {
+                        final RecordByteWriter recordByteWriter = new RecordByteWriter(out, params);
+                        recordByteWriter.writeHeader();
+                        final AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
+                        final HashMap<String, String> record = getRecords(agencyId, params);
 
-                            LOGGER.info("Opening connection and RecordResultSet...");
-                            final BibliographicIdResultSet bibliographicIdResultSet = new
-                                    BibliographicIdResultSet(SLICE_SIZE, record);
+                        LOGGER.info("Opening connection and RecordResultSet...");
+                        final BibliographicIdResultSet bibliographicIdResultSet = new
+                                BibliographicIdResultSet(SLICE_SIZE, record);
 
-                            LOGGER.info("Found {} records", bibliographicIdResultSet.size());
-                            List<Callable<Boolean>> threadList = new ArrayList<>();
+                        LOGGER.info("Found {} records", bibliographicIdResultSet.size());
+                        List<Callable<Boolean>> threadList = new ArrayList<>();
 
-                            int loopCount = 0;
+                        int loopCount = 0;
 
-                            do {
-                                loopCount++;
+                        do {
+                            loopCount++;
 
-                                if (agencyType == AgencyType.DBC) {
-                                    threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
-                                } else if (agencyType == AgencyType.FBS) {
-                                    threadList.add(new MergerThreadFBS(rawRepoBean, marcRecordBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
-                                } else {
-                                    threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
-                                }
+                            if (agencyType == AgencyType.DBC) {
+                                threadList.add(new MergerThreadDBC(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
+                            } else if (agencyType == AgencyType.FBS) {
+                                threadList.add(new MergerThreadFBS(rawRepoBean, recordRelationsBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId, params.getMode()));
+                            } else {
+                                threadList.add(new MergerThreadLocal(rawRepoBean, bibliographicIdResultSet.next(), recordByteWriter, agencyId));
+                            }
 
-                                // Execute the threads when either the outstanding thread count has reached max or it is the last loop
-                                if (loopCount % MAX_THREAD_COUNT == 0 || !bibliographicIdResultSet.hasNext()) {
-                                    final List<Future<Boolean>> futures = executor.invokeAll(threadList);
-                                    for (Future f : futures) {
-                                        try {
-                                            f.get(); // We don't care about the result, we just want to see if there was an exception during execution
-                                        } catch (ExecutionException e) {
-                                            throw new WebApplicationException(e.getMessage(), e);
-                                        }
+                            // Execute the threads when either the outstanding thread count has reached max or it is the last loop
+                            if (loopCount % MAX_THREAD_COUNT == 0 || !bibliographicIdResultSet.hasNext()) {
+                                final List<Future<Boolean>> futures = executor.invokeAll(threadList);
+                                for (Future f : futures) {
+                                    try {
+                                        f.get(); // We don't care about the result, we just want to see if there was an exception during execution
+                                    } catch (ExecutionException e) {
+                                        throw new WebApplicationException(e.getMessage(), e);
                                     }
-                                    threadList = new ArrayList<>(); // Reset list to clean up old done threads
                                 }
-                            } while (bibliographicIdResultSet.hasNext());
+                                threadList = new ArrayList<>(); // Reset list to clean up old done threads
+                            }
+                        } while (bibliographicIdResultSet.hasNext());
 
-                            recordByteWriter.writeFooter();
-                        }
-                    } catch (OpenAgencyException | InterruptedException | RawRepoException | IOException ex) {
-                        LOGGER.error("Caught exception during write", ex);
-                        throw new WebApplicationException("Caught exception during write", ex);
+                        recordByteWriter.writeFooter();
                     }
+                } catch (OpenAgencyException | InterruptedException | RawRepoException | IOException ex) {
+                    LOGGER.error("Caught exception during write", ex);
+                    throw new WebApplicationException("Caught exception during write", ex);
                 }
             };
 

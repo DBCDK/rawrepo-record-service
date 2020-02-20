@@ -10,10 +10,14 @@ import dk.dbc.jsonb.JSONBException;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.rawrepo.MarcRecordBean;
+import dk.dbc.rawrepo.RecordBean;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.Record;
+import dk.dbc.rawrepo.RecordHistoryBean;
 import dk.dbc.rawrepo.RecordId;
 import dk.dbc.rawrepo.RecordMetaDataHistory;
+import dk.dbc.rawrepo.RecordRelationsBean;
+import dk.dbc.rawrepo.RecordSimpleBean;
 import dk.dbc.rawrepo.dto.AgencyCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordDTO;
 import dk.dbc.rawrepo.dto.RecordDTOMapper;
@@ -48,7 +52,19 @@ public class RecordService {
     private final JSONBContext jsonbContext = new JSONBContext();
 
     @EJB
+    private RecordBean recordBean;
+
+    @EJB
+    private RecordSimpleBean recordSimpleBean;
+
+    @EJB
     private MarcRecordBean marcRecordBean;
+
+     @EJB
+    private RecordRelationsBean recordRelationsBean;
+
+    @EJB
+    private RecordHistoryBean historyBean;
 
     @GET
     @Path("v1/record/{agencyid}/{bibliographicrecordid}")
@@ -68,11 +84,11 @@ public class RecordService {
             Record record;
 
             if (Mode.RAW.equals(mode)) {
-                record = marcRecordBean.getRawRepoRecordRaw(bibliographicRecordId, agencyId, allowDeleted);
+                record = recordBean.getRawRepoRecordRaw(bibliographicRecordId, agencyId, allowDeleted);
             } else if (Mode.MERGED.equals(mode)) {
-                record = marcRecordBean.getRawRepoRecordMerged(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency);
+                record = recordBean.getRawRepoRecordMerged(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency);
             } else if (Mode.EXPANDED.equals(mode)) {
-                record = marcRecordBean.getRawRepoRecordExpanded(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
+                record = recordBean.getRawRepoRecordExpanded(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
             } else {
                 return Response.serverError().build();
             }
@@ -116,7 +132,7 @@ public class RecordService {
         String res = "";
 
         try {
-            Record record = marcRecordBean.fetchRecord(bibliographicRecordId, agencyId);
+            Record record = recordSimpleBean.fetchRecord(bibliographicRecordId, agencyId);
 
             RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record);
 
@@ -180,7 +196,7 @@ public class RecordService {
         String res = "";
 
         try {
-            final Record record = marcRecordBean.getRawRepoRecordRaw(bibliographicRecordId, agencyId, allowDeleted);
+            final Record record = recordBean.getRawRepoRecordRaw(bibliographicRecordId, agencyId, allowDeleted);
 
             res = jsonbContext.marshall(RecordDTOMapper.recordMetaDataToDTO(record));
 
@@ -206,7 +222,7 @@ public class RecordService {
         String res = "";
 
         try {
-            final boolean value = marcRecordBean.recordExists(bibliographicRecordId, agencyId, allowDeleted);
+            final boolean value = recordSimpleBean.recordExists(bibliographicRecordId, agencyId, allowDeleted);
 
             RecordExistsDTO dto = new RecordExistsDTO();
             dto.setValue(value);
@@ -234,7 +250,7 @@ public class RecordService {
         String res = "";
 
         try {
-            final Set<RecordId> recordIds = marcRecordBean.getRelationsParents(bibliographicRecordId, agencyId);
+            final Set<RecordId> recordIds = recordRelationsBean.getRelationsParents(bibliographicRecordId, agencyId);
 
             res = jsonbContext.marshall(RecordDTOMapper.recordIdToCollectionDTO(recordIds));
 
@@ -258,7 +274,7 @@ public class RecordService {
         String res = "";
 
         try {
-            final Set<RecordId> recordIds = marcRecordBean.getRelationsChildren(bibliographicRecordId, agencyId);
+            final Set<RecordId> recordIds = recordRelationsBean.getRelationsChildren(bibliographicRecordId, agencyId);
 
             res = jsonbContext.marshall(RecordDTOMapper.recordIdToCollectionDTO(recordIds));
 
@@ -280,7 +296,7 @@ public class RecordService {
         String res = "";
 
         try {
-            final Set<RecordId> recordIds = marcRecordBean.getRelationsSiblingsFromMe(bibliographicRecordId, agencyId);
+            final Set<RecordId> recordIds = recordRelationsBean.getRelationsSiblingsFromMe(bibliographicRecordId, agencyId);
 
             res = jsonbContext.marshall(RecordDTOMapper.recordIdToCollectionDTO(recordIds));
 
@@ -304,7 +320,7 @@ public class RecordService {
         String res = "";
 
         try {
-            final Set<RecordId> recordIds = marcRecordBean.getRelationsSiblingsToMe(bibliographicRecordId, agencyId);
+            final Set<RecordId> recordIds = recordRelationsBean.getRelationsSiblingsToMe(bibliographicRecordId, agencyId);
 
             res = jsonbContext.marshall(RecordDTOMapper.recordIdToCollectionDTO(recordIds));
 
@@ -328,7 +344,7 @@ public class RecordService {
         String res = "";
 
         try {
-            final Set<RecordId> recordIds = marcRecordBean.getRelationsFrom(bibliographicRecordId, agencyId);
+            final Set<RecordId> recordIds = recordRelationsBean.getRelationsFrom(bibliographicRecordId, agencyId);
 
             res = jsonbContext.marshall(RecordDTOMapper.recordIdToCollectionDTO(recordIds));
 
@@ -350,7 +366,7 @@ public class RecordService {
         String res = "";
 
         try {
-            final Set<Integer> agencySet = marcRecordBean.getAllAgenciesForBibliographicRecordId(bibliographicRecordId);
+            final Set<Integer> agencySet = recordRelationsBean.getAllAgenciesForBibliographicRecordId(bibliographicRecordId);
 
             final List<Integer> agencyList = new ArrayList<>(agencySet);
             final AgencyCollectionDTO dto = new AgencyCollectionDTO();
@@ -376,7 +392,7 @@ public class RecordService {
         String res = "";
 
         try {
-            final List<RecordMetaDataHistory> recordMetaDataHistoryList = marcRecordBean.getRecordHistory(bibliographicRecordId, agencyId);
+            final List<RecordMetaDataHistory> recordMetaDataHistoryList = historyBean.getRecordHistory(bibliographicRecordId, agencyId);
 
             res = jsonbContext.marshall(RecordDTOMapper.recordHistoryCollectionToDTO(recordMetaDataHistoryList));
 
@@ -399,7 +415,7 @@ public class RecordService {
         String res = "";
 
         try {
-            final List<RecordMetaDataHistory> recordMetaDataHistoryList = marcRecordBean.getRecordHistory(bibliographicRecordId, agencyId);
+            final List<RecordMetaDataHistory> recordMetaDataHistoryList = historyBean.getRecordHistory(bibliographicRecordId, agencyId);
             RecordMetaDataHistory selectedMetaDataHistory = null;
 
             for (RecordMetaDataHistory recordMetaDataHistory : recordMetaDataHistoryList) {
@@ -411,7 +427,7 @@ public class RecordService {
             }
 
             if (selectedMetaDataHistory != null) {
-                Record record = marcRecordBean.getHistoricRecord(selectedMetaDataHistory);
+                Record record = historyBean.getHistoricRecord(selectedMetaDataHistory);
 
                 RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record);
 
