@@ -3,6 +3,8 @@ package dk.dbc.rawrepo.service;
 import dk.dbc.httpclient.HttpGet;
 import dk.dbc.httpclient.PathBuilder;
 import dk.dbc.marc.binding.MarcRecord;
+import dk.dbc.rawrepo.RecordDTOCollection;
+import dk.dbc.rawrepo.dto.RecordDTO;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -78,13 +80,11 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpGet);
         assertThat("Response code", response.getStatus(), is(200));
 
-        final String collection = response.readEntity(String.class);
-
-        final HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
         assertThat("collection contains 285927994", actual.containsKey("285927994"), is(true));
-        assertThat("collection content 285927994", actual.get("285927994"), is(getMarcRecordFromFile("sql/collection/285927994-830380.xml")));
+        assertThat("collection content 285927994", getMarcRecordFromString(actual.get("285927994").getContent()), is(getMarcRecordFromFile("sql/collection/285927994-830380.xml")));
         assertThat("collection contains 703213855", actual.containsKey("703213855"), is(true));
-        assertThat("collection content 703213855", actual.get("703213855"), is(getMarcRecordFromFile("sql/collection/703213855-830380.xml")));
+        assertThat("collection content 703213855", getMarcRecordFromString(actual.get("703213855").getContent()), is(getMarcRecordFromFile("sql/collection/703213855-830380.xml")));
     }
 
     @Test
@@ -127,13 +127,11 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpGet);
         assertThat("Response code", response.getStatus(), is(200));
 
-        final String collection = response.readEntity(String.class);
-
-        final HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
         assertThat("collection contains 285927994", actual.containsKey("285927994"), is(true));
-        assertThat("collection content 285927994", actual.get("285927994"), is(getMarcRecordFromFile("sql/collection/285927994-830380.xml")));
+        assertThat("collection content 285927994", getMarcRecordFromString(actual.get("285927994").getContent()), is(getMarcRecordFromFile("sql/collection/285927994-830380.xml")));
         assertThat("collection contains 703213855", actual.containsKey("703213855"), is(true));
-        assertThat("collection content 703213855", actual.get("703213855"), is(getMarcRecordFromFile("sql/collection/703213855-830380.xml")));
+        assertThat("collection content 703213855", getMarcRecordFromString(actual.get("703213855").getContent()), is(getMarcRecordFromFile("sql/collection/703213855-830380.xml")));
     }
 
     @Test
@@ -154,13 +152,11 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpGet);
         assertThat("Response code", response.getStatus(), is(200));
 
-        final String collection = response.readEntity(String.class);
-
-        final HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
         assertThat("collection contains 05395720", actual.containsKey("05395720"), is(true));
-        assertThat("collection content 05395720", actual.get("05395720"), is(getMarcRecordFromFile("sql/collection/05395720-770700-merged.xml")));
+        assertThat("collection content 05395720", getMarcRecordFromString(actual.get("05395720").getContent()), is(getMarcRecordFromFile("sql/collection/05395720-770700-merged.xml")));
         assertThat("collection contains 50129691", actual.containsKey("50129691"), is(true));
-        assertThat("collection content 50129691", actual.get("50129691"), is(getMarcRecordFromFile("sql/collection/50129691-870970.xml")));
+        assertThat("collection content 50129691", getMarcRecordFromString(actual.get("50129691").getContent()), is(getMarcRecordFromFile("sql/collection/50129691-870970.xml")));
     }
 
     @Test
@@ -209,13 +205,11 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpGet);
         assertThat("Response code", response.getStatus(), is(200));
 
-        final String collection = response.readEntity(String.class);
-
-        final HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
         assertThat("collection contains 05395720", actual.containsKey("05395720"), is(true));
-        assertThat("collection content 05395720", actual.get("05395720"), is(getMarcRecordFromFile("sql/collection/05395720-770600-merged.xml")));
+        assertThat("collection content 05395720", getMarcRecordFromString(actual.get("05395720").getContent()), is(getMarcRecordFromFile("sql/collection/05395720-770600-merged.xml")));
         assertThat("collection contains 50129691", actual.containsKey("50129691"), is(true));
-        assertThat("collection content 50129691", actual.get("50129691"), is(getMarcRecordFromFile("sql/collection/50129691-870970.xml")));
+        assertThat("collection content 50129691", getMarcRecordFromString(actual.get("50129691").getContent()), is(getMarcRecordFromFile("sql/collection/50129691-870970.xml")));
     }
 
     @Test
@@ -236,13 +230,11 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpGet);
         assertThat("Response code", response.getStatus(), is(200));
 
-        final String collection = response.readEntity(String.class);
-
-        HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
         assertThat("collection contains 05395720", actual.containsKey("05395720"), is(true));
-        assertThat("collection content 05395720", actual.get("05395720"), is(getMarcRecordFromFile("sql/collection/05395720-770600-merged.xml")));
+        assertThat("collection content 05395720", getMarcRecordFromString(actual.get("05395720").getContent()), is(getMarcRecordFromFile("sql/collection/05395720-770600-merged.xml")));
         assertThat("collection contains 50129691", actual.containsKey("50129691"), is(true));
-        assertThat("collection content 50129691", actual.get("50129691"), is(getMarcRecordFromFile("sql/collection/50129691-870970.xml")));
+        assertThat("collection content 50129691", getMarcRecordFromString(actual.get("50129691").getContent()), is(getMarcRecordFromFile("sql/collection/50129691-870970.xml")));
     }
 
     @Test
@@ -263,13 +255,11 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpGet);
         assertThat("Response code", response.getStatus(), is(200));
 
-        final String collection = response.readEntity(String.class);
-
-        HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
         assertThat("collection contains 05395720", actual.containsKey("05395721"), is(true));
-        assertThat("collection content 05395720", actual.get("05395721"), is(getMarcRecordFromFile("sql/collection/05395721-770600-merged.xml")));
+        assertThat("collection content 05395720", getMarcRecordFromString(actual.get("05395721").getContent()), is(getMarcRecordFromFile("sql/collection/05395721-770600-merged.xml")));
         assertThat("collection contains 50129691", actual.containsKey("50129691"), is(true));
-        assertThat("collection content 50129691", actual.get("50129691"), is(getMarcRecordFromFile("sql/collection/50129691-870970.xml")));
+        assertThat("collection content 50129691", getMarcRecordFromString(actual.get("50129691").getContent()), is(getMarcRecordFromFile("sql/collection/50129691-870970.xml")));
     }
 
     @Test
@@ -290,13 +280,11 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpGet);
         assertThat("Response code", response.getStatus(), is(200));
 
-        final String collection = response.readEntity(String.class);
-
-        HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
         assertThat("collection contains 05395720", actual.containsKey("05395721"), is(true));
-        assertThat("collection content 05395720", actual.get("05395721"), is(getMarcRecordFromFile("sql/collection/05395721-770600-merged.xml")));
+        assertThat("collection content 05395720", getMarcRecordFromString(actual.get("05395721").getContent()), is(getMarcRecordFromFile("sql/collection/05395721-770600-merged.xml")));
         assertThat("collection contains 50129691", actual.containsKey("50129691"), is(true));
-        assertThat("collection content 50129691", actual.get("50129691"), is(getMarcRecordFromFile("sql/collection/50129691-870970.xml")));
+        assertThat("collection content 50129691", getMarcRecordFromString(actual.get("50129691").getContent()), is(getMarcRecordFromFile("sql/collection/50129691-870970.xml")));
     }
 
     @Test

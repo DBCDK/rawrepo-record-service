@@ -2,7 +2,8 @@ package dk.dbc.rawrepo.service;
 
 import dk.dbc.httpclient.HttpGet;
 import dk.dbc.httpclient.PathBuilder;
-import dk.dbc.marc.binding.MarcRecord;
+import dk.dbc.rawrepo.RecordDTOCollection;
+import dk.dbc.rawrepo.dto.RecordDTO;
 import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.Response;
@@ -64,13 +65,11 @@ public class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContai
 
         assertThat("Response code", response.getStatus(), is(200));
 
-        final String collection = response.readEntity(String.class);
-
-        final HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
-        assertThat("collection content volume", actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(getMarcRecordFromFile(BASE_DIR + "volume-fbs-deleted-merged.xml")));
+        assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-fbs-deleted-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
-        assertThat("collection content head", actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(getMarcRecordFromFile(BASE_DIR + "head-common-merged.xml")));
+        assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "head-common-merged.xml")));
     }
 
     @Test
@@ -86,13 +85,11 @@ public class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContai
 
         assertThat("Response code", response.getStatus(), is(200));
 
-        final String collection = response.readEntity(String.class);
-
-        final HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
-        assertThat("collection content volume", actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(getMarcRecordFromFile(BASE_DIR + "volume-fbs-active-merged.xml")));
+        assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-fbs-active-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
-        assertThat("collection content head", actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(getMarcRecordFromFile(BASE_DIR + "head-common-merged.xml")));
+        assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "head-common-merged.xml")));
     }
 
     @Test
@@ -111,13 +108,11 @@ public class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContai
 
         assertThat("Response code", response.getStatus(), is(200));
 
-        final String collection = response.readEntity(String.class);
-
-        final HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
-        assertThat("collection content volume", actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(getMarcRecordFromFile(BASE_DIR + "volume-fbs-active-merged.xml")));
+        assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-fbs-active-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
-        assertThat("collection content head", actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(getMarcRecordFromFile(BASE_DIR + "head-fbs-active-merged.xml")));
+        assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "head-fbs-active-merged.xml")));
     }
 
     @Test
@@ -136,13 +131,11 @@ public class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContai
 
         assertThat("Response code", response.getStatus(), is(200));
 
-        final String collection = response.readEntity(String.class);
-
-        final HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
-        assertThat("collection content volume", actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(getMarcRecordFromFile(BASE_DIR + "volume-fbs-active-merged.xml")));
+        assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-fbs-active-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
-        assertThat("collection content head", actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(getMarcRecordFromFile(BASE_DIR + "head-common-merged.xml")));
+        assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "head-common-merged.xml")));
     }
 
     @Test
@@ -161,13 +154,11 @@ public class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContai
 
         assertThat("Response code", response.getStatus(), is(200));
 
-        final String collection = response.readEntity(String.class);
-
-        final HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
-        assertThat("collection content volume", actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(getMarcRecordFromFile(BASE_DIR + "volume-common-merged.xml")));
+        assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-common-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
-        assertThat("collection content head", actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(getMarcRecordFromFile(BASE_DIR + "head-fbs-active-merged.xml")));
+        assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "head-fbs-active-merged.xml")));
     }
 
     @Test
@@ -186,13 +177,11 @@ public class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContai
 
         assertThat("Response code", response.getStatus(), is(200));
 
-        final String collection = response.readEntity(String.class);
-
-        final HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
-        assertThat("collection content volume", actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(getMarcRecordFromFile(BASE_DIR + "volume-fbs-deleted-merged.xml")));
+        assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-fbs-deleted-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
-        assertThat("collection content head", actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(getMarcRecordFromFile(BASE_DIR + "head-common-merged.xml")));
+        assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "head-common-merged.xml")));
     }
 
     @Test
@@ -208,13 +197,11 @@ public class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContai
 
         assertThat("Response code", response.getStatus(), is(200));
 
-        final String collection = response.readEntity(String.class);
-
-        final HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
-        assertThat("collection content volume", actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(getMarcRecordFromFile(BASE_DIR + "volume-common-merged.xml")));
+        assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-common-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
-        assertThat("collection content head", actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(getMarcRecordFromFile(BASE_DIR + "head-fbs-active-merged.xml")));
+        assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "head-fbs-active-merged.xml")));
     }
 
     @Test
@@ -230,13 +217,11 @@ public class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContai
 
         assertThat("Response code", response.getStatus(), is(200));
 
-        final String collection = response.readEntity(String.class);
-
-        final HashMap<String, MarcRecord> actual = getMarcRecordCollectionFromString(collection);
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
-        assertThat("collection content volume", actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(getMarcRecordFromFile(BASE_DIR + "volume-common-merged.xml")));
+        assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-common-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
-        assertThat("collection content head", actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(getMarcRecordFromFile(BASE_DIR + "head-fbs-deleted-merged.xml")));
+        assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "head-fbs-deleted-merged.xml")));
     }
 
 }

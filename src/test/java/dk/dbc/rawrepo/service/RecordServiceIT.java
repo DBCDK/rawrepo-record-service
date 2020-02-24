@@ -84,7 +84,7 @@ class RecordServiceIT extends AbstractRecordServiceContainerTest {
         Response response = httpClient.execute(httpGet);
         assertThat("Response code", response.getStatus(), is(200));
 
-        String content = response.readEntity(String.class);
+        final byte[] content = response.readEntity(byte[].class);
         assertThat("content", getMarcRecordFromString(content), is(getMarcRecordFromFile("sql/50129691-191919-merged.xml")));
     }
 
@@ -102,7 +102,7 @@ class RecordServiceIT extends AbstractRecordServiceContainerTest {
         Response response = httpClient.execute(httpGet);
         assertThat("Response code", response.getStatus(), is(200));
 
-        String content = response.readEntity(String.class);
+        final byte[] content = response.readEntity(byte[].class);
         assertThat("content", getMarcRecordFromString(content), is(getMarcRecordFromFile("sql/50129691-191919-merged-parent-agency.xml")));
     }
 

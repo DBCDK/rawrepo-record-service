@@ -98,14 +98,12 @@ public class MarcRecordBean {
     }
 
     @Timed
-    public Collection<MarcRecord> getDataIOMarcRecordCollection(String bibliographicRecordId,
+    public Map<String, Record> getDataIOMarcRecordCollection(String bibliographicRecordId,
                                                                 int agencyId,
                                                                 boolean expand) throws InternalServerException, RecordNotFoundException, MarcXMergerException, MarcReaderException {
-        final Map<String, Record> collection = recordCollectionBean.getDataIORecordCollection(bibliographicRecordId,
+        return recordCollectionBean.getDataIORecordCollection(bibliographicRecordId,
                 agencyId,
                 expand);
-
-        return recordsToMarcRecords(collection);
     }
 
     @NotNull

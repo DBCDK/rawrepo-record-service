@@ -126,8 +126,8 @@ class AbstractRecordServiceContainerTest {
         return reader.read();
     }
 
-    static MarcRecord getMarcRecordFromString(String content) throws MarcReaderException {
-        final InputStream inputStream = new ByteArrayInputStream(content.getBytes());
+    static MarcRecord getMarcRecordFromString(byte[] content) throws MarcReaderException {
+        final InputStream inputStream = new ByteArrayInputStream(content);
         final BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
         final MarcXchangeV1Reader reader = new MarcXchangeV1Reader(bufferedInputStream, StandardCharsets.UTF_8);
 
