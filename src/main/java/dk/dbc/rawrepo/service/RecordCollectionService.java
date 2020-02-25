@@ -92,31 +92,11 @@ public class RecordCollectionService {
                                         @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields,
                                         @DefaultValue("false") @QueryParam("exclude-aut-records") boolean excludeAutRecords,
                                         @QueryParam("exclude-attribute") List<String> excludeAttributes) {
-        String res;
-
         try {
 
             Map<String, Record> collection = recordCollectionBean.getRawRepoRecordCollection(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields, excludeAutRecords);
 
-            RecordCollectionDTO dtoList = RecordDTOMapper.recordCollectionToDTO(collection);
-
-            for (String excludeAttribute : excludeAttributes) {
-                if ("content".equalsIgnoreCase(excludeAttribute)) {
-                    for (RecordDTO recordDTO : dtoList.getRecords()) {
-                        recordDTO.setContent(null);
-                    }
-                }
-
-                if ("contentjson".equalsIgnoreCase(excludeAttribute)) {
-                    for (RecordDTO recordDTO : dtoList.getRecords()) {
-                        recordDTO.setContentJSON(null);
-                    }
-                }
-            }
-
-            res = jsonbContext.marshall(dtoList);
-
-            return Response.ok(res, MediaType.APPLICATION_JSON).build();
+            return recordCollectionToResponse(excludeAttributes, collection);
         } catch (JSONBException | MarcReaderException | InternalServerException ex) {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
@@ -171,16 +151,13 @@ public class RecordCollectionService {
     @Timed
     public Response getRecordContentCollectionDataIO(@PathParam("agencyid") int agencyId,
                                                      @PathParam("bibliographicrecordid") String bibliographicRecordId,
-                                                     @DefaultValue("false") @QueryParam("expand") boolean expand) {
-        String res;
-
+                                                     @DefaultValue("false") @QueryParam("expand") boolean expand,
+                                                     @QueryParam("exclude-attribute") List<String> excludeAttributes) {
         try {
-            final Collection<MarcRecord> marcRecords = marcRecordBean.getDataIOMarcRecordCollection(bibliographicRecordId, agencyId, expand);
+            final Map<String, Record> collection = marcRecordBean.getDataIOMarcRecordCollection(bibliographicRecordId, agencyId, expand);
 
-            res = new String(RecordObjectMapper.marcRecordCollectionToContent(marcRecords));
-
-            return Response.ok(res, MediaType.APPLICATION_XML).build();
-        } catch (MarcReaderException | InternalServerException | MarcXMergerException ex) {
+            return recordCollectionToResponse(excludeAttributes, collection);
+        } catch (MarcReaderException | InternalServerException | MarcXMergerException | JSONBException ex) {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException ex) {
@@ -188,6 +165,29 @@ public class RecordCollectionService {
         } finally {
             LOGGER.info("v1/records/{}/{}/dataio?expand={}", agencyId, bibliographicRecordId, expand);
         }
+    }
+
+    private Response recordCollectionToResponse(List<String> excludeAttributes, Map<String, Record> collection) throws MarcReaderException, JSONBException {
+        String res;
+        RecordCollectionDTO dtoList = RecordDTOMapper.recordCollectionToDTO(collection);
+
+        for (String excludeAttribute : excludeAttributes) {
+            if ("content".equalsIgnoreCase(excludeAttribute)) {
+                for (RecordDTO recordDTO : dtoList.getRecords()) {
+                    recordDTO.setContent(null);
+                }
+            }
+
+            if ("contentjson".equalsIgnoreCase(excludeAttribute)) {
+                for (RecordDTO recordDTO : dtoList.getRecords()) {
+                    recordDTO.setContentJSON(null);
+                }
+            }
+        }
+
+        res = jsonbContext.marshall(dtoList);
+
+        return Response.ok(res, MediaType.APPLICATION_JSON).build();
     }
 
     @POST

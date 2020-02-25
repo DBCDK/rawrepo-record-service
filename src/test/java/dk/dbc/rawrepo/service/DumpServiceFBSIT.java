@@ -57,7 +57,7 @@ public class DumpServiceFBSIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
-        String content = response.readEntity(String.class);
+        final byte[] content = response.readEntity(byte[].class);
 
         assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-fbs/expected-dump-agencies.xml")));
     }
@@ -82,7 +82,7 @@ public class DumpServiceFBSIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
-        String content = response.readEntity(String.class);
+        final byte[] content = response.readEntity(byte[].class);
 
         assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-fbs/expected-dump-records.xml")));
     }

@@ -66,7 +66,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
-        String content = response.readEntity(String.class);
+        final byte[] content = response.readEntity(byte[].class);
 
         assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-raw.xml")));
     }
@@ -87,7 +87,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
-        String content = response.readEntity(String.class);
+        final byte[] content = response.readEntity(byte[].class);
 
         assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-merged.xml")));
     }
@@ -108,7 +108,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
-        String content = response.readEntity(String.class);
+        final byte[] content = response.readEntity(byte[].class);
 
         assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-expanded.xml")));
     }
@@ -133,7 +133,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
-        String content = response.readEntity(String.class);
+        final byte[] content = response.readEntity(byte[].class);
 
         assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-raw.xml")));
     }
@@ -158,7 +158,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
-        String content = response.readEntity(String.class);
+        final byte[] content = response.readEntity(byte[].class);
 
         assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-merged.xml")));
     }
@@ -183,7 +183,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
-        String content = response.readEntity(String.class);
+        final byte[] content = response.readEntity(byte[].class);
 
         assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-expanded.xml")));
     }
@@ -208,7 +208,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
-        String content = response.readEntity(String.class);
+        final byte[] content = response.readEntity(byte[].class);
 
         assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-fbs-raw.xml")));
     }
@@ -232,7 +232,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
-        String content = response.readEntity(String.class);
+        final byte[] content = response.readEntity(byte[].class);
 
         assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-fbs-merged.xml")));
     }
@@ -257,7 +257,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
-        String content = response.readEntity(String.class);
+        final byte[] content = response.readEntity(byte[].class);
 
         assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-fbs-expanded.xml")));
     }
