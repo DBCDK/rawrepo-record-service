@@ -30,6 +30,7 @@ import javax.interceptor.Interceptors;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -159,11 +160,17 @@ public class RecordBean {
 
                 mergePool.checkIn(merger);
 
+                // This conversion is necessary for setting the namespace in the marcxchange document
+                MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
+
                 if (excludeDBCFields) {
-                    MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
                     marcRecord = removePrivateFields(marcRecord);
-                    rawRecord.setContent(RecordObjectMapper.marcToContent(marcRecord));
                 }
+
+                final Instant modified = rawRecord.getModified();
+                rawRecord.setContent(RecordObjectMapper.marcToContent(marcRecord));
+                // Modified is set to now() when content is changed, so we need to change it back to the original value
+                rawRecord.setModified(modified);
 
                 return rawRecord;
             } catch (RawRepoExceptionRecordNotFound ex) {
