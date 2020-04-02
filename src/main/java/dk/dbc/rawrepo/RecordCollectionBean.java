@@ -179,7 +179,6 @@ public class RecordCollectionBean {
     }
 
 
-
     private void fetchDataIORecordCollection(Map<String, Record> collection,
                                              String bibliographicRecordId,
                                              int agencyId,
@@ -200,7 +199,7 @@ public class RecordCollectionBean {
                 }
 
                 // Root record is of the correct agencyId
-                if (record.getId().getAgencyId() == agencyId) {
+                if (!RecordBeanUtils.DBC_AGENCIES.contains(agencyId) && record.getId().getAgencyId() == agencyId) {
                     newAllowDeletedParent = false;
                 } else {
                     newAllowDeletedParent = true;
