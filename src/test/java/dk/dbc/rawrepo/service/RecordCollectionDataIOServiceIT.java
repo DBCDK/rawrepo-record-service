@@ -185,6 +185,44 @@ public class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContai
     }
 
     @Test
+    void deletedCommonHeadDeletedCommonVolume() throws Exception {
+        final Connection rawrepoConnection = connectToRawrepoDb();
+
+        // We don't want the active common records to only delete the rows, don't initialize
+        resetRawrepoDb(rawrepoConnection);
+
+        saveRecord(rawrepoConnection, BASE_DIR + "head-common-deleted.xml", MIMETYPE_MARCXCHANGE);
+        // No relations as the record is deleted
+
+        saveRecord(rawrepoConnection, BASE_DIR + "volume-common-deleted.xml", MIMETYPE_MARCXCHANGE);
+        // No relations as the record is deleted
+
+        // callRecordService requests the fbs agency so since we want the 870970
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("expand", true);
+
+        final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/dataio")
+                .bind("agencyid", 870970)
+                .bind("bibliographicrecordid", BIBLIOGRAPHIC_RECORD_ID_VOLUME);
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build());
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            httpGet.withQueryParameter(param.getKey(), param.getValue());
+        }
+
+        final Response response = httpClient.execute(httpGet);
+
+        assertThat("Response code", response.getStatus(), is(200));
+
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+        assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
+        assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-common-deleted.xml")));
+        assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
+        assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "head-common-deleted.xml")));
+    }
+
+    @Test
     void activeHead() throws Exception {
         final Connection rawrepoConnection = connectToRawrepoDb();
 
@@ -222,6 +260,10 @@ public class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContai
         assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-common-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
         assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "head-fbs-deleted-merged.xml")));
+    }
+
+    void deletedCommonHeadAndVolume() throws Exception {
+
     }
 
 }

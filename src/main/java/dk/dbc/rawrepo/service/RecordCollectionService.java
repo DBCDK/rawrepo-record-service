@@ -157,7 +157,7 @@ public class RecordCollectionService {
             final Map<String, Record> collection = marcRecordBean.getDataIOMarcRecordCollection(bibliographicRecordId, agencyId, expand);
 
             return recordCollectionToResponse(excludeAttributes, collection);
-        } catch (MarcReaderException | InternalServerException | MarcXMergerException | JSONBException ex) {
+        } catch (MarcReaderException | InternalServerException | JSONBException ex) {
             LOGGER.error("Exception during getRecord", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException ex) {

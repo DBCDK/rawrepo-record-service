@@ -8,6 +8,7 @@ package dk.dbc.rawrepo.service;
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.rawrepo.RawRepoException;
+import dk.dbc.rawrepo.RecordBeanUtils;
 import dk.dbc.rawrepo.dao.RawRepoBean;
 import dk.dbc.rawrepo.dto.AgencyCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
@@ -117,7 +118,7 @@ public class AgencyService {
 
             // If internalAgencyHandling is true a list of bibliographicRecordId:191919 is returned instead of bibliographicRecordId:agencyId
             if (internalAgencyHandling && DBC_AGENCIES.contains(agencyId)) {
-                returnAgencyId = 191919;
+                returnAgencyId = RecordBeanUtils.DBC_ENRICHMENT_AGENCY;
             }
 
             for (String bibliographicRecordId : bibliographicRecordIdList.keySet()) {
