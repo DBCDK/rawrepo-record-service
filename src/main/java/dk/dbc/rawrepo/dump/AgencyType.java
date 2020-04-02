@@ -8,6 +8,7 @@ package dk.dbc.rawrepo.dump;
 import dk.dbc.openagency.client.LibraryRuleHandler;
 import dk.dbc.openagency.client.OpenAgencyException;
 import dk.dbc.openagency.client.OpenAgencyServiceFromURL;
+import dk.dbc.rawrepo.RecordBeanUtils;
 
 import java.util.Arrays;
 
@@ -23,7 +24,7 @@ public enum AgencyType {
 
         // Yes, 191919 is a DBC agency, however when dumping the records they should be treated as a local record as
         // they are pure enrichment records and can't be merged unless the parent record is dumped
-        if (!useEnrichments || 191919 == agencyId) {
+        if (!useEnrichments || RecordBeanUtils.DBC_ENRICHMENT_AGENCY == agencyId) {
             return AgencyType.LOCAL;
         } else {
             return AgencyType.FBS;

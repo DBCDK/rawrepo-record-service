@@ -30,7 +30,6 @@ public class RecordRelationsBean {
 
     RelationHintsOpenAgency relationHints;
 
-    private final Integer DBC_ENRICHMENT = 191919;
     private final List<String> AUTHORITY_FIELDS = Arrays.asList("100", "600", "700", "770", "780");
 
     @Resource(lookup = "jdbc/rawrepo")
@@ -104,7 +103,7 @@ public class RecordRelationsBean {
                 final Set<RecordId> result = new HashSet<>();
 
                 // There is never a parent relations for DBC enrichments so we might as well just skip those
-                if (agencyId != DBC_ENRICHMENT) {
+                if (agencyId != RecordBeanUtils.DBC_ENRICHMENT_AGENCY) {
                     final Record record = recordSimpleBean.fetchRecord(bibliographicRecordId, agencyId);
                     final MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(record.getContent());
 
