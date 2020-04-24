@@ -26,6 +26,7 @@ import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.rawrepo.pool.DefaultMarcXMergerPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -65,7 +66,7 @@ public class MergerThreadFBS implements Callable<Boolean> {
     }
 
     @Override
-    public Boolean call() throws RawRepoException, MarcWriterException, JSONBException, IOException, MarcReaderException, MarcXMergerException, RecordNotFoundException, InternalServerException {
+    public Boolean call() throws RawRepoException, MarcWriterException, JSONBException, IOException, MarcReaderException, MarcXMergerException, RecordNotFoundException, InternalServerException, SAXException {
         byte[] result, common, local;
         final Map<String, byte[]> autRecords = new HashMap<>();
 
