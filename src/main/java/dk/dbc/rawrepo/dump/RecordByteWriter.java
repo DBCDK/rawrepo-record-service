@@ -8,31 +8,32 @@ package dk.dbc.rawrepo.dump;
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.marc.DanMarc2Charset;
+import dk.dbc.marc.Iso2709Packer;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marc.writer.DanMarc2LineFormatWriter;
-import dk.dbc.marc.writer.Iso2709Writer;
 import dk.dbc.marc.writer.MarcWriterException;
 import dk.dbc.marc.writer.MarcXchangeV1Writer;
 import dk.dbc.rawrepo.dto.ContentDTO;
 import dk.dbc.rawrepo.dto.RecordDTOMapper;
 import dk.dbc.rawrepo.service.RecordObjectMapper;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static dk.dbc.marc.writer.MarcXchangeV1Writer.Property.ADD_XML_DECLARATION;
 
 public class RecordByteWriter {
-    private OutputStream outputStream;
-    private Params params;
-    private OutputFormat outputFormat;
+    final private OutputStream outputStream;
+    final private Params params;
+    final private OutputFormat outputFormat;
 
     private final JSONBContext jsonbContext = new JSONBContext();
     private final DanMarc2LineFormatWriter danMarc2LineFormatWriter = new DanMarc2LineFormatWriter();
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
-    private final Iso2709Writer iso2709Writer = new Iso2709Writer();
 
     public RecordByteWriter(OutputStream outputStream, Params params) {
         this.outputStream = outputStream;
@@ -62,7 +63,7 @@ public class RecordByteWriter {
         }
     }
 
-    public void write(byte[] data) throws IOException, MarcReaderException, JSONBException, MarcWriterException {
+    public void write(byte[] data) throws IOException, MarcReaderException, JSONBException, MarcWriterException, SAXException {
         MarcRecord marcRecord;
         byte[] recordBytes;
         final Charset charset = "DANMARC2".equalsIgnoreCase(params.getOutputEncoding()) ? new DanMarc2Charset() : Charset.forName(params.getOutputEncoding());
@@ -100,7 +101,8 @@ public class RecordByteWriter {
             case ISO:
                 marcRecord = RecordObjectMapper.contentToMarcRecord(data);
                 synchronized (this) {
-                    outputStream.write(iso2709Writer.write(marcRecord, charset));
+                    outputStream.write(Iso2709Packer.create2709FromMarcXChangeRecord(
+                            JaxpUtil.toDocument(marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8)), charset));
                 }
                 break;
         }
