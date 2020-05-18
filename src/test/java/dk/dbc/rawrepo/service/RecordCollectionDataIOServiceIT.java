@@ -18,17 +18,24 @@ public class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContai
     private static final String BASE_DIR = "sql/collection-dataio/";
     private static final String BIBLIOGRAPHIC_RECORD_ID_HEAD = "50129691";
     private static final String BIBLIOGRAPHIC_RECORD_ID_VOLUME = "05395720";
+    private static final String BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME = "113782544";
+    private static final String BIBLIOGRAPHIC_RECORD_ID_LOCAL_HEAD = "113778148";
     private static final int COMMON_AGENCY = 870970;
     private static final int COMMON_ENRICHMENT = 191919;
     private static final int FBS_AGENCY = 770600;
+    private static final int LOCAL_AGENCY = 746100;
 
     private static Response callRecordService() {
+        return callRecordService(BIBLIOGRAPHIC_RECORD_ID_VOLUME, FBS_AGENCY);
+    }
+
+    private static Response callRecordService(String bibliographicRecordId, int agencyId) {
         final HashMap<String, Object> params = new HashMap<>();
         params.put("expand", true);
 
         final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/dataio")
-                .bind("agencyid", FBS_AGENCY)
-                .bind("bibliographicrecordid", BIBLIOGRAPHIC_RECORD_ID_VOLUME);
+                .bind("agencyid", agencyId)
+                .bind("bibliographicrecordid", bibliographicRecordId);
         final HttpGet httpGet = new HttpGet(httpClient)
                 .withBaseUrl(recordServiceBaseUrl)
                 .withPathElements(path.build());
@@ -262,8 +269,22 @@ public class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContai
         assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "head-fbs-deleted-merged.xml")));
     }
 
-    void deletedCommonHeadAndVolume() throws Exception {
+    @Test
+    void deletedLocalVolumeDeletedLocalHead() throws Exception {
+        final Connection rawrepoConnection = connectToRawrepoDb();
 
+        reset(rawrepoConnection);
+        saveRecord(rawrepoConnection, BASE_DIR + "local-volume-deleted.xml", MIMETYPE_MARCXCHANGE);
+        saveRecord(rawrepoConnection, BASE_DIR + "local-head-deleted.xml", MIMETYPE_MARCXCHANGE);
+
+        final Response response = callRecordService(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME, LOCAL_AGENCY);
+
+        assertThat("Response code", response.getStatus(), is(200));
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+        assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME), is(true));
+        assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "local-volume-deleted.xml")));
+        assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_LOCAL_HEAD), is(true));
+        assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_LOCAL_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "local-head-deleted.xml")));
     }
 
 }
