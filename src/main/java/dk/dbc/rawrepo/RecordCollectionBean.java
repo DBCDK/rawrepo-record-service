@@ -199,13 +199,21 @@ public class RecordCollectionBean {
                 }
 
                 // Root record is of the correct agencyId
-                if (!RecordBeanUtils.DBC_AGENCIES.contains(agencyId) && record.getId().getAgencyId() == agencyId) {
-                    newAllowDeletedParent = false;
-                } else {
-                    newAllowDeletedParent = true;
-                }
+                newAllowDeletedParent = RecordBeanUtils.DBC_AGENCIES.contains(agencyId) || record.getId().getAgencyId() != agencyId;
             } else {
-                record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, expand, allowDeletedParent);
+                try {
+                    // Assume the record an enrichment
+                    record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, expand, allowDeletedParent);
+                } catch (RecordNotFoundException e) {
+                    // If no active record is found try to find deleted record
+                    if (!allowDeletedParent) {
+                        record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, expand, true);
+                    } else {
+                        // If the first attempt was made with allow deleted then we have no hope of finding the record
+                        // so just throw the exception
+                        throw e;
+                    }
+                }
             }
             collection.put(bibliographicRecordId, record);
 
