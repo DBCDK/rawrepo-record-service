@@ -193,7 +193,7 @@ public class RecordCollectionBean {
                 // section or head enrichment for the FBS agency and a deleted volume record the collection should instead
                 // include the active common volume and the active head/section enrichment
                 if (recordRelationsBean.parentIsActive(bibliographicRecordId, agencyId)) {
-                    record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, expand, false);
+                    record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, expand, isLocalRecord(bibliographicRecordId));
                 } else {
                     record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, expand, true);
                 }
@@ -228,6 +228,12 @@ public class RecordCollectionBean {
                 fetchDataIORecordCollection(collection, parent.getBibliographicRecordId(), agencyId, expand, false, newAllowDeletedParent);
             }
         }
+    }
+
+    private boolean isLocalRecord(String bibliographicRecordId) throws InternalServerException {
+        Set<Integer> agencies = recordRelationsBean.getAllAgenciesForBibliographicRecordId(bibliographicRecordId);
+
+        return !agencies.contains(870970);
     }
 
 }
