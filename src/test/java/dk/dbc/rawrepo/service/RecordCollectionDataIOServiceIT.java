@@ -287,4 +287,42 @@ public class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContai
         assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_LOCAL_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "local-head-deleted.xml")));
     }
 
+    @Test
+    void deletedLocalVolumeActiveLocalHead() throws Exception {
+        final Connection rawrepoConnection = connectToRawrepoDb();
+
+        reset(rawrepoConnection);
+        saveRecord(rawrepoConnection, BASE_DIR + "local-volume-deleted.xml", MIMETYPE_MARCXCHANGE);
+        saveRecord(rawrepoConnection, BASE_DIR + "local-head-active.xml", MIMETYPE_MARCXCHANGE);
+
+        final Response response = callRecordService(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME, LOCAL_AGENCY);
+
+        assertThat("Response code", response.getStatus(), is(200));
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+        assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME), is(true));
+        assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "local-volume-deleted.xml")));
+        assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_LOCAL_HEAD), is(true));
+        assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_LOCAL_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "local-head-active.xml")));
+    }
+
+    @Test
+    void activeLocalVolumeActiveLocalHead() throws Exception {
+        final Connection rawrepoConnection = connectToRawrepoDb();
+
+        reset(rawrepoConnection);
+        saveRecord(rawrepoConnection, BASE_DIR + "local-volume-active.xml", MIMETYPE_MARCXCHANGE);
+        saveRecord(rawrepoConnection, BASE_DIR + "local-head-active.xml", MIMETYPE_MARCXCHANGE);
+        saveRelations(rawrepoConnection, BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME, LOCAL_AGENCY, BIBLIOGRAPHIC_RECORD_ID_LOCAL_HEAD, LOCAL_AGENCY);
+
+        final Response response = callRecordService(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME, LOCAL_AGENCY);
+
+        assertThat("Response code", response.getStatus(), is(200));
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+        assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME), is(true));
+        assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "local-volume-active.xml")));
+        assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_LOCAL_HEAD), is(true));
+        assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_LOCAL_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "local-head-active.xml")));
+    }
+
+    // There is no testcase testing combination of active local volume and deleted local head as that scenario is illegal
 }
