@@ -168,6 +168,31 @@ public class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContai
         assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "head-fbs-active-merged.xml")));
     }
 
+    //@Test Disabled test as it currently doesn't work
+    void activeCommonHeadDeletedCommonVolume() throws Exception {
+        final Connection rawrepoConnection = connectToRawrepoDb();
+
+        resetRawrepoDb(rawrepoConnection);
+
+        saveRecord(rawrepoConnection, BASE_DIR + "volume-common-deleted.xml", MIMETYPE_MARCXCHANGE);
+        saveRecord(rawrepoConnection, BASE_DIR + "volume-common-enrichment-deleted.xml", MIMETYPE_ENRICHMENT);
+        //saveRelations(rawrepoConnection, BIBLIOGRAPHIC_RECORD_ID_HEAD, FBS_AGENCY, BIBLIOGRAPHIC_RECORD_ID_HEAD, COMMON_AGENCY);
+
+        saveRecord(rawrepoConnection, BASE_DIR + "head-common.xml", MIMETYPE_MARCXCHANGE);
+        saveRecord(rawrepoConnection, BASE_DIR + "head-common-enrichment.xml", MIMETYPE_ENRICHMENT);
+        saveRelations(rawrepoConnection, BIBLIOGRAPHIC_RECORD_ID_HEAD, COMMON_ENRICHMENT, BIBLIOGRAPHIC_RECORD_ID_HEAD, COMMON_AGENCY);
+
+        final Response response = callRecordService(BIBLIOGRAPHIC_RECORD_ID_VOLUME, COMMON_AGENCY);
+
+        assertThat("Response code", response.getStatus(), is(200));
+
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+        assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
+        assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-common-deleted.xml")));
+        assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
+        assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "head-common-merged.xml")));
+    }
+
     @Test
     void deletedHeadDeletedVolume() throws Exception {
         final Connection rawrepoConnection = connectToRawrepoDb();
