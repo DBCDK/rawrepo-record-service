@@ -89,7 +89,7 @@
         <subfield code="b">. Seriens indhold se denne</subfield>
     </datafield>
     <datafield ind1="0" ind2="0" tag="600">
-        <subfield code="å">1</subfield>
+        <subfield code="å">1001</subfield>
         <subfield code="a">Nyrup Rasmussen</subfield>
         <subfield code="h">Poul</subfield>
     </datafield>
@@ -157,7 +157,9 @@
     <datafield ind1="0" ind2="0" tag="900">
         <subfield code="a">Rasmussen</subfield>
         <subfield code="h">Poul Nyrup</subfield>
-        <subfield code="z">600/1</subfield>
+        <subfield code="x">se</subfield>
+        <subfield code="w">Nyrup Rasmussen, Poul</subfield>
+        <subfield code="z">600/1001</subfield>
     </datafield>
     <datafield ind1="0" ind2="0" tag="900">
         <subfield code="a">Rasmussen</subfield>
