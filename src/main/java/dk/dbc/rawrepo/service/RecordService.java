@@ -78,7 +78,7 @@ public class RecordService {
                               @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                               @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields,
                               @QueryParam("exclude-attribute") List<String> excludeAttributes) {
-        String res = "";
+        String res;
 
         try {
             Record record;
@@ -118,7 +118,7 @@ public class RecordService {
         } catch (RecordNotFoundException ex) {
             return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}");
+            LOGGER.info("v1/record/{}/{}", agencyId, bibliographicRecordId);
         }
     }
 
@@ -129,7 +129,7 @@ public class RecordService {
     public Response fetchRecord(@PathParam("agencyid") int agencyId,
                                 @PathParam("bibliographicrecordid") String bibliographicRecordId,
                                 @QueryParam("exclude-attribute") List<String> excludeAttributes) {
-        String res = "";
+        String res;
 
         try {
             Record record = recordSimpleBean.fetchRecord(bibliographicRecordId, agencyId);
@@ -140,10 +140,10 @@ public class RecordService {
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
         } catch (JSONBException | InternalServerException | MarcReaderException ex) {
-            LOGGER.error("Exception during getRecord", ex);
+            LOGGER.error("Exception during fetchRecord", ex);
             return Response.serverError().build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/fetch");
+            LOGGER.info("v1/record/{}/{}/fetch", agencyId, bibliographicRecordId);
         }
     }
 
@@ -158,7 +158,7 @@ public class RecordService {
                                @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields) {
-        String res = "";
+        String res;
 
         try {
             MarcRecord record;
@@ -177,12 +177,12 @@ public class RecordService {
 
             return Response.ok(res, MediaType.APPLICATION_XML).build();
         } catch (InternalServerException ex) {
-            LOGGER.error("Exception during getRecord", ex);
+            LOGGER.error("Exception during GetContent", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException e) {
             return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/content");
+            LOGGER.info("v1/record/{}/{}/content", agencyId, bibliographicRecordId);
         }
     }
 
@@ -193,7 +193,7 @@ public class RecordService {
     public Response getRecordMetaData(@PathParam("agencyid") int agencyId,
                                       @PathParam("bibliographicrecordid") String bibliographicRecordId,
                                       @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted) {
-        String res = "";
+        String res;
 
         try {
             final Record record = recordBean.getRawRepoRecordRaw(bibliographicRecordId, agencyId, allowDeleted);
@@ -203,12 +203,12 @@ public class RecordService {
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
 
         } catch (JSONBException | InternalServerException ex) {
-            LOGGER.error("Exception during getRecord", ex);
+            LOGGER.error("Exception during getRecordMetaData", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException e) {
             return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/meta");
+            LOGGER.info("v1/record/{}/{}/meta", agencyId, bibliographicRecordId);
         }
     }
 
@@ -219,7 +219,7 @@ public class RecordService {
     public Response recordExists(@PathParam("agencyid") int agencyId,
                                  @PathParam("bibliographicrecordid") String bibliographicRecordId,
                                  @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted) {
-        String res = "";
+        String res;
 
         try {
             final boolean value = recordSimpleBean.recordExists(bibliographicRecordId, agencyId, allowDeleted);
@@ -237,7 +237,7 @@ public class RecordService {
         } catch (RawRepoException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/exists");
+            LOGGER.info("v1/record/{}/{}/exists", agencyId, bibliographicRecordId);
         }
     }
 
@@ -247,7 +247,7 @@ public class RecordService {
     @Timed
     public Response getRelationsParents(@PathParam("agencyid") int agencyId,
                                         @PathParam("bibliographicrecordid") String bibliographicRecordId) {
-        String res = "";
+        String res;
 
         try {
             final Set<RecordId> recordIds = recordRelationsBean.getRelationsParents(bibliographicRecordId, agencyId);
@@ -256,12 +256,12 @@ public class RecordService {
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
         } catch (JSONBException | InternalServerException ex) {
-            LOGGER.error("Exception during getRecord", ex);
+            LOGGER.error("Exception during getRelationsParents", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException ex) {
             return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/parents");
+            LOGGER.info("v1/record/{}/{}/parents", agencyId, bibliographicRecordId);
         }
     }
 
@@ -271,7 +271,7 @@ public class RecordService {
     @Timed
     public Response getRelationsChildren(@PathParam("agencyid") int agencyId,
                                          @PathParam("bibliographicrecordid") String bibliographicRecordId) {
-        String res = "";
+        String res;
 
         try {
             final Set<RecordId> recordIds = recordRelationsBean.getRelationsChildren(bibliographicRecordId, agencyId);
@@ -280,10 +280,10 @@ public class RecordService {
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
         } catch (JSONBException | InternalServerException ex) {
-            LOGGER.error("Exception during getRecord", ex);
+            LOGGER.error("Exception during getRelationsChildren", ex);
             return Response.serverError().build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/children");
+            LOGGER.info("v1/record/{}/{}/children", agencyId, bibliographicRecordId);
         }
     }
 
@@ -293,7 +293,7 @@ public class RecordService {
     @Timed
     public Response getRelationsSiblingsFromMe(@PathParam("agencyid") int agencyId,
                                                @PathParam("bibliographicrecordid") String bibliographicRecordId) {
-        String res = "";
+        String res;
 
         try {
             final Set<RecordId> recordIds = recordRelationsBean.getRelationsSiblingsFromMe(bibliographicRecordId, agencyId);
@@ -302,12 +302,12 @@ public class RecordService {
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
         } catch (JSONBException | InternalServerException | RawRepoException ex) {
-            LOGGER.error("Exception during getRecord", ex);
+            LOGGER.error("Exception during getRelationsSiblingsFromMe", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException ex) {
             return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/siblings-from");
+            LOGGER.info("v1/record/{}/{}/siblings-from", agencyId, bibliographicRecordId);
         }
     }
 
@@ -317,7 +317,7 @@ public class RecordService {
     @Timed
     public Response getRelationsSiblingsToMe(@PathParam("agencyid") int agencyId,
                                              @PathParam("bibliographicrecordid") String bibliographicRecordId) {
-        String res = "";
+        String res;
 
         try {
             final Set<RecordId> recordIds = recordRelationsBean.getRelationsSiblingsToMe(bibliographicRecordId, agencyId);
@@ -326,12 +326,12 @@ public class RecordService {
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
         } catch (JSONBException | InternalServerException | RawRepoException ex) {
-            LOGGER.error("Exception during getRecord", ex);
+            LOGGER.error("Exception during getRelationsSiblingsToMe", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException e) {
             return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/siblings-to");
+            LOGGER.info("v1/record/{}/{}/siblings-to", agencyId, bibliographicRecordId);
         }
     }
 
@@ -341,7 +341,7 @@ public class RecordService {
     @Timed
     public Response getRelationsFrom(@PathParam("agencyid") int agencyId,
                                      @PathParam("bibliographicrecordid") String bibliographicRecordId) {
-        String res = "";
+        String res;
 
         try {
             final Set<RecordId> recordIds = recordRelationsBean.getRelationsFrom(bibliographicRecordId, agencyId);
@@ -350,10 +350,10 @@ public class RecordService {
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
         } catch (JSONBException | InternalServerException ex) {
-            LOGGER.error("Exception during getRecord", ex);
+            LOGGER.error("Exception during getRelationsFrom", ex);
             return Response.serverError().build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/relations-from");
+            LOGGER.info("v1/record/{}/{}/relations-from", agencyId, bibliographicRecordId);
         }
     }
 
@@ -363,7 +363,7 @@ public class RecordService {
     @Timed
     public Response getAllAgenciesForBibliographicRecordId(
             @PathParam("bibliographicrecordid") String bibliographicRecordId) {
-        String res = "";
+        String res;
 
         try {
             final Set<Integer> agencySet = recordRelationsBean.getAllAgenciesForBibliographicRecordId(bibliographicRecordId);
@@ -376,10 +376,10 @@ public class RecordService {
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
         } catch (JSONBException | InternalServerException ex) {
-            LOGGER.error("Exception during getRecord", ex);
+            LOGGER.error("Exception during getAllAgenciesForBibliographicRecordId", ex);
             return Response.serverError().build();
         } finally {
-            LOGGER.info("v1/record/{bibliographicrecordid}/all-agencies-for");
+            LOGGER.info("v1/record/{}/all-agencies-for", bibliographicRecordId);
         }
     }
 
@@ -389,7 +389,7 @@ public class RecordService {
     @Timed
     public Response getRecordHistoryList(@PathParam("agencyid") int agencyId,
                                          @PathParam("bibliographicrecordid") String bibliographicRecordId) {
-        String res = "";
+        String res;
 
         try {
             final List<RecordMetaDataHistory> recordMetaDataHistoryList = historyBean.getRecordHistory(bibliographicRecordId, agencyId);
@@ -398,10 +398,10 @@ public class RecordService {
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
         } catch (JSONBException | InternalServerException ex) {
-            LOGGER.error("Exception during getRecord", ex);
+            LOGGER.error("Exception during getRecordHistoryList", ex);
             return Response.serverError().build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/history");
+            LOGGER.info("v1/record/{}/{}/history", agencyId, bibliographicRecordId);
         }
     }
 
@@ -412,7 +412,7 @@ public class RecordService {
     public Response getHistoricRecord(@PathParam("agencyid") int agencyId,
                                       @PathParam("bibliographicrecordid") String bibliographicRecordId,
                                       @PathParam("date") String historicDate) {
-        String res = "";
+        String res;
 
         try {
             final List<RecordMetaDataHistory> recordMetaDataHistoryList = historyBean.getRecordHistory(bibliographicRecordId, agencyId);
@@ -438,10 +438,10 @@ public class RecordService {
                 return Response.status(Response.Status.NO_CONTENT).build();
             }
         } catch (JSONBException | InternalServerException | MarcReaderException ex) {
-            LOGGER.error("Exception during getRecord", ex);
+            LOGGER.error("Exception during getHistoricRecord", ex);
             return Response.serverError().build();
         } finally {
-            LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}/{date}");
+            LOGGER.info("v1/record/{}/{}/{}", agencyId, bibliographicRecordId, historicDate);
         }
     }
 
@@ -450,7 +450,7 @@ public class RecordService {
         MERGED("merged"),
         EXPANDED("expanded");
 
-        private String text;
+        private final String text;
 
         Mode(String text) {
             this.text = text;

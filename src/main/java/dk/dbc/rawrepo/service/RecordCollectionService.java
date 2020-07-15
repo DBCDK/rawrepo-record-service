@@ -98,7 +98,7 @@ public class RecordCollectionService {
 
             return recordCollectionToResponse(excludeAttributes, collection);
         } catch (JSONBException | MarcReaderException | InternalServerException ex) {
-            LOGGER.error("Exception during getRecord", ex);
+            LOGGER.error("Exception during getRecordCollection", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException ex) {
             return Response.status(Response.Status.NO_CONTENT).build();
@@ -135,7 +135,7 @@ public class RecordCollectionService {
 
             return Response.ok(res, MediaType.APPLICATION_XML).build();
         } catch (MarcReaderException | InternalServerException | MarcXMergerException ex) {
-            LOGGER.error("Exception during getRecord", ex);
+            LOGGER.error("Exception during getRecordContentCollection", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException ex) {
             return Response.status(Response.Status.NO_CONTENT).build();
@@ -158,7 +158,7 @@ public class RecordCollectionService {
 
             return recordCollectionToResponse(excludeAttributes, collection);
         } catch (MarcReaderException | InternalServerException | JSONBException ex) {
-            LOGGER.error("Exception during getRecord", ex);
+            LOGGER.error("Exception during getRecordContentCollectionDataIO", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException ex) {
             return Response.status(Response.Status.NO_CONTENT).build();
@@ -267,24 +267,21 @@ public class RecordCollectionService {
         try {
             final RecordIdCollectionDTO recordIdCollectionDTO = jsonbContext.unmarshall(request, RecordIdCollectionDTO.class);
 
-            final StreamingOutput output = new StreamingOutput() {
-                @Override
-                public void write(OutputStream out) throws WebApplicationException {
-                    try {
-                        final OutputStreamRecordWriter writer = OutputStreamWriterUtil.getWriter(outputFormat, out, outputEncoding);
-                        final List<Callable<Boolean>> threadList = new ArrayList<>();
-                        final Iterator<RecordIdDTO> iterator = recordIdCollectionDTO.getRecordIds().iterator();
+            final StreamingOutput output = out -> {
+                try {
+                    final OutputStreamRecordWriter writer = OutputStreamWriterUtil.getWriter(outputFormat, out, outputEncoding);
+                    final List<Callable<Boolean>> threadList = new ArrayList<>();
+                    final Iterator<RecordIdDTO> iterator = recordIdCollectionDTO.getRecordIds().iterator();
 
-                        for (int i = 0; i < THREAD_COUNT; i++) {
-                            threadList.add(new BulkMergeThread(iterator, writer, allowDeleted, excludeDBCFields, useParentAgency));
-                        }
-
-                        LOGGER.info("{} MergerThreads has been started", THREAD_COUNT);
-                        executor.invokeAll(threadList);
-                    } catch (InterruptedException e) {
-                        LOGGER.error("Caught exception during write", e);
-                        throw new WebApplicationException("Caught exception during write", e);
+                    for (int i = 0; i < THREAD_COUNT; i++) {
+                        threadList.add(new BulkMergeThread(iterator, writer, allowDeleted, excludeDBCFields, useParentAgency));
                     }
+
+                    LOGGER.info("{} MergerThreads has been started", THREAD_COUNT);
+                    executor.invokeAll(threadList);
+                } catch (InterruptedException e) {
+                    LOGGER.error("Caught exception during write", e);
+                    throw new WebApplicationException("Caught exception during write", e);
                 }
             };
 
@@ -293,7 +290,7 @@ public class RecordCollectionService {
             LOGGER.error("Invalid input", ex);
             return Response.status(400).entity("Invalid input").build();
         } catch (WebApplicationException | JSONBException ex) {
-            LOGGER.error("Exception during getRecordsBulk", ex);
+            LOGGER.error("Exception during getRecordsBulkv2", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
             LOGGER.info("v2/records/bulk");
