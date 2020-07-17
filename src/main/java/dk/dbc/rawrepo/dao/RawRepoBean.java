@@ -41,7 +41,7 @@ public class RawRepoBean {
     private static final String SET_SERVER_URL_CONFIGURATION = "INSERT INTO configurations (key, value) VALUES (?, ?) ON CONFLICT (key) DO NOTHING";
     private static final String SELECT_RELATIONS_PARENTS = "SELECT refer_bibliographicrecordid, refer_agencyid FROM relations WHERE bibliographicrecordid=? AND agencyid=? AND refer_bibliographicrecordid <> bibliographicrecordid";
     private static final String SELECT_CONTENT_FROM_RECORDS = "SELECT convert_from(decode(content, 'base64'), 'UTF-8') FROM records WHERE bibliographicrecordid=? AND agencyid=?";
-    private static final String ENQUEUE_AGENCY = "INSERT INTO queue SELECT bibliographicrecordid, ?, ?, now(), 1000 FROM records WHERE agencyid=?";
+    private static final String ENQUEUE_AGENCY = "INSERT INTO queue SELECT bibliographicrecordid, ?, ?, now(), ? FROM records WHERE agencyid=?";
     private static final String QUERY_QUEUE_RULES = "SELECT provider, worker, changed, leaf, description FROM queuerules ORDER BY provider, worker";
     private static final String QUERY_QUEUE_PROVIDERS = "SELECT distinct(provider) FROM queuerules ORDER BY provider";
 
@@ -411,15 +411,16 @@ public class RawRepoBean {
         }
     }
 
-    public int enqueueAgency(int agencyId, String worker) throws RawRepoException {
-        return enqueueAgency(agencyId, agencyId, worker);
+    public int enqueueAgency(int agencyId, String worker, int priority) throws RawRepoException {
+        return enqueueAgency(agencyId, agencyId, worker, priority);
     }
 
-    public int enqueueAgency(int selectAgencyId, int queueAgencyId, String worker) throws RawRepoException {
+    public int enqueueAgency(int selectAgencyId, int queueAgencyId, String worker, int priority) throws RawRepoException {
         try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(ENQUEUE_AGENCY)) {
             int pos = 1;
             stmt.setInt(pos++, queueAgencyId);
             stmt.setString(pos++, worker);
+            stmt.setInt(pos++, priority);
             stmt.setInt(pos, selectAgencyId);
 
             return stmt.executeUpdate();

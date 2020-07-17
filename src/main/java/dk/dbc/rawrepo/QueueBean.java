@@ -68,4 +68,24 @@ public class QueueBean {
             throw new InternalServerException(ex.getMessage(), ex);
         }
     }
+
+    @Timed
+    public void enqueueRecord(String bibliographicRecordId, int agencyId, String provider, boolean changed, boolean leaf, int priority)
+            throws RawRepoException, InternalServerException {
+        try (Connection conn = dataSource.getConnection()) {
+            try {
+                final RawRepoDAO dao = createDAO(conn);
+                final RecordId recordId = new RecordId(bibliographicRecordId, agencyId);
+
+                dao.enqueue(recordId, provider, changed, leaf, priority);
+            } catch (RawRepoException ex) {
+                conn.rollback();
+                LOGGER.error(ex.getMessage(), ex);
+                throw new RawRepoException(ex);
+            }
+        } catch (SQLException ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            throw new InternalServerException(ex.getMessage(), ex);
+        }
+    }
 }

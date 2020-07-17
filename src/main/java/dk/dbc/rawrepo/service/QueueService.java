@@ -110,17 +110,24 @@ public class QueueService {
                 return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "worker must be defined").build();
             }
 
+            int priority = 1500; // Default priority
+            if (enqueueAgencyRequestDTO.getPriority() != null) {
+                priority = enqueueAgencyRequestDTO.getPriority();
+            }
+
             int count;
             if (enqueueAgencyRequestDTO.getEnqueueAgencyId() == null ||
                     enqueueAgencyRequestDTO.getEnqueueAgencyId().equals(enqueueAgencyRequestDTO.getSelectAgencyId())) {
                 LOGGER.info("Selecting and enqueuing same agencyId");
                 count = rawRepoBean.enqueueAgency(enqueueAgencyRequestDTO.getSelectAgencyId(),
-                        enqueueAgencyRequestDTO.getWorker());
+                        enqueueAgencyRequestDTO.getWorker(),
+                        priority);
             } else {
                 LOGGER.info("Selecting and enqueuing with different agencyIds");
                 count = rawRepoBean.enqueueAgency(enqueueAgencyRequestDTO.getSelectAgencyId(),
                         enqueueAgencyRequestDTO.getEnqueueAgencyId(),
-                        enqueueAgencyRequestDTO.getWorker());
+                        enqueueAgencyRequestDTO.getWorker(),
+                        priority);
             }
 
             final EnqueueAgencyResponseDTO enqueueAgencyResponseDTO = new EnqueueAgencyResponseDTO();
@@ -144,11 +151,21 @@ public class QueueService {
     @Timed
     public Response enqueueRecord(EnqueueRecordDTO enqueueRecordDTO) {
         try {
-            queueBean.enqueueRecord(enqueueRecordDTO.getBibliographicRecordId(),
-                    enqueueRecordDTO.getAgencyId(),
-                    enqueueRecordDTO.getProvider(),
-                    enqueueRecordDTO.isChanged(),
-                    enqueueRecordDTO.isLeaf());
+
+            if (enqueueRecordDTO.getPriority() == null) {
+                queueBean.enqueueRecord(enqueueRecordDTO.getBibliographicRecordId(),
+                        enqueueRecordDTO.getAgencyId(),
+                        enqueueRecordDTO.getProvider(),
+                        enqueueRecordDTO.isChanged(),
+                        enqueueRecordDTO.isLeaf());
+            } else {
+                queueBean.enqueueRecord(enqueueRecordDTO.getBibliographicRecordId(),
+                        enqueueRecordDTO.getAgencyId(),
+                        enqueueRecordDTO.getProvider(),
+                        enqueueRecordDTO.isChanged(),
+                        enqueueRecordDTO.isLeaf(),
+                        enqueueRecordDTO.getPriority());
+            }
 
             return Response.ok().build();
         } catch (InternalServerException | RawRepoException ex) {

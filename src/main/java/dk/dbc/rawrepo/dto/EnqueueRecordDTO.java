@@ -11,6 +11,7 @@ public class EnqueueRecordDTO {
     String provider;
     boolean changed;
     boolean leaf;
+    Integer priority;
 
     public String getBibliographicRecordId() {
         return bibliographicRecordId;
@@ -50,5 +51,13 @@ public class EnqueueRecordDTO {
 
     public void setLeaf(boolean leaf) {
         this.leaf = leaf;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
     }
 }

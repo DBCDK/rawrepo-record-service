@@ -9,6 +9,7 @@ public class EnqueueAgencyRequestDTO {
     String worker;
     Integer selectAgencyId;
     Integer enqueueAgencyId;
+    Integer priority;
 
     public String getWorker() {
         return worker;
@@ -32,5 +33,13 @@ public class EnqueueAgencyRequestDTO {
 
     public void setEnqueueAgencyId(Integer enqueueAgencyId) {
         this.enqueueAgencyId = enqueueAgencyId;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
     }
 }
