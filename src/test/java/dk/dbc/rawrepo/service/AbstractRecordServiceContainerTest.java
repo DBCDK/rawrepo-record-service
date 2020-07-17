@@ -11,6 +11,7 @@ import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marc.reader.MarcXchangeV1Reader;
 import dk.dbc.marc.writer.MarcXchangeV1Writer;
 import dk.dbc.openagency.client.OpenAgencyServiceFromURL;
+import dk.dbc.rawrepo.QueueJob;
 import dk.dbc.rawrepo.RawRepoDAO;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.Record;
@@ -206,6 +207,17 @@ class AbstractRecordServiceContainerTest {
             stmt = connection.prepareStatement("TRUNCATE " + table + " CASCADE");
             stmt.execute();
         }
+    }
+
+    static QueueJob dequeue(Connection connection, String worker) throws Exception {
+        final RawRepoDAO dao = createDAO(connection);
+
+        return dao.dequeue(worker);
+    }
+
+    static void resetRawrepoQueue(Connection connection) throws Exception {
+        final PreparedStatement stmt = connection.prepareStatement("TRUNCATE queue CASCADE");
+        stmt.execute();
     }
 
     static Connection connectToRawrepoDb() {

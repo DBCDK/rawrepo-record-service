@@ -22,7 +22,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 class RecordServiceIT extends AbstractRecordServiceContainerTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRecordServiceContainerTest.class);
 
     @BeforeAll
     static void initDB() {
