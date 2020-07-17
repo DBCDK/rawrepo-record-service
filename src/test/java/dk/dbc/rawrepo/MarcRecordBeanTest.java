@@ -8,13 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 
 import static dk.dbc.rawrepo.BeanTestHelper.createRecordMock;
 import static dk.dbc.rawrepo.BeanTestHelper.loadMarcRecord;
