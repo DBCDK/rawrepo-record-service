@@ -1,13 +1,16 @@
+/*
+ * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
+ *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
+ */
+
 package dk.dbc.rawrepo.dao;
 
-import dk.dbc.rawrepo.RawRepoDAO;
-import dk.dbc.rawrepo.RawRepoException;
-import dk.dbc.rawrepo.RecordId;
 import dk.dbc.rawrepo.RelationHintsOpenAgency;
+import dk.dbc.rawrepo.dto.EnqueueResultDTO;
 import dk.dbc.rawrepo.dto.QueueRuleDTO;
-import dk.dbc.rawrepo.exception.InternalServerException;
+import dk.dbc.rawrepo.dto.QueueStatDTO;
+import dk.dbc.rawrepo.exception.QueueException;
 import dk.dbc.util.StopwatchInterceptor;
-import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -17,10 +20,12 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import javax.sql.DataSource;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,11 +34,19 @@ import java.util.List;
 public class RawRepoQueueBean {
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(RawRepoQueueBean.class);
 
-    private static final String QUERY_QUEUE_RULES = "SELECT provider, worker, changed, leaf, description FROM queuerules ORDER BY provider, worker";
-    private static final String QUERY_QUEUE_PROVIDERS = "SELECT distinct(provider) FROM queuerules ORDER BY provider";
-    private static final String QUERY_QUEUE_WORKERS = "SELECT worker FROM queueworkers ORDER BY worker";
+    private static final String SELECT_FROM_QUEUERULES = "SELECT provider, worker, changed, leaf, description FROM queuerules ORDER BY provider, worker";
+    private static final String SELECT_DISTINCT_PROVIDER_FROM_QUEUERULES = "SELECT distinct(provider) FROM queuerules ORDER BY provider";
+    private static final String SELECT_WORKER_FROM_QUEUEWORKERS = "SELECT worker FROM queueworkers ORDER BY worker";
+    private static final String SELECT_QUEUE_COUNT_BY_WORKER = "SELECT worker AS text, COUNT(*), MAX(queued) FROM queue GROUP BY worker ORDER BY worker";
+    private static final String SELECT_QUEUE_COUNT_BY_AGENCY = "SELECT agencyid AS text, COUNT(*), MAX(queued) FROM queue GROUP BY agencyid ORDER BY agencyid";
 
     private static final String ENQUEUE_AGENCY = "INSERT INTO queue SELECT bibliographicrecordid, ?, ?, now(), ? FROM records WHERE agencyid=?";
+    private static final String CALL_ENQUEUE_BULK = "SELECT * FROM enqueue_bulk(?, ?, ?, ?, ?)";
+    private static final String CALL_ENQUEUE = "SELECT * FROM enqueue(?, ?, ?, ?, ?, ?)";
+
+    private static final String DELETE_RECORD_CACHE = "DELETE FROM records_cache WHERE bibliographicrecordid=? AND agencyid=?";
+
+    private static final String LOG_DATABASE_ERROR = "Error accessing database";
 
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
@@ -42,12 +55,6 @@ public class RawRepoQueueBean {
     private OpenAgencyBean openAgency;
 
     RelationHintsOpenAgency relationHints;
-
-    protected RawRepoDAO createDAO(Connection conn) throws RawRepoException {
-        final RawRepoDAO.Builder rawRepoBuilder = RawRepoDAO.builder(conn);
-        rawRepoBuilder.relationHints(relationHints);
-        return rawRepoBuilder.build();
-    }
 
     @PostConstruct
     public void init() {
@@ -58,10 +65,10 @@ public class RawRepoQueueBean {
         }
     }
 
-    public List<QueueRuleDTO> getQueueRules() throws RawRepoException {
+    public List<QueueRuleDTO> getQueueRules() throws QueueException {
         List<QueueRuleDTO> result = new ArrayList<>();
 
-        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(QUERY_QUEUE_RULES)) {
+        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(SELECT_FROM_QUEUERULES)) {
             try (ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
                     String provider = resultSet.getString(1);
@@ -79,7 +86,7 @@ public class RawRepoQueueBean {
             return result;
         } catch (SQLException ex) {
             LOGGER.info("Caught exception: {}", ex.getMessage());
-            throw new RawRepoException("Error fetching queue rules", ex);
+            throw new QueueException("Error fetching queue rules", ex);
         }
     }
 
@@ -87,7 +94,7 @@ public class RawRepoQueueBean {
         if (queueRuleDTO.getDescription() == null) {
             final String changedLeafString = "" + queueRuleDTO.getChanged() + queueRuleDTO.getLeaf();
 
-            switch(changedLeafString) {
+            switch (changedLeafString) {
                 case "NN":
                     queueRuleDTO.setDescription("Hoved/Sektionsposter som er afhængige af den rørte post og ikke er rørt");
                     break;
@@ -122,13 +129,13 @@ public class RawRepoQueueBean {
         }
     }
 
-    public List<String> getQueueProviders() throws RawRepoException{
-        List<String> result = new ArrayList<>();
+    public List<String> getQueueProviders() throws QueueException {
+        final List<String> result = new ArrayList<>();
 
-        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(QUERY_QUEUE_PROVIDERS)) {
+        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(SELECT_DISTINCT_PROVIDER_FROM_QUEUERULES)) {
             try (ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
-                    String provider = resultSet.getString(1);
+                    final String provider = resultSet.getString(1);
 
                     result.add(provider);
                 }
@@ -137,17 +144,17 @@ public class RawRepoQueueBean {
             return result;
         } catch (SQLException ex) {
             LOGGER.info("Caught exception: {}", ex.getMessage());
-            throw new RawRepoException("Error fetching queue providers", ex);
+            throw new QueueException("Error fetching queue providers", ex);
         }
     }
 
-    public List<String> getQueueWorkers() throws RawRepoException{
-        List<String> result = new ArrayList<>();
+    public List<String> getQueueWorkers() throws QueueException {
+        final List<String> result = new ArrayList<>();
 
-        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(QUERY_QUEUE_WORKERS)) {
+        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(SELECT_WORKER_FROM_QUEUEWORKERS)) {
             try (ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
-                    String worker = resultSet.getString(1);
+                    final String worker = resultSet.getString(1);
 
                     result.add(worker);
                 }
@@ -156,53 +163,110 @@ public class RawRepoQueueBean {
             return result;
         } catch (SQLException ex) {
             LOGGER.info("Caught exception: {}", ex.getMessage());
-            throw new RawRepoException("Error fetching queue workers", ex);
+            throw new QueueException("Error fetching queue workers", ex);
         }
     }
 
-    public void enqueueRecord(String bibliographicRecordId, int agencyId, String provider, boolean changed, boolean leaf)
-            throws RawRepoException, InternalServerException {
-        try (Connection conn = dataSource.getConnection()) {
-            try {
-                final RawRepoDAO dao = createDAO(conn);
-                final RecordId recordId = new RecordId(bibliographicRecordId, agencyId);
+    public List<EnqueueResultDTO> enqueueRecord(String bibliographicRecordId, int agencyId, String provider, boolean changed, boolean leaf) throws QueueException {
+        return enqueueRecord(bibliographicRecordId, agencyId, provider, changed, leaf, 1000);
+    }
 
-                dao.enqueue(recordId, provider, changed, leaf);
-            } catch (RawRepoException ex) {
-                conn.rollback();
-                LOGGER.error(ex.getMessage(), ex);
-                throw new RawRepoException(ex);
+    public List<EnqueueResultDTO> enqueueRecord(String bibliographicRecordId, int agencyId, String provider, boolean changed, boolean leaf, int priority) throws QueueException {
+        final List<EnqueueResultDTO> res = new ArrayList<>();
+
+        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(CALL_ENQUEUE)) {
+            int pos = 1;
+            stmt.setString(pos++, bibliographicRecordId);
+            stmt.setInt(pos++, agencyId);
+            stmt.setString(pos++, provider);
+            stmt.setString(pos++, changed ? "Y" : "N");
+            stmt.setString(pos++, leaf ? "Y" : "N");
+            stmt.setInt(pos, priority);
+            try (ResultSet resultSet = stmt.executeQuery()) {
+                while (resultSet.next()) {
+                    final String worker = resultSet.getString(1);
+                    final boolean queued = resultSet.getBoolean(2);
+                    if (queued) {
+                        LOGGER.info("Queued: worker = {}; job = {}:{}", resultSet.getString(1), bibliographicRecordId, agencyId);
+                    } else {
+                        LOGGER.info("Queued: worker = {}; job = {}:{}; skipped - already on queue", resultSet.getString(1), bibliographicRecordId, agencyId);
+                    }
+                    res.add(new EnqueueResultDTO(bibliographicRecordId, agencyId, worker, queued));
+                }
             }
         } catch (SQLException ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            throw new InternalServerException(ex.getMessage(), ex);
+            LOGGER.error(LOG_DATABASE_ERROR, ex);
+            throw new QueueException("Error queueing job", ex);
         }
-    }
-
-    public void enqueueRecord(String bibliographicRecordId, int agencyId, String provider, boolean changed, boolean leaf, int priority)
-            throws RawRepoException, InternalServerException {
-        try (Connection conn = dataSource.getConnection()) {
-            try {
-                final RawRepoDAO dao = createDAO(conn);
-                final RecordId recordId = new RecordId(bibliographicRecordId, agencyId);
-
-                dao.enqueue(recordId, provider, changed, leaf, priority);
-            } catch (RawRepoException ex) {
-                conn.rollback();
-                LOGGER.error(ex.getMessage(), ex);
-                throw new RawRepoException(ex);
-            }
+        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(DELETE_RECORD_CACHE)) {
+            stmt.setString(1, bibliographicRecordId);
+            stmt.setInt(2, agencyId);
+            stmt.execute();
         } catch (SQLException ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            throw new InternalServerException(ex.getMessage(), ex);
+            LOGGER.error(LOG_DATABASE_ERROR, ex);
+            throw new QueueException("Error deleting cache", ex);
+        }
+
+        return res;
+    }
+
+    public List<EnqueueResultDTO> enqueueBulk(List<String> bibliographicRecordIdList,
+                                              List<Integer> agencyList,
+                                              List<String> providerList,
+                                              List<Boolean> changedList,
+                                              List<Boolean> leafList) throws SQLException, QueueException {
+        LOGGER.entry();
+
+        if (!(bibliographicRecordIdList.size() == agencyList.size() &&
+                agencyList.size() == providerList.size() &&
+                providerList.size() == changedList.size() &&
+                changedList.size() == leafList.size())) {
+            throw new QueueException("All input list must have same size");
+        }
+
+        // Convert true/false to Y/N
+        List<String> changedListChar = new ArrayList<>();
+        List<String> leafListChar = new ArrayList<>();
+
+        for (Boolean changed : changedList) {
+            changedListChar.add(changed ? "Y" : "N");
+        }
+
+        for (Boolean leaf : leafList) {
+            leafListChar.add(leaf ? "Y" : "N");
+        }
+
+        List<EnqueueResultDTO> result = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection();
+             CallableStatement stmt = connection.prepareCall(CALL_ENQUEUE_BULK)) {
+            stmt.setArray(1, stmt.getConnection().createArrayOf("VARCHAR", bibliographicRecordIdList.toArray()));
+            stmt.setArray(2, stmt.getConnection().createArrayOf("NUMERIC", agencyList.toArray()));
+            stmt.setArray(3, stmt.getConnection().createArrayOf("VARCHAR", providerList.toArray()));
+            stmt.setArray(4, stmt.getConnection().createArrayOf("VARCHAR", changedListChar.toArray()));
+            stmt.setArray(5, stmt.getConnection().createArrayOf("VARCHAR", leafListChar.toArray()));
+
+            try (ResultSet resultSet = stmt.executeQuery()) {
+                while (resultSet.next()) {
+                    final String recordId = resultSet.getString("bibliographicrecordid");
+                    final int agencyId = resultSet.getInt("agencyid");
+                    final String worker = resultSet.getString("worker");
+                    final boolean enqueued = resultSet.getString("queued").toUpperCase().equals("T");
+
+                    result.add(new EnqueueResultDTO(recordId, agencyId, worker, enqueued));
+                }
+            }
+
+            return result;
+        } finally {
+            LOGGER.exit(result);
         }
     }
 
-    public int enqueueAgency(int agencyId, String worker, int priority) throws RawRepoException {
+    public int enqueueAgency(int agencyId, String worker, int priority) throws QueueException {
         return enqueueAgency(agencyId, agencyId, worker, priority);
     }
 
-    public int enqueueAgency(int selectAgencyId, int queueAgencyId, String worker, int priority) throws RawRepoException {
+    public int enqueueAgency(int selectAgencyId, int queueAgencyId, String worker, int priority) throws QueueException {
         try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(ENQUEUE_AGENCY)) {
             int pos = 1;
             stmt.setInt(pos++, queueAgencyId);
@@ -213,7 +277,55 @@ public class RawRepoQueueBean {
             return stmt.executeUpdate();
         } catch (SQLException ex) {
             LOGGER.info("Caught exception: {}", ex.getMessage());
-            throw new RawRepoException("Error when queue agency", ex);
+            throw new QueueException("Error when queue agency", ex);
         }
     }
+
+    public List<QueueStatDTO> getQueueStatsByWorker() throws QueueException {
+        LOGGER.entry();
+        List<QueueStatDTO> result = new ArrayList<>();
+
+        try {
+            return result = getQueueStats(SELECT_QUEUE_COUNT_BY_WORKER);
+        } finally {
+            LOGGER.exit(result);
+        }
+    }
+
+    public List<QueueStatDTO> getQueueStatsByAgency() throws QueueException {
+        LOGGER.entry();
+        List<QueueStatDTO> result = new ArrayList<>();
+
+        try {
+            return result = getQueueStats(SELECT_QUEUE_COUNT_BY_AGENCY);
+        } finally {
+            LOGGER.exit(result);
+        }
+    }
+
+    private List<QueueStatDTO> getQueueStats(String queueQuery) throws QueueException {
+        LOGGER.entry(queueQuery);
+        List<QueueStatDTO> result = new ArrayList<>();
+
+        try (Connection connection = dataSource.getConnection();
+             Statement stmt = connection.createStatement()) {
+            try (ResultSet resultSet = stmt.executeQuery(queueQuery)) {
+                while (resultSet.next()) {
+                    final String text = resultSet.getString("text");
+                    final int count = resultSet.getInt("count");
+                    final String date = resultSet.getString("max");
+
+                    result.add(new QueueStatDTO(text, count, date));
+                }
+            }
+
+            return result;
+        } catch (SQLException ex) {
+            LOGGER.info("Caught exception: {}", ex.getMessage());
+            throw new QueueException("Error when getting queue stats", ex);
+        } finally {
+            LOGGER.exit(result);
+        }
+    }
+
 }

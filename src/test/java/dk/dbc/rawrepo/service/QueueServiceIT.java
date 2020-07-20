@@ -1,3 +1,8 @@
+/*
+ * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
+ *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
+ */
+
 package dk.dbc.rawrepo.service;
 
 import dk.dbc.httpclient.HttpGet;
@@ -6,6 +11,8 @@ import dk.dbc.httpclient.PathBuilder;
 import dk.dbc.rawrepo.QueueJob;
 import dk.dbc.rawrepo.RecordId;
 import dk.dbc.rawrepo.dto.EnqueueAgencyResponseDTO;
+import dk.dbc.rawrepo.dto.EnqueueResultCollectionDTO;
+import dk.dbc.rawrepo.dto.EnqueueResultDTO;
 import dk.dbc.rawrepo.dto.QueueProviderCollectionDTO;
 import dk.dbc.rawrepo.dto.QueueRuleCollectionDTO;
 import dk.dbc.rawrepo.dto.QueueRuleDTO;
@@ -18,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import javax.ws.rs.core.Response;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -220,6 +228,9 @@ public class QueueServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
+        final EnqueueResultCollectionDTO responseDTO = response.readEntity(EnqueueResultCollectionDTO.class);
+        assertThat("enqueue record result size", responseDTO, is(getExpectedEnqueueResultCollectionDTO()));
+
         assertEnqueueRecord(1000);
     }
 
@@ -236,7 +247,21 @@ public class QueueServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
+        final EnqueueResultCollectionDTO responseDTO = response.readEntity(EnqueueResultCollectionDTO.class);
+        assertThat("enqueue record result size", responseDTO, is(getExpectedEnqueueResultCollectionDTO()));
+
         assertEnqueueRecord(42);
+    }
+
+    private EnqueueResultCollectionDTO getExpectedEnqueueResultCollectionDTO() {
+        final EnqueueResultCollectionDTO enqueueResultCollectionDTO = new EnqueueResultCollectionDTO();
+        final List<EnqueueResultDTO> enqueueResults = new ArrayList<>();
+        enqueueResults.add(new EnqueueResultDTO("50129691", 870970, "broend-sync", true));
+        enqueueResults.add(new EnqueueResultDTO("50129691", 870970, "danbib-ph-libv3", true));
+        enqueueResults.add(new EnqueueResultDTO("50129691", 870970, "socl-sync", true));
+        enqueueResultCollectionDTO.setEnqueueResults(enqueueResults);
+
+        return enqueueResultCollectionDTO;
     }
 
     private void assertEnqueueRecord(int priority) throws Exception {

@@ -7,14 +7,17 @@ package dk.dbc.rawrepo.service;
 
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
-import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.dao.RawRepoQueueBean;
 import dk.dbc.rawrepo.dto.EnqueueAgencyResponseDTO;
+import dk.dbc.rawrepo.dto.EnqueueResultCollectionDTO;
+import dk.dbc.rawrepo.dto.EnqueueResultDTO;
 import dk.dbc.rawrepo.dto.QueueProviderCollectionDTO;
 import dk.dbc.rawrepo.dto.QueueRuleCollectionDTO;
 import dk.dbc.rawrepo.dto.QueueRuleDTO;
+import dk.dbc.rawrepo.dto.QueueStatCollectionDTO;
+import dk.dbc.rawrepo.dto.QueueStatDTO;
 import dk.dbc.rawrepo.dto.QueueWorkerCollectionDTO;
-import dk.dbc.rawrepo.exception.InternalServerException;
+import dk.dbc.rawrepo.exception.QueueException;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
@@ -60,7 +63,7 @@ public class QueueService {
             res = jsonbContext.marshall(queueRuleCollectionDTO);
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
-        } catch (RawRepoException | JSONBException ex) {
+        } catch (QueueException | JSONBException ex) {
             LOGGER.error("Exception during getQueueRules", ex);
             return Response.serverError().build();
         } finally {
@@ -83,7 +86,7 @@ public class QueueService {
             res = jsonbContext.marshall(queueProviderCollectionDTO);
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
-        } catch (RawRepoException | JSONBException ex) {
+        } catch (QueueException | JSONBException ex) {
             LOGGER.error("Exception during getQueueProviders", ex);
             return Response.serverError().build();
         } finally {
@@ -106,7 +109,53 @@ public class QueueService {
             res = jsonbContext.marshall(queueWorkerCollectionDTO);
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
-        } catch (RawRepoException | JSONBException ex) {
+        } catch (QueueException | JSONBException ex) {
+            LOGGER.error("Exception during getQueueProviders", ex);
+            return Response.serverError().build();
+        } finally {
+            LOGGER.info("v1/queue/providers");
+        }
+    }
+
+    @GET
+    @Path("v1/queue/stats/workers")
+    @Produces({MediaType.APPLICATION_JSON})
+    @Timed
+    public Response getQueueWorkerStats() {
+        String res;
+
+        try {
+            final QueueStatCollectionDTO queueStatCollectionDTO = new QueueStatCollectionDTO();
+            final List<QueueStatDTO> queueStats = rawRepoQueueBean.getQueueStatsByWorker();
+            queueStatCollectionDTO.setQueueStats(queueStats);
+
+            res = jsonbContext.marshall(queueStatCollectionDTO);
+
+            return Response.ok(res, MediaType.APPLICATION_JSON).build();
+        } catch (QueueException | JSONBException ex) {
+            LOGGER.error("Exception during getQueueProviders", ex);
+            return Response.serverError().build();
+        } finally {
+            LOGGER.info("v1/queue/providers");
+        }
+    }
+
+    @GET
+    @Path("v1/queue/stats/agency")
+    @Produces({MediaType.APPLICATION_JSON})
+    @Timed
+    public Response getQueueAgencyStats() {
+        String res;
+
+        try {
+            final QueueStatCollectionDTO queueStatCollectionDTO = new QueueStatCollectionDTO();
+            final List<QueueStatDTO> queueStats = rawRepoQueueBean.getQueueStatsByAgency();
+            queueStatCollectionDTO.setQueueStats(queueStats);
+
+            res = jsonbContext.marshall(queueStatCollectionDTO);
+
+            return Response.ok(res, MediaType.APPLICATION_JSON).build();
+        } catch (QueueException | JSONBException ex) {
             LOGGER.error("Exception during getQueueProviders", ex);
             return Response.serverError().build();
         } finally {
@@ -127,7 +176,7 @@ public class QueueService {
 
         try {
             // Validate worker
-            if (!rawRepoQueueBean.getQueueWorkers().contains(worker) ) {
+            if (!rawRepoQueueBean.getQueueWorkers().contains(worker)) {
                 return Response.status(Response.Status.BAD_REQUEST.getStatusCode(),
                         String.format("The worker '%s' is invalid", worker)).build();
             }
@@ -148,7 +197,7 @@ public class QueueService {
             res = jsonbContext.marshall(enqueueAgencyResponseDTO);
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
-        } catch (RawRepoException | JSONBException ex) {
+        } catch (QueueException | JSONBException ex) {
             LOGGER.error("Exception during enqueueAgency", ex);
             return Response.serverError().build();
         } finally {
@@ -167,22 +216,28 @@ public class QueueService {
                                   @DefaultValue("1000") @QueryParam("priority") int priority,
                                   @DefaultValue("true") @QueryParam("changed") boolean changed,
                                   @DefaultValue("true") @QueryParam("leaf") boolean leaf) {
+        String res;
+
         try {
             // Validate provider
-            if (!rawRepoQueueBean.getQueueProviders().contains(provider) ) {
+            if (!rawRepoQueueBean.getQueueProviders().contains(provider)) {
                 return Response.status(Response.Status.BAD_REQUEST.getStatusCode(),
                         String.format("The provider '%s' is invalid", provider)).build();
             }
 
-            rawRepoQueueBean.enqueueRecord(bibliographicRecordId,
+            final EnqueueResultCollectionDTO enqueueResultCollectionDTO = new EnqueueResultCollectionDTO();
+            final List<EnqueueResultDTO> enqueueResults = rawRepoQueueBean.enqueueRecord(bibliographicRecordId,
                     agencyId,
                     provider,
                     changed,
                     leaf,
                     priority);
+            enqueueResultCollectionDTO.setEnqueueResults(enqueueResults);
 
-            return Response.ok().build();
-        } catch (InternalServerException | RawRepoException ex) {
+            res = jsonbContext.marshall(enqueueResultCollectionDTO);
+
+            return Response.ok(res, MediaType.APPLICATION_JSON).build();
+        } catch (QueueException | JSONBException ex) {
             LOGGER.error("Exception during enqueueRecord", ex);
             return Response.serverError().build();
         } finally {
