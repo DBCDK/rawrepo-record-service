@@ -8,14 +8,14 @@ package dk.dbc.rawrepo.dto;
 public class QueueRuleDTO {
     String provider;
     String worker;
-    boolean changed;
-    boolean leaf;
+    char changed;
+    char leaf;
     String description;
 
     public QueueRuleDTO() {
     }
 
-    public QueueRuleDTO(String provider, String worker, boolean changed, boolean leaf, String description) {
+    public QueueRuleDTO(String provider, String worker, char changed, char leaf, String description) {
         this.provider = provider;
         this.worker = worker;
         this.changed = changed;
@@ -39,19 +39,19 @@ public class QueueRuleDTO {
         this.worker = worker;
     }
 
-    public boolean isChanged() {
+    public char getChanged() {
         return changed;
     }
 
-    public void setChanged(boolean changed) {
+    public void setChanged(char changed) {
         this.changed = changed;
     }
 
-    public boolean isLeaf() {
+    public char getLeaf() {
         return leaf;
     }
 
-    public void setLeaf(boolean leaf) {
+    public void setLeaf(char leaf) {
         this.leaf = leaf;
     }
 

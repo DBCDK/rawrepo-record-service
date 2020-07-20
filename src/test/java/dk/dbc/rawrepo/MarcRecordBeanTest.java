@@ -24,16 +24,12 @@ public class MarcRecordBeanTest {
     @Mock
     private RecordCollectionBean recordCollectionBean;
 
-    @Mock
-    private static RelationHintsOpenAgency relationHintsOpenAgency;
-
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
 
     private class MarcRecordBeanMock extends MarcRecordBean {
         MarcRecordBeanMock(RecordBean recordBean, RecordCollectionBean recordCollectionBean) {
             super();
 
-            this.relationHints = relationHintsOpenAgency;
             this.recordBean = recordBean;
             this.recordCollectionBean = recordCollectionBean;
         }

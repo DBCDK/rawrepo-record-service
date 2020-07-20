@@ -41,9 +41,6 @@ public class RawRepoBean {
     private static final String SET_SERVER_URL_CONFIGURATION = "INSERT INTO configurations (key, value) VALUES (?, ?) ON CONFLICT (key) DO NOTHING";
     private static final String SELECT_RELATIONS_PARENTS = "SELECT refer_bibliographicrecordid, refer_agencyid FROM relations WHERE bibliographicrecordid=? AND agencyid=? AND refer_bibliographicrecordid <> bibliographicrecordid";
     private static final String SELECT_CONTENT_FROM_RECORDS = "SELECT convert_from(decode(content, 'base64'), 'UTF-8') FROM records WHERE bibliographicrecordid=? AND agencyid=?";
-    private static final String ENQUEUE_AGENCY = "INSERT INTO queue SELECT bibliographicrecordid, ?, ?, now(), ? FROM records WHERE agencyid=?";
-    private static final String QUERY_QUEUE_RULES = "SELECT provider, worker, changed, leaf, description FROM queuerules ORDER BY provider, worker";
-    private static final String QUERY_QUEUE_PROVIDERS = "SELECT distinct(provider) FROM queuerules ORDER BY provider";
 
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
@@ -365,68 +362,6 @@ public class RawRepoBean {
         } catch (SQLException ex) {
             LOGGER.info("Caught exception: {}", ex.getMessage());
             throw new RawRepoException("Error fetching records items", ex);
-        }
-    }
-
-    public List<QueueRuleDTO> getQueueRules() throws RawRepoException{
-        List<QueueRuleDTO> result = new ArrayList<>();
-
-        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(QUERY_QUEUE_RULES)) {
-            try (ResultSet resultSet = stmt.executeQuery()) {
-                while (resultSet.next()) {
-                    String provider = resultSet.getString(1);
-                    String worker = resultSet.getString(2);
-                    boolean changed = "Y".equals(resultSet.getString(3));
-                    boolean leaf = "Y".equals(resultSet.getString(4));
-                    String description = resultSet.getString(5);
-
-                    QueueRuleDTO queueRuleDTO = new QueueRuleDTO(provider, worker, changed, leaf, description);
-                    result.add(queueRuleDTO);
-                }
-            }
-
-            return result;
-        } catch (SQLException ex) {
-            LOGGER.info("Caught exception: {}", ex.getMessage());
-            throw new RawRepoException("Error fetching queue rules", ex);
-        }
-    }
-
-    public List<String> getQueueProviders() throws RawRepoException{
-        List<String> result = new ArrayList<>();
-
-        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(QUERY_QUEUE_PROVIDERS)) {
-            try (ResultSet resultSet = stmt.executeQuery()) {
-                while (resultSet.next()) {
-                    String provider = resultSet.getString(1);
-
-                    result.add(provider);
-                }
-            }
-
-            return result;
-        } catch (SQLException ex) {
-            LOGGER.info("Caught exception: {}", ex.getMessage());
-            throw new RawRepoException("Error fetching queue rules", ex);
-        }
-    }
-
-    public int enqueueAgency(int agencyId, String worker, int priority) throws RawRepoException {
-        return enqueueAgency(agencyId, agencyId, worker, priority);
-    }
-
-    public int enqueueAgency(int selectAgencyId, int queueAgencyId, String worker, int priority) throws RawRepoException {
-        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(ENQUEUE_AGENCY)) {
-            int pos = 1;
-            stmt.setInt(pos++, queueAgencyId);
-            stmt.setString(pos++, worker);
-            stmt.setInt(pos++, priority);
-            stmt.setInt(pos, selectAgencyId);
-
-            return stmt.executeUpdate();
-        } catch (SQLException ex) {
-            LOGGER.info("Caught exception: {}", ex.getMessage());
-            throw new RawRepoException("Error when queue agency", ex);
         }
     }
 

@@ -7,6 +7,7 @@ package dk.dbc.rawrepo.rest;
 
 import dk.dbc.rawrepo.dump.DumpService;
 import dk.dbc.rawrepo.service.AgencyService;
+import dk.dbc.rawrepo.service.EnqueueService;
 import dk.dbc.rawrepo.service.LandingPage;
 import dk.dbc.rawrepo.service.QueueService;
 import dk.dbc.rawrepo.service.RecordCollectionService;
@@ -34,6 +35,7 @@ public class RawRepoRecordApplication extends Application {
         classes.add(DumpService.class);
         classes.add(LandingPage.class);
         classes.add(QueueService.class);
+        classes.add(EnqueueService.class);
 
         for (Class<?> clazz : classes) {
             LOGGER.info("Registered {} resource", clazz.getName());

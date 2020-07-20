@@ -7,16 +7,12 @@ package dk.dbc.rawrepo.service;
 
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
-import dk.dbc.rawrepo.QueueBean;
 import dk.dbc.rawrepo.RawRepoException;
-import dk.dbc.rawrepo.dao.RawRepoBean;
-import dk.dbc.rawrepo.dto.EnqueueAgencyRequestDTO;
-import dk.dbc.rawrepo.dto.EnqueueAgencyResponseDTO;
-import dk.dbc.rawrepo.dto.EnqueueRecordDTO;
+import dk.dbc.rawrepo.dao.RawRepoQueueBean;
 import dk.dbc.rawrepo.dto.QueueProviderCollectionDTO;
 import dk.dbc.rawrepo.dto.QueueRuleCollectionDTO;
 import dk.dbc.rawrepo.dto.QueueRuleDTO;
-import dk.dbc.rawrepo.exception.InternalServerException;
+import dk.dbc.rawrepo.dto.QueueWorkerCollectionDTO;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
@@ -25,9 +21,7 @@ import org.slf4j.ext.XLoggerFactory;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -42,10 +36,7 @@ public class QueueService {
     private final JSONBContext jsonbContext = new JSONBContext();
 
     @EJB
-    private RawRepoBean rawRepoBean;
-
-    @EJB
-    private QueueBean queueBean;
+    private RawRepoQueueBean rawRepoQueueBean;
 
     @GET
     @Path("v1/queue/rules")
@@ -56,8 +47,8 @@ public class QueueService {
 
         try {
             final QueueRuleCollectionDTO queueRuleCollectionDTO = new QueueRuleCollectionDTO();
-            final List<QueueRuleDTO> queueRuleDTOList = rawRepoBean.getQueueRules();
-            queueRuleCollectionDTO.setQueueProviders(queueRuleDTOList);
+            final List<QueueRuleDTO> queueRuleDTOList = rawRepoQueueBean.getQueueRules();
+            queueRuleCollectionDTO.setQueueRules(queueRuleDTOList);
 
             res = jsonbContext.marshall(queueRuleCollectionDTO);
 
@@ -79,7 +70,7 @@ public class QueueService {
 
         try {
             final QueueProviderCollectionDTO queueProviderCollectionDTO = new QueueProviderCollectionDTO();
-            final List<String> providers = rawRepoBean.getQueueProviders();
+            final List<String> providers = rawRepoQueueBean.getQueueProviders();
             queueProviderCollectionDTO.setProviders(providers);
 
             res = jsonbContext.marshall(queueProviderCollectionDTO);
@@ -93,86 +84,27 @@ public class QueueService {
         }
     }
 
-    @POST
-    @Path("v1/enqueue/agency")
-    @Consumes({MediaType.APPLICATION_JSON})
+    @GET
+    @Path("v1/queue/workers")
     @Produces({MediaType.APPLICATION_JSON})
     @Timed
-    public Response enqueueAgency(EnqueueAgencyRequestDTO enqueueAgencyRequestDTO) {
+    public Response getQueueWorkers() {
         String res;
 
         try {
-            if (enqueueAgencyRequestDTO.getSelectAgencyId() == null) {
-                return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "selectAgencyId must be defined").build();
-            }
+            final QueueWorkerCollectionDTO queueWorkerCollectionDTO = new QueueWorkerCollectionDTO();
+            final List<String> workers = rawRepoQueueBean.getQueueWorkers();
+            queueWorkerCollectionDTO.setWorkers(workers);
 
-            if (enqueueAgencyRequestDTO.getWorker() == null) {
-                return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "worker must be defined").build();
-            }
-
-            int priority = 1500; // Default priority
-            if (enqueueAgencyRequestDTO.getPriority() != null) {
-                priority = enqueueAgencyRequestDTO.getPriority();
-            }
-
-            int count;
-            if (enqueueAgencyRequestDTO.getEnqueueAgencyId() == null ||
-                    enqueueAgencyRequestDTO.getEnqueueAgencyId().equals(enqueueAgencyRequestDTO.getSelectAgencyId())) {
-                LOGGER.info("Selecting and enqueuing same agencyId");
-                count = rawRepoBean.enqueueAgency(enqueueAgencyRequestDTO.getSelectAgencyId(),
-                        enqueueAgencyRequestDTO.getWorker(),
-                        priority);
-            } else {
-                LOGGER.info("Selecting and enqueuing with different agencyIds");
-                count = rawRepoBean.enqueueAgency(enqueueAgencyRequestDTO.getSelectAgencyId(),
-                        enqueueAgencyRequestDTO.getEnqueueAgencyId(),
-                        enqueueAgencyRequestDTO.getWorker(),
-                        priority);
-            }
-
-            final EnqueueAgencyResponseDTO enqueueAgencyResponseDTO = new EnqueueAgencyResponseDTO();
-            enqueueAgencyResponseDTO.setCount(count);
-
-            res = jsonbContext.marshall(enqueueAgencyResponseDTO);
+            res = jsonbContext.marshall(queueWorkerCollectionDTO);
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
         } catch (RawRepoException | JSONBException ex) {
-            LOGGER.error("Exception during enqueueAgency", ex);
+            LOGGER.error("Exception during getQueueProviders", ex);
             return Response.serverError().build();
         } finally {
-            LOGGER.info("v1/queue/agency");
+            LOGGER.info("v1/queue/providers");
         }
     }
 
-    @POST
-    @Path("v1/enqueue/record")
-    @Consumes({MediaType.APPLICATION_JSON})
-    @Produces({MediaType.APPLICATION_JSON})
-    @Timed
-    public Response enqueueRecord(EnqueueRecordDTO enqueueRecordDTO) {
-        try {
-
-            if (enqueueRecordDTO.getPriority() == null) {
-                queueBean.enqueueRecord(enqueueRecordDTO.getBibliographicRecordId(),
-                        enqueueRecordDTO.getAgencyId(),
-                        enqueueRecordDTO.getProvider(),
-                        enqueueRecordDTO.isChanged(),
-                        enqueueRecordDTO.isLeaf());
-            } else {
-                queueBean.enqueueRecord(enqueueRecordDTO.getBibliographicRecordId(),
-                        enqueueRecordDTO.getAgencyId(),
-                        enqueueRecordDTO.getProvider(),
-                        enqueueRecordDTO.isChanged(),
-                        enqueueRecordDTO.isLeaf(),
-                        enqueueRecordDTO.getPriority());
-            }
-
-            return Response.ok().build();
-        } catch (InternalServerException | RawRepoException ex) {
-            LOGGER.error("Exception during enqueueRecord", ex);
-            return Response.serverError().build();
-        } finally {
-            LOGGER.info("v1/queue/record");
-        }
-    }
 }

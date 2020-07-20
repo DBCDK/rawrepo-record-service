@@ -31,17 +31,6 @@ public class MarcRecordBean {
     @EJB
     RecordCollectionBean recordCollectionBean;
 
-    RelationHintsOpenAgency relationHints;
-
-    @PostConstruct
-    public void init() {
-        try {
-            relationHints = new RelationHintsOpenAgency(openAgency.getService());
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
     @Timed
     public MarcRecord getMarcRecordMerged(String bibliographicRecordId, int agencyId,
                                           boolean allowDeleted, boolean excludeDBCFields,

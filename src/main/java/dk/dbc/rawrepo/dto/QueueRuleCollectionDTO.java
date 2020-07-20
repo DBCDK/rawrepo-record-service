@@ -8,13 +8,13 @@ package dk.dbc.rawrepo.dto;
 import java.util.List;
 
 public class QueueRuleCollectionDTO {
-    List<QueueRuleDTO> queueProviders;
+    List<QueueRuleDTO> queueRules;
 
-    public List<QueueRuleDTO> getQueueProviders() {
-        return queueProviders;
+    public List<QueueRuleDTO> getQueueRules() {
+        return queueRules;
     }
 
-    public void setQueueProviders(List<QueueRuleDTO> queueProviders) {
-        this.queueProviders = queueProviders;
+    public void setQueueRules(List<QueueRuleDTO> queueRules) {
+        this.queueRules = queueRules;
     }
 }
