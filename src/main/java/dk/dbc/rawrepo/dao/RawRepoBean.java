@@ -7,7 +7,6 @@ package dk.dbc.rawrepo.dao;
 
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.RecordId;
-import dk.dbc.rawrepo.dto.QueueRuleDTO;
 import dk.dbc.rawrepo.dump.RecordItem;
 import dk.dbc.rawrepo.dump.RecordStatus;
 import dk.dbc.util.StopwatchInterceptor;
