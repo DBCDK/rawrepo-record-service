@@ -8,7 +8,6 @@ package dk.dbc.rawrepo;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marcxmerge.MarcXMergerException;
-import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.rawrepo.service.RecordObjectMapper;
@@ -25,9 +24,6 @@ import static dk.dbc.marcxmerge.MarcXChangeMimeType.isMarcXChange;
 
 @Stateless
 public class MarcRecordBean {
-
-    @EJB
-    private OpenAgencyBean openAgency;
 
     @EJB
     RecordBean recordBean;
