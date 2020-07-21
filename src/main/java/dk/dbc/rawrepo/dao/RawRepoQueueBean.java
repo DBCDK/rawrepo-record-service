@@ -48,6 +48,8 @@ public class RawRepoQueueBean {
 
     private static final String LOG_DATABASE_ERROR = "Error accessing database";
 
+    public static final int DEFAULT_PRIORITY = 1000;
+
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
 
@@ -168,7 +170,7 @@ public class RawRepoQueueBean {
     }
 
     public List<EnqueueResultDTO> enqueueRecord(String bibliographicRecordId, int agencyId, String provider, boolean changed, boolean leaf) throws QueueException {
-        return enqueueRecord(bibliographicRecordId, agencyId, provider, changed, leaf, 1000);
+        return enqueueRecord(bibliographicRecordId, agencyId, provider, changed, leaf, DEFAULT_PRIORITY);
     }
 
     public List<EnqueueResultDTO> enqueueRecord(String bibliographicRecordId, int agencyId, String provider, boolean changed, boolean leaf, int priority) throws QueueException {
