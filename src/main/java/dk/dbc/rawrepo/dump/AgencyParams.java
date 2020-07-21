@@ -7,6 +7,7 @@ package dk.dbc.rawrepo.dump;
 
 import dk.dbc.openagency.client.OpenAgencyException;
 import dk.dbc.openagency.client.OpenAgencyServiceFromURL;
+import dk.dbc.rawrepo.dto.ParamsValidationItemDTO;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -92,21 +93,21 @@ public class AgencyParams extends Params {
                 '}';
     }
 
-    public List<ParamsValidationItem> validate(OpenAgencyServiceFromURL openAgencyServiceFromURL) {
-        List<ParamsValidationItem> result = validateParams();
+    public List<ParamsValidationItemDTO> validate(OpenAgencyServiceFromURL openAgencyServiceFromURL) {
+        List<ParamsValidationItemDTO> result = validateParams();
         boolean hasFBSLibrary = false;
 
         if (this.agencies == null || this.agencies.size() == 0) {
-            result.add(new ParamsValidationItem("agencies", "Field is mandatory and must contain at least one agency id"));
+            result.add(new ParamsValidationItemDTO("agencies", "Field is mandatory and must contain at least one agency id"));
         }
 
         for (Integer agencyId : this.agencies) {
             if (agencyId.toString().length() != 6) {
-                result.add(new ParamsValidationItem("agencies", "Agency " + agencyId.toString() + " is not a valid agency id as the text length is not 6 chars"));
+                result.add(new ParamsValidationItemDTO("agencies", "Agency " + agencyId.toString() + " is not a valid agency id as the text length is not 6 chars"));
             }
 
             if (agencyId == 191919 && this.agencies.size() > 1) {
-                result.add(new ParamsValidationItem("agencies", "The combination of 191919 and other agencies is now allowed. If you are absolutely certain you want to dump agency 191919 (DBC enrichments) then it can be done with a request with 191919 as the only agency"));
+                result.add(new ParamsValidationItemDTO("agencies", "The combination of 191919 and other agencies is now allowed. If you are absolutely certain you want to dump agency 191919 (DBC enrichments) then it can be done with a request with 191919 as the only agency"));
             }
         }
 
@@ -118,7 +119,7 @@ public class AgencyParams extends Params {
                     hasFBSLibrary = true;
                 }
             } catch (OpenAgencyException e) {
-                result.add(new ParamsValidationItem("agencies", "Agency " + agencyId + " could not be validated by OpenAgency"));
+                result.add(new ParamsValidationItemDTO("agencies", "Agency " + agencyId + " could not be validated by OpenAgency"));
             }
         }
 
@@ -128,25 +129,25 @@ public class AgencyParams extends Params {
             try {
                 RecordStatus.fromString(this.recordStatus);
             } catch (IllegalArgumentException e) {
-                result.add(new ParamsValidationItem("recordStatus", "The value " + this.recordStatus + " is not a valid value. Allowed values are: " + RecordStatus.validValues()));
+                result.add(new ParamsValidationItemDTO("recordStatus", "The value " + this.recordStatus + " is not a valid value. Allowed values are: " + RecordStatus.validValues()));
             }
         }
 
         if (this.recordType != null) { // Validate values if present
             if (this.recordType.size() == 0) {
-                result.add(new ParamsValidationItem("recordType", "If the field is present it must contain at least one value. Allowed values are: " + RecordType.validValues()));
+                result.add(new ParamsValidationItemDTO("recordType", "If the field is present it must contain at least one value. Allowed values are: " + RecordType.validValues()));
             } else {
                 for (String recordType : this.recordType) {
                     try {
                         RecordType.fromString(recordType);
                     } catch (IllegalArgumentException e) {
-                        result.add(new ParamsValidationItem("recordType", "The value " + recordType + " is not a valid value. Allowed values are: " + RecordType.validValues()));
+                        result.add(new ParamsValidationItemDTO("recordType", "The value " + recordType + " is not a valid value. Allowed values are: " + RecordType.validValues()));
                     }
                 }
             }
         } else { // Validate if recordType is allowed to not be present
             if (hasFBSLibrary) {
-                result.add(new ParamsValidationItem("recordType", "The field is required as agencies contains one or more FBS agencies"));
+                result.add(new ParamsValidationItemDTO("recordType", "The field is required as agencies contains one or more FBS agencies"));
             }
         }
 
@@ -158,7 +159,7 @@ public class AgencyParams extends Params {
             try {
                 Timestamp.valueOf(this.createdFrom);
             } catch (IllegalArgumentException e) {
-                result.add(new ParamsValidationItem("createdFrom", "The value '" + this.createdFrom + "' doesn't have a valid format. Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"));
+                result.add(new ParamsValidationItemDTO("createdFrom", "The value '" + this.createdFrom + "' doesn't have a valid format. Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"));
             }
         }
 
@@ -170,7 +171,7 @@ public class AgencyParams extends Params {
             try {
                 Timestamp.valueOf(this.createdTo);
             } catch (IllegalArgumentException e) {
-                result.add(new ParamsValidationItem("createdTo", "The value '" + this.createdTo + "' doesn't have a valid format. Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"));
+                result.add(new ParamsValidationItemDTO("createdTo", "The value '" + this.createdTo + "' doesn't have a valid format. Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"));
             }
         }
 
@@ -182,7 +183,7 @@ public class AgencyParams extends Params {
             try {
                 Timestamp.valueOf(this.modifiedFrom);
             } catch (IllegalArgumentException e) {
-                result.add(new ParamsValidationItem("modifiedFrom", "The value '" + this.modifiedFrom + "' doesn't have a valid format. Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"));
+                result.add(new ParamsValidationItemDTO("modifiedFrom", "The value '" + this.modifiedFrom + "' doesn't have a valid format. Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"));
             }
         }
 
@@ -194,7 +195,7 @@ public class AgencyParams extends Params {
             try {
                 Timestamp.valueOf(this.modifiedTo);
             } catch (IllegalArgumentException e) {
-                result.add(new ParamsValidationItem("modifiedTo", "The value '" + this.modifiedTo + "' doesn't have a valid format. Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"));
+                result.add(new ParamsValidationItemDTO("modifiedTo", "The value '" + this.modifiedTo + "' doesn't have a valid format. Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]"));
             }
         }
 

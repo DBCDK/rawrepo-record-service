@@ -1,5 +1,7 @@
 package dk.dbc.rawrepo.dump;
 
+import dk.dbc.rawrepo.dto.ParamsValidationItemDTO;
+
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +36,8 @@ public abstract class Params {
         this.mode = mode;
     }
 
-    List<ParamsValidationItem> validateParams() {
-        final List<ParamsValidationItem> result = new ArrayList<>();
+    List<ParamsValidationItemDTO> validateParams() {
+        final List<ParamsValidationItemDTO> result = new ArrayList<>();
 
         if (this.outputFormat == null) {
             this.outputFormat = OutputFormat.LINE.toString(); // Set default value
@@ -43,7 +45,7 @@ public abstract class Params {
             try {
                 OutputFormat.fromString(this.outputFormat);
             } catch (IllegalArgumentException e) {
-                result.add(new ParamsValidationItem("outputFormat", "The value '" + this.outputFormat + "' is not a valid value. Allowed values are: " + OutputFormat.validValues()));
+                result.add(new ParamsValidationItemDTO("outputFormat", "The value '" + this.outputFormat + "' is not a valid value. Allowed values are: " + OutputFormat.validValues()));
             }
         }
 
@@ -51,7 +53,7 @@ public abstract class Params {
             this.outputEncoding = "UTF-8"; // Set default value
         } else {
             if (!("DANMARC2".equalsIgnoreCase(this.outputEncoding) || Charset.availableCharsets().containsKey(this.outputEncoding))) {
-                result.add(new ParamsValidationItem("outputEncoding", "The value '" + this.outputEncoding + "' is not a valid charset"));
+                result.add(new ParamsValidationItemDTO("outputEncoding", "The value '" + this.outputEncoding + "' is not a valid charset"));
             }
         }
 
@@ -61,7 +63,7 @@ public abstract class Params {
             try {
                 Mode.fromString(this.mode);
             } catch (IllegalArgumentException e) {
-                result.add(new ParamsValidationItem("mode", "The value '" + this.mode + "' is not a valid value. Allowed values are: " + Mode.validValues()));
+                result.add(new ParamsValidationItemDTO("mode", "The value '" + this.mode + "' is not a valid value. Allowed values are: " + Mode.validValues()));
             }
         }
 
