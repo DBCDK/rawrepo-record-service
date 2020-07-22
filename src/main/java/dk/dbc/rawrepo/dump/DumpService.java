@@ -13,6 +13,8 @@ import dk.dbc.rawrepo.RecordRelationsBean;
 import dk.dbc.rawrepo.dao.HoldingsItemsBean;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.dao.RawRepoBean;
+import dk.dbc.rawrepo.dto.ParamsValidationDTO;
+import dk.dbc.rawrepo.dto.ParamsValidationItemDTO;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
@@ -80,9 +82,9 @@ public class DumpService {
     @Produces({MediaType.TEXT_PLAIN})
     public Response dumpLibraryRecordsDryRun(AgencyParams params) {
         try {
-            final List<ParamsValidationItem> paramsValidationItemList = params.validate(openAgency.getService());
+            final List<ParamsValidationItemDTO> paramsValidationItemList = params.validate(openAgency.getService());
             if (paramsValidationItemList.size() > 0) {
-                final ParamsValidation paramsValidation = new ParamsValidation();
+                final ParamsValidationDTO paramsValidation = new ParamsValidationDTO();
                 paramsValidation.setErrors(paramsValidationItemList);
                 LOGGER.info("Validation errors: {}", paramsValidation);
                 return Response.status(400).entity(jsonbContext.marshall(paramsValidation)).build();
@@ -130,9 +132,9 @@ public class DumpService {
         // The service is meant to be called from curl, so the error message should be easy to read.
         // Therefor the message is simple text instead of JSON or HTML
         try {
-            final List<ParamsValidationItem> paramsValidationItemList = params.validate(openAgency.getService());
+            final List<ParamsValidationItemDTO> paramsValidationItemList = params.validate(openAgency.getService());
             if (paramsValidationItemList.size() > 0) {
-                final ParamsValidation paramsValidation = new ParamsValidation();
+                final ParamsValidationDTO paramsValidation = new ParamsValidationDTO();
                 paramsValidation.setErrors(paramsValidationItemList);
                 LOGGER.info("Validation errors: {}", paramsValidation);
                 return Response.status(400).entity(jsonbContext.marshall(paramsValidation)).build();
@@ -233,11 +235,11 @@ public class DumpService {
 
             params.setRecordIds(recordIdDTOs);
 
-            final List<ParamsValidationItem> paramsValidationItemList = params.validate();
+            final List<ParamsValidationItemDTO> paramsValidationItemList = params.validate();
             LOGGER.info("Dump single dumping {} records", params.getRecordIds().size());
             LOGGER.info(params.toString());
             if (paramsValidationItemList.size() > 0) {
-                final ParamsValidation paramsValidation = new ParamsValidation();
+                final ParamsValidationDTO paramsValidation = new ParamsValidationDTO();
                 paramsValidation.setErrors(paramsValidationItemList);
                 LOGGER.info("Validation errors: {}", paramsValidation);
                 return Response.status(400).entity(jsonbContext.marshall(paramsValidation)).build();

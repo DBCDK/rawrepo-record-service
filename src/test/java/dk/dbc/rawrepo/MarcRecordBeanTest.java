@@ -1,3 +1,8 @@
+/*
+ * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
+ *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
+ */
+
 package dk.dbc.rawrepo;
 
 import dk.dbc.marc.binding.MarcRecord;
@@ -8,13 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 
 import static dk.dbc.rawrepo.BeanTestHelper.createRecordMock;
 import static dk.dbc.rawrepo.BeanTestHelper.loadMarcRecord;
@@ -30,16 +29,12 @@ public class MarcRecordBeanTest {
     @Mock
     private RecordCollectionBean recordCollectionBean;
 
-    @Mock
-    private static RelationHintsOpenAgency relationHintsOpenAgency;
-
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
 
     private class MarcRecordBeanMock extends MarcRecordBean {
         MarcRecordBeanMock(RecordBean recordBean, RecordCollectionBean recordCollectionBean) {
             super();
 
-            this.relationHints = relationHintsOpenAgency;
             this.recordBean = recordBean;
             this.recordCollectionBean = recordCollectionBean;
         }

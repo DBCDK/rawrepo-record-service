@@ -1,5 +1,6 @@
 package dk.dbc.rawrepo.dump;
 
+import dk.dbc.rawrepo.dto.ParamsValidationItemDTO;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
 
 import java.util.ArrayList;
@@ -41,11 +42,11 @@ public class RecordParams extends Params {
         return result;
     }
 
-    public List<ParamsValidationItem> validate() {
-        List<ParamsValidationItem> result = validateParams();
+    public List<ParamsValidationItemDTO> validate() {
+        List<ParamsValidationItemDTO> result = validateParams();
 
         if (this.recordIds == null || this.recordIds.size() == 0) {
-            result.add(new ParamsValidationItem("recordIds", "Field is mandatory and must contain at least one record id"));
+            result.add(new ParamsValidationItemDTO("recordIds", "Field is mandatory and must contain at least one record id"));
         }
 
         return result;

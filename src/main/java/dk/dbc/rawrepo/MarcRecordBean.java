@@ -1,15 +1,18 @@
+/*
+ * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
+ *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
+ */
+
 package dk.dbc.rawrepo;
 
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marcxmerge.MarcXMergerException;
-import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.rawrepo.service.RecordObjectMapper;
 import dk.dbc.util.Timed;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.validation.constraints.NotNull;
@@ -23,24 +26,10 @@ import static dk.dbc.marcxmerge.MarcXChangeMimeType.isMarcXChange;
 public class MarcRecordBean {
 
     @EJB
-    private OpenAgencyBean openAgency;
-
-    @EJB
     RecordBean recordBean;
 
     @EJB
     RecordCollectionBean recordCollectionBean;
-
-    RelationHintsOpenAgency relationHints;
-
-    @PostConstruct
-    public void init() {
-        try {
-            relationHints = new RelationHintsOpenAgency(openAgency.getService());
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
 
     @Timed
     public MarcRecord getMarcRecordMerged(String bibliographicRecordId, int agencyId,
