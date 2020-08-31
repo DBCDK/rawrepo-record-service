@@ -23,7 +23,7 @@ pipeline {
 
     triggers {
         pollSCM("H/03 * * * *")
-        upstream(upstreamProjects: "Docker-base-python3",
+        upstream(upstreamProjects: "Docker-payara5-bump-trigger",
                 threshold: hudson.model.Result.SUCCESS)
     }
 
