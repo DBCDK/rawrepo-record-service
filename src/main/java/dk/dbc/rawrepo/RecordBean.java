@@ -243,8 +243,18 @@ public class RecordBean {
 
             try {
                 return dao.agencyFor(bibliographicRecordId, originalAgencyId, allowDeleted);
-            } catch (RawRepoExceptionRecordNotFound e) {
-                throw new RecordNotFoundException(e.getMessage());
+            } catch (RawRepoExceptionRecordNotFound e1) {
+                // If agencyFor was call with allowDeleted = false then try again with allowDeleted = true
+                if (!allowDeleted) {
+                    try {
+                        return dao.agencyFor(bibliographicRecordId, originalAgencyId, true);
+                    } catch (RawRepoExceptionRecordNotFound e2) {
+                        throw new RecordNotFoundException(e2.getMessage());
+                    }
+                } else {
+                    // If agencyFor was called with allowDeleted = true and no record was found then there is no reason to keep trying
+                    throw new RecordNotFoundException(e1.getMessage());
+                }
             }
         } catch (SQLException ex) {
             LOGGER.error(ex.getMessage(), ex);

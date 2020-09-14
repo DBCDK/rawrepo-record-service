@@ -173,7 +173,7 @@ public class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContai
         assertThat("collection content head", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_HEAD).getContent()), is(getMarcRecordFromFile(BASE_DIR + "head-fbs-active-merged.xml")));
     }
 
-    //@Test Disabled test as it currently doesn't work
+    @Test
     void activeCommonHeadDeletedCommonVolume() throws Exception {
         final Connection rawrepoConnection = connectToRawrepoDb();
 
