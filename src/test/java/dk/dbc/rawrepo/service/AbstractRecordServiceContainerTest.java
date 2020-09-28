@@ -48,6 +48,7 @@ class AbstractRecordServiceContainerTest {
     static final String MIMETYPE_LITANALYSIS = "text/litanalysis+marcxchange";
     static final String MIMETYPE_AUTHORITY = "text/authority+marcxchange";
     static final String MIMETYPE_MARCXCHANGE = "text/marcxchange";
+    static final String MIMETYPE_MATVURD = "text/matvurd+marcxchange";
 
     private static final GenericContainer recordServiceContainer;
     private static final GenericContainer rawrepoDbContainer;
