@@ -16,4 +16,7 @@
     <datafield tag="996" ind1="0" ind2="0">
         <subfield code="a">DBC</subfield>
     </datafield>
+    <datafield tag="z98" ind1="0" ind2="0">
+        <subfield code="a">Minus korrekturprint</subfield>
+    </datafield>
 </record>

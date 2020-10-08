@@ -160,17 +160,14 @@ public class RecordBean {
 
                 mergePool.checkIn(merger);
 
-                // This conversion is necessary for setting the namespace in the marcxchange document
-                MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
-
                 if (excludeDBCFields) {
-                    marcRecord = removePrivateFields(marcRecord);
+                    // This conversion is necessary for setting the namespace in the marcxchange document
+                    final MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
+                    final Instant modified = rawRecord.getModified();
+                    rawRecord.setContent(RecordObjectMapper.marcToContent(removePrivateFields(marcRecord)));
+                    // Modified is set to now() when content is changed, so we need to change it back to the original value
+                    rawRecord.setModified(modified);
                 }
-
-                final Instant modified = rawRecord.getModified();
-                rawRecord.setContent(RecordObjectMapper.marcToContent(marcRecord));
-                // Modified is set to now() when content is changed, so we need to change it back to the original value
-                rawRecord.setModified(modified);
 
                 return rawRecord;
             } catch (RawRepoExceptionRecordNotFound ex) {
@@ -274,9 +271,9 @@ public class RecordBean {
      * @param agencyId              Agency of the child/enrichment record
      * @param merger                Merge object
      * @return Record object with merged values from the input record and its parent record
+     * @throws InternalServerException
      * @throws RawRepoException
      * @throws RecordNotFoundException
-     * @throws InternalServerException
      */
     private Record fetchRecord(String bibliographicRecordId, int originalAgencyId, int agencyId, MarcXMerger merger, boolean doExpand, boolean keepAutField) throws InternalServerException, RawRepoException, RecordNotFoundException {
         try (Connection conn = dataSource.getConnection()) {

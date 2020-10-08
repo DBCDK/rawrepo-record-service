@@ -187,6 +187,67 @@ public class RecordBeanTest {
     }
 
     @Test
+    public void testMergeDeletedRecord_ExcludeDBCFields() throws Exception {
+        final RecordBean bean = initRecordBeanMock();
+
+        final MarcRecord deletedEnrichment = loadMarcRecord("deleted-191919.xml");
+        final MarcRecord deletedCommon = loadMarcRecord("deleted-870970.xml");
+        final MarcRecord deletedMerged = loadMarcRecord("deleted-merged.xml");
+        final Set<Integer> agenciesFound = new HashSet<>(Arrays.asList(191919, 870970));
+        final String bibliographicRecordId = "00199087";
+
+        final Record deletedEnrichmentRecord = createRecordMock(bibliographicRecordId, 191919, MarcXChangeMimeType.ENRICHMENT,
+                marcXchangeV1Writer.write(deletedEnrichment, StandardCharsets.UTF_8));
+        deletedEnrichmentRecord.setDeleted(true);
+        deletedEnrichmentRecord.setCreated(getInstant("2016-01-01"));
+        deletedEnrichmentRecord.setModified(getInstant("2017-01-01"));
+
+        final Record deletedCommonRecord = createRecordMock(bibliographicRecordId, 870970, MarcXChangeMimeType.MARCXCHANGE,
+                marcXchangeV1Writer.write(deletedCommon, StandardCharsets.UTF_8));
+        deletedCommonRecord.setDeleted(true);
+
+        deletedCommonRecord.setCreated(getInstant("2016-01-01"));
+        deletedCommonRecord.setModified(getInstant("2017-01-01"));
+
+        final Record expected = createRecordMock(bibliographicRecordId, 191919, MarcXChangeMimeType.MARCXCHANGE,
+                marcXchangeV1Writer.write(deletedMerged, StandardCharsets.UTF_8));
+        expected.setDeleted(true);
+        expected.setCreated(getInstant("2016-01-01"));
+        expected.setModified(getInstant("2017-01-01"));
+
+        when(recordSimpleBean.recordIsActive(bibliographicRecordId, 191919)).thenReturn(false);
+        when(recordSimpleBean.recordIsActive(bibliographicRecordId, 870970)).thenReturn(false);
+        when(recordRelationsBean.getRelationsSiblingsFromMe(bibliographicRecordId, 191919)).thenReturn(Collections.singleton(new RecordId(bibliographicRecordId, 870970)));
+        when(recordRelationsBean.getRelationsSiblingsFromMe("69208045", 191919)).thenReturn(Collections.singleton(new RecordId("69208045", 870979)));
+        when(recordRelationsBean.getRelationsParents(bibliographicRecordId, 870970)).thenReturn(Collections.singleton(new RecordId("69208045", 870979)));
+        when(rawRepoDAO.allAgenciesForBibliographicRecordId(eq(bibliographicRecordId))).thenReturn(agenciesFound);
+        when(rawRepoDAO.agencyFor(bibliographicRecordId, 191919, false)).thenThrow(new RawRepoExceptionRecordNotFound());
+        when(rawRepoDAO.agencyFor(bibliographicRecordId, 191919, true)).thenReturn(191919);
+        when(recordSimpleBean.fetchRecord(bibliographicRecordId, 191919)).thenReturn(deletedEnrichmentRecord);
+        when(recordSimpleBean.fetchRecord(bibliographicRecordId, 870970)).thenReturn(deletedCommonRecord);
+
+        final Record mergedDeletedRecord = bean.getRawRepoRecordMerged(bibliographicRecordId, 191919, true, true, true);
+
+        assertThat(mergedDeletedRecord.getId(), is(expected.getId()));
+        assertThat(mergedDeletedRecord.isDeleted(), is(expected.isDeleted()));
+        assertThat(mergedDeletedRecord.getMimeType(), is(expected.getMimeType()));
+        assertThat(mergedDeletedRecord.getCreated(), is(expected.getCreated()));
+        assertThat(mergedDeletedRecord.getModified(), is(expected.getModified()));
+        assertThat(mergedDeletedRecord.getTrackingId(), is(expected.getTrackingId()));
+        assertThat(mergedDeletedRecord.getEnrichmentTrail(), is("870970,191919"));
+
+        // MarcXchange Reader and Writer does stuff to the XML namespace and structure, so in order to do a proper
+        // comparison we have to run the out content through a reader and writer first.
+        final InputStream inputStream = new ByteArrayInputStream(mergedDeletedRecord.getContent());
+        final BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+        final MarcXchangeV1Reader reader = new MarcXchangeV1Reader(bufferedInputStream, StandardCharsets.UTF_8);
+        final MarcRecord mergedMarcRecord = reader.read();
+        final byte[] mergedContent = marcXchangeV1Writer.write(mergedMarcRecord, StandardCharsets.UTF_8);
+        assertThat(mergedContent, is(expected.getContent()));
+    }
+
+
+    @Test
     public void testMergeDeletedRecordExpanded() throws Exception {
         final RecordBean bean = initRecordBeanMock();
 
