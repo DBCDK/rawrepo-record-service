@@ -86,14 +86,32 @@ class RecordServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
-    void getMarcRecord_MergedUseParentAgency() throws Exception {
+    void getMarcRecord_Merged_ExcludeDBCFields() throws Exception {
         final HttpGet httpGet = new HttpGet(httpClient)
                 .withBaseUrl(recordServiceBaseUrl)
+                .withQueryParameter("exclude-dbc-fields", "true")
+                .withQueryParameter("mode", "merged")
                 .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}/content")
                         .bind("bibliographicRecordId", "50129691")
                         .bind("agencyId", 191919)
-                        .bind("mode", "merged")
-                        .bind("use-parent-agency", "true")
+                        .build());
+
+        Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        final byte[] content = response.readEntity(byte[].class);
+        assertThat("content", getMarcRecordFromString(content), is(getMarcRecordFromFile("sql/50129691-191919-merged-exclude-dbc-fields.xml")));
+    }
+
+    @Test
+    void getMarcRecord_Merged_UseParentAgency() throws Exception {
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withQueryParameter("use-parent-agency", "true")
+                .withQueryParameter("mode", "merged")
+                .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}/content")
+                        .bind("bibliographicRecordId", "50129691")
+                        .bind("agencyId", 191919)
                         .build());
 
         Response response = httpClient.execute(httpGet);
