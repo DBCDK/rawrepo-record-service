@@ -23,7 +23,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.Response;
-
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -206,13 +205,13 @@ public class QueueServiceIT extends AbstractRecordServiceContainerTest {
         assertEnqueueAgency(191919, 42);
     }
 
-    private void assertEnqueueAgency(int agencyId, int priority) throws Exception{
-        QueueJob queueJob = dequeue(connectToRawrepoDb(),"socl-sync");
+    private void assertEnqueueAgency(int agencyId, int priority) throws Exception {
+        QueueJob queueJob = dequeue(connectToRawrepoDb(), "socl-sync");
         assertThat("dequeue - got job", queueJob, CoreMatchers.notNullValue());
         assertThat("dequeue - correct record", queueJob.getJob(), is(new RecordId("50129691", agencyId)));
         assertThat("dequeue - correct priority", queueJob.getPriority(), is(priority));
 
-        queueJob = dequeue(connectToRawrepoDb(),"socl-sync");
+        queueJob = dequeue(connectToRawrepoDb(), "socl-sync");
         assertThat("dequeue - no more jobs", queueJob, nullValue());
     }
 
@@ -265,28 +264,28 @@ public class QueueServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     private void assertEnqueueRecord(int priority) throws Exception {
-        QueueJob queueJob = dequeue(connectToRawrepoDb(),"broend-sync");
+        QueueJob queueJob = dequeue(connectToRawrepoDb(), "broend-sync");
         assertThat("dequeue broend-sync - got job", queueJob, CoreMatchers.notNullValue());
         assertThat("dequeue broend-sync - correct record", queueJob.getJob(), is(new RecordId("50129691", 870970)));
         assertThat("dequeue broend-sync - correct priority", queueJob.getPriority(), is(priority));
 
-        queueJob = dequeue(connectToRawrepoDb(),"broend-sync");
+        queueJob = dequeue(connectToRawrepoDb(), "broend-sync");
         assertThat("dequeue broend-sync - no more jobs", queueJob, nullValue());
 
-        queueJob = dequeue(connectToRawrepoDb(),"danbib-ph-libv3");
+        queueJob = dequeue(connectToRawrepoDb(), "danbib-ph-libv3");
         assertThat("dequeue danbib-ph-libv3 - got job", queueJob, CoreMatchers.notNullValue());
         assertThat("dequeue danbib-ph-libv3 - correct record", queueJob.getJob(), is(new RecordId("50129691", 870970)));
         assertThat("dequeue danbib-ph-libv3 - correct priority", queueJob.getPriority(), is(priority));
 
-        queueJob = dequeue(connectToRawrepoDb(),"danbib-ph-libv3");
+        queueJob = dequeue(connectToRawrepoDb(), "danbib-ph-libv3");
         assertThat("dequeue danbib-ph-libv3 - no more jobs", queueJob, nullValue());
 
-        queueJob = dequeue(connectToRawrepoDb(),"socl-sync");
+        queueJob = dequeue(connectToRawrepoDb(), "socl-sync");
         assertThat("dequeue socl-sync - got job", queueJob, CoreMatchers.notNullValue());
         assertThat("dequeue socl-sync - correct record", queueJob.getJob(), is(new RecordId("50129691", 870970)));
         assertThat("dequeue socl-sync - correct priority", queueJob.getPriority(), is(priority));
 
-        queueJob = dequeue(connectToRawrepoDb(),"socl-sync");
+        queueJob = dequeue(connectToRawrepoDb(), "socl-sync");
         assertThat("dequeue socl-sync - no more jobs", queueJob, nullValue());
     }
 }

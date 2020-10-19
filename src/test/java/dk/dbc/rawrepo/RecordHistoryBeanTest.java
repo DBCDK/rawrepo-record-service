@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static dk.dbc.rawrepo.BeanTestHelper.getInstant;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 public class RecordHistoryBeanTest {

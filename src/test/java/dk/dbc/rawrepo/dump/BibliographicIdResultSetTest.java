@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class BibliographicIdResultSetTest {
 
@@ -63,16 +64,16 @@ public class BibliographicIdResultSetTest {
 
         BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.DBC, 2, rawrepoRecordIdsFor870970, null);
 
-        Assert.assertThat(resultSet.size(), is(5));
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.size(), is(5));
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("A", "text/marcxchange");
             put("B", "text/marcxchange");
         }}));
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("C", "text/marcxchange");
             put("D", "text/marcxchange");
         }}));
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("E", "text/marcxchange");
         }}));
     }
@@ -85,8 +86,8 @@ public class BibliographicIdResultSetTest {
 
         BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.DBC, 10, rawrepoRecordIdsFor870970, null);
 
-        Assert.assertThat(resultSet.size(), is(5));
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.size(), is(5));
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("A", "text/marcxchange");
             put("B", "text/marcxchange");
             put("C", "text/marcxchange");
@@ -103,8 +104,8 @@ public class BibliographicIdResultSetTest {
 
         BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.DBC, 5, rawrepoRecordIdsFor870970, null);
 
-        Assert.assertThat(resultSet.size(), is(5));
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.size(), is(5));
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("A", "text/marcxchange");
             put("B", "text/marcxchange");
             put("C", "text/marcxchange");
@@ -121,7 +122,7 @@ public class BibliographicIdResultSetTest {
 
         BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.DBC, 2, new HashMap<>(), null);
 
-        Assert.assertThat(resultSet.size(), is(0));
+        assertThat(resultSet.size(), is(0));
     }
 
     @Test
@@ -135,16 +136,16 @@ public class BibliographicIdResultSetTest {
 
         BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.FBS, 2, rawrepoRecordIdsFor710100, holdingsRecordIdsFor710100);
 
-        Assert.assertThat(resultSet.size(), is(5));
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.size(), is(5));
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("A", "text/marcxchange");
             put("B", "text/marcxchange");
         }}));
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("C", "text/enrichment+marcxchange");
             put("D", "text/enrichment+marcxchange");
         }}));
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("E", "holdings");
         }}));
     }
@@ -159,12 +160,12 @@ public class BibliographicIdResultSetTest {
 
         BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.FBS, 2, rawrepoRecordIdsFor710100, null);
 
-        Assert.assertThat(resultSet.size(), is(4));
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.size(), is(4));
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("A", "text/marcxchange");
             put("B", "text/marcxchange");
         }}));
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("C", "text/enrichment+marcxchange");
             put("D", "text/enrichment+marcxchange");
         }}));
@@ -180,12 +181,12 @@ public class BibliographicIdResultSetTest {
 
         BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.FBS, 2, rawrepoRecordIdsFor710100, holdingsRecordIdsFor710100);
 
-        Assert.assertThat(resultSet.size(), is(4));
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.size(), is(4));
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("A", "text/marcxchange");
             put("B", "text/marcxchange");
         }}));
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("D", "text/enrichment+marcxchange");
             put("E", "holdings");
         }}));
@@ -201,12 +202,12 @@ public class BibliographicIdResultSetTest {
 
         BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.FBS, 2, rawrepoRecordIdsFor710100, holdingsRecordIdsFor710100);
 
-        Assert.assertThat(resultSet.size(), is(4));
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.size(), is(4));
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("B", "text/marcxchange");
             put("C", "text/enrichment+marcxchange");
         }}));
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("D", "text/enrichment+marcxchange");
             put("E", "holdings");
         }}));
@@ -221,8 +222,8 @@ public class BibliographicIdResultSetTest {
 
         BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.FBS, 3, rawrepoRecordIdsFor710100, holdingsRecordIdsFor710100);
 
-        Assert.assertThat(resultSet.size(), is(3));
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.size(), is(3));
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("B", "text/marcxchange");
             put("D", "text/enrichment+marcxchange");
             put("E", "holdings");
@@ -239,30 +240,30 @@ public class BibliographicIdResultSetTest {
         recordIdDTOs.add(new RecordIdDTO("3333", 723000));
         params.setRecordIds(recordIdDTOs);
 
-        Assert.assertThat(params.getAgencies().size(), is(2));
-        Assert.assertTrue(params.getAgencies().contains(191919));
-        Assert.assertTrue(params.getAgencies().contains(723000));
+        assertThat(params.getAgencies().size(), is(2));
+        assertThat(params.getAgencies().contains(191919), is(true));
+        assertThat(params.getAgencies().contains(723000), is(true));
 
-        Assert.assertThat(params.getBibliographicRecordIdByAgencyId(191919).size(), is(2));
-        Assert.assertTrue(params.getBibliographicRecordIdByAgencyId(191919).contains("1111"));
-        Assert.assertTrue(params.getBibliographicRecordIdByAgencyId(191919).contains("2222"));
+        assertThat(params.getBibliographicRecordIdByAgencyId(191919).size(), is(2));
+        assertThat(params.getBibliographicRecordIdByAgencyId(191919).contains("1111"), is(true));
+        assertThat(params.getBibliographicRecordIdByAgencyId(191919).contains("2222"), is(true));
 
-        Assert.assertThat(params.getBibliographicRecordIdByAgencyId(723000).size(), is(1));
-        Assert.assertTrue(params.getBibliographicRecordIdByAgencyId(723000).contains("3333"));
+        assertThat(params.getBibliographicRecordIdByAgencyId(723000).size(), is(1));
+        assertThat(params.getBibliographicRecordIdByAgencyId(723000).contains("3333"), is(true));
     }
 
     @Test
     public void testRecordParamsBibliographicIdResultSet() throws Exception {
         BibliographicIdResultSet resultSet = new BibliographicIdResultSet(3, rawrepoRecordIdsFor870970);
 
-        Assert.assertThat(resultSet.size(), is(5));
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.size(), is(5));
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("A", "text/marcxchange");
             put("B", "text/marcxchange");
             put("C", "text/marcxchange");
         }}));
 
-        Assert.assertThat(resultSet.next(), is(new HashMap<String, String>() {{
+        assertThat(resultSet.next(), is(new HashMap<String, String>() {{
             put("D", "text/marcxchange");
             put("E", "text/marcxchange");
         }}));
