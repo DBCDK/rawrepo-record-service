@@ -60,7 +60,7 @@ public class RecordService {
     @EJB
     private MarcRecordBean marcRecordBean;
 
-     @EJB
+    @EJB
     private RecordRelationsBean recordRelationsBean;
 
     @EJB
@@ -97,17 +97,7 @@ public class RecordService {
                 return Response.status(Response.Status.NO_CONTENT).build();
             }
 
-            RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record);
-
-            for (String excludeAttribute : excludeAttributes) {
-                if ("content".equalsIgnoreCase(excludeAttribute)) {
-                    recordDTO.setContent(null);
-                }
-
-                if ("contentjson".equalsIgnoreCase(excludeAttribute)) {
-                    recordDTO.setContentJSON(null);
-                }
-            }
+            RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record, excludeAttributes);
 
             res = jsonbContext.marshall(recordDTO);
 
@@ -128,13 +118,22 @@ public class RecordService {
     @Timed
     public Response fetchRecord(@PathParam("agencyid") int agencyId,
                                 @PathParam("bibliographicrecordid") String bibliographicRecordId,
+                                @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
+                                @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
+                                @DefaultValue("raw") @QueryParam("mode") Mode mode,
                                 @QueryParam("exclude-attribute") List<String> excludeAttributes) {
         String res;
-
+        Record record;
         try {
-            Record record = recordSimpleBean.fetchRecord(bibliographicRecordId, agencyId);
+            if (mode == Mode.EXPANDED) {
+                record = recordSimpleBean.fetchRecordExpanded(bibliographicRecordId, agencyId, allowDeleted, useParentAgency);
+            } else if (mode == Mode.MERGED) {
+                record = recordSimpleBean.fetchRecordMerged(bibliographicRecordId, agencyId, allowDeleted, useParentAgency);
+            } else {
+                record = recordSimpleBean.fetchRecord(bibliographicRecordId, agencyId);
+            }
 
-            RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record);
+            RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record, excludeAttributes);
 
             res = jsonbContext.marshall(recordDTO);
 
@@ -143,7 +142,7 @@ public class RecordService {
             LOGGER.error("Exception during fetchRecord", ex);
             return Response.serverError().build();
         } finally {
-            LOGGER.info("v1/record/{}/{}/fetch", agencyId, bibliographicRecordId);
+            LOGGER.info("v1/record/{}/{}/fetch?allow-deleted={}&mode={}&use-parent-agency={}", agencyId, bibliographicRecordId, allowDeleted, mode, useParentAgency);
         }
     }
 
@@ -411,7 +410,8 @@ public class RecordService {
     @Timed
     public Response getHistoricRecord(@PathParam("agencyid") int agencyId,
                                       @PathParam("bibliographicrecordid") String bibliographicRecordId,
-                                      @PathParam("date") String historicDate) {
+                                      @PathParam("date") String historicDate,
+                                      @QueryParam("exclude-attribute") List<String> excludeAttributes) {
         String res;
 
         try {
@@ -429,7 +429,7 @@ public class RecordService {
             if (selectedMetaDataHistory != null) {
                 Record record = historyBean.getHistoricRecord(selectedMetaDataHistory);
 
-                RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record);
+                RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record, excludeAttributes);
 
                 res = jsonbContext.marshall(recordDTO);
 

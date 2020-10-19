@@ -14,6 +14,7 @@ import dk.dbc.rawrepo.MarcRecordBean;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.RecordBean;
 import dk.dbc.rawrepo.RecordCollectionBean;
+import dk.dbc.rawrepo.RecordSimpleBean;
 import dk.dbc.rawrepo.dto.RecordCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordDTO;
 import dk.dbc.rawrepo.dto.RecordDTOMapper;
@@ -70,6 +71,9 @@ public class RecordCollectionService {
 
     @EJB
     private RecordBean recordBean;
+
+    @EJB
+    private RecordSimpleBean recordSimpleBean;
 
     @Inject
     @ConfigProperty(name = "DUMP_THREAD_COUNT", defaultValue = "8")
@@ -168,23 +172,9 @@ public class RecordCollectionService {
 
     private Response recordCollectionToResponse(List<String> excludeAttributes, Map<String, Record> collection) throws MarcReaderException, JSONBException {
         String res;
-        RecordCollectionDTO dtoList = RecordDTOMapper.recordCollectionToDTO(collection);
+        RecordCollectionDTO dtoList = RecordDTOMapper.recordCollectionToDTO(collection, excludeAttributes);
 
-        for (String excludeAttribute : excludeAttributes) {
-            if ("content".equalsIgnoreCase(excludeAttribute)) {
-                for (RecordDTO recordDTO : dtoList.getRecords()) {
-                    recordDTO.setContent(null);
-                }
-            }
-
-            if ("contentjson".equalsIgnoreCase(excludeAttribute)) {
-                for (RecordDTO recordDTO : dtoList.getRecords()) {
-                    recordDTO.setContentJSON(null);
-                }
-            }
-        }
-
-        res = jsonbContext.marshall(dtoList);
+         res = jsonbContext.marshall(dtoList);
 
         return Response.ok(res, MediaType.APPLICATION_JSON).build();
     }
@@ -223,17 +213,7 @@ public class RecordCollectionService {
                 }
                 // TODO Collect all failed or missing records and present those in the returned DTO
 
-                final RecordDTO recordDTO = RecordDTOMapper.recordToDTO(rawrepoRecord);
-
-                for (String excludeAttribute : excludeAttributes) {
-                    if ("content".equalsIgnoreCase(excludeAttribute)) {
-                        recordDTO.setContent(null);
-                    }
-
-                    if ("contentjson".equalsIgnoreCase(excludeAttribute)) {
-                        recordDTO.setContentJSON(null);
-                    }
-                }
+                final RecordDTO recordDTO = RecordDTOMapper.recordToDTO(rawrepoRecord, excludeAttributes);
 
                 recordDTOs.add(recordDTO);
             }
@@ -293,6 +273,51 @@ public class RecordCollectionService {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
             LOGGER.info("v2/records/bulk");
+        }
+    }
+
+    @POST
+    @Path("v1/records/fetch")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.TEXT_PLAIN})
+    @Timed
+    public Response fetchRecordList(String request,
+                                    @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
+                                    @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
+                                    @DefaultValue("raw") @QueryParam("mode") RecordService.Mode mode,
+                                    @QueryParam("exclude-attribute") List<String> excludeAttributes) {
+        final RecordCollectionDTO dto = new RecordCollectionDTO();
+        final List<RecordDTO> recordDTOs = new ArrayList<>();
+        final String res;
+        Record record;
+        try {
+            final RecordIdCollectionDTO recordIdCollectionDTO = jsonbContext.unmarshall(request, RecordIdCollectionDTO.class);
+
+            for (RecordIdDTO recordId : recordIdCollectionDTO.getRecordIds()) {
+                if (mode == RecordService.Mode.EXPANDED) {
+                    record = recordSimpleBean.fetchRecordExpanded(recordId.getBibliographicRecordId(), recordId.getAgencyId(), allowDeleted, useParentAgency);
+                } else if (mode == RecordService.Mode.MERGED) {
+                    record = recordSimpleBean.fetchRecordMerged(recordId.getBibliographicRecordId(), recordId.getAgencyId(), allowDeleted, useParentAgency);
+                } else {
+                    record = recordSimpleBean.fetchRecord(recordId.getBibliographicRecordId(), recordId.getAgencyId());
+                }
+
+                final RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record, excludeAttributes);
+                recordDTOs.add(recordDTO);
+            }
+
+            dto.setRecords(recordDTOs);
+
+            res = jsonbContext.marshall(dto);
+
+            LOGGER.info(res);
+
+            return Response.ok(res, MediaType.APPLICATION_JSON).build();
+        } catch (JSONBException | MarcReaderException | InternalServerException ex) {
+            LOGGER.error("Exception during fetchRecordList", ex);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            LOGGER.info("v1/records/fetch");
         }
     }
 

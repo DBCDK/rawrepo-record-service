@@ -35,7 +35,7 @@ public class RecordDTOMapper {
         return dto;
     }
 
-    public static RecordDTO recordToDTO(Record rawRecord) throws MarcReaderException {
+    public static RecordDTO recordToDTO(Record rawRecord, List<String> excludeAttributes) throws MarcReaderException {
         final RecordDTO dto = new RecordDTO();
         dto.setDeleted(rawRecord.isDeleted());
         dto.setCreated(rawRecord.getCreated().toString());
@@ -49,10 +49,16 @@ public class RecordDTOMapper {
             dto.setContentJSON(null);
             dto.setRecordId(recordIdToDTO(rawRecord.getId()));
         } else {
-            dto.setContent(rawRecord.getContent());
-            final MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
-            dto.setContentJSON(contentToDTO(marcRecord));
+            if (excludeAttributes != null && !excludeAttributes.contains("content")) {
+                dto.setContent(rawRecord.getContent());
+            }
 
+            if (excludeAttributes != null && !excludeAttributes.contains("contentJSON")) {
+                final MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
+                dto.setContentJSON(contentToDTO(marcRecord));
+            }
+
+            // TODO Enable once DBCkat can handle it
 //            // If 'use parent agency' is enabled the id in the record entity might not be the same as the id of the content
 //            final RecordIdDTO marcRecordId = getMarcRecordIdDTO(marcRecord);
 //            if (marcRecordId != null) {
@@ -66,13 +72,13 @@ public class RecordDTOMapper {
         return dto;
     }
 
-    public static RecordCollectionDTO recordCollectionToDTO(Map<String, Record> records) throws MarcReaderException {
+    public static RecordCollectionDTO recordCollectionToDTO(Map<String, Record> records, List<String> excludeAttributes) throws MarcReaderException {
         List<RecordDTO> dtoList = new ArrayList<>();
 
         for (Map.Entry<String, Record> entry : records.entrySet()) {
             final Record rawRecord = entry.getValue();
 
-            dtoList.add(recordToDTO(rawRecord));
+            dtoList.add(recordToDTO(rawRecord, excludeAttributes));
         }
 
         RecordCollectionDTO dto = new RecordCollectionDTO();

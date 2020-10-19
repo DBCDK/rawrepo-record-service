@@ -5,9 +5,14 @@
 
 package dk.dbc.rawrepo;
 
+import dk.dbc.marcxmerge.MarcXMerger;
+import dk.dbc.marcxmerge.MarcXMergerException;
 import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
+import dk.dbc.rawrepo.pool.CustomMarcXMergerPool;
+import dk.dbc.rawrepo.pool.DefaultMarcXMergerPool;
+import dk.dbc.rawrepo.pool.ObjectPool;
 import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -30,6 +35,9 @@ public class RecordSimpleBean {
     @EJB
     private OpenAgencyBean openAgency;
 
+    private final ObjectPool<MarcXMerger> customMarcXMergerPool = new CustomMarcXMergerPool();
+    private final ObjectPool<MarcXMerger> defaultMarcXMergerPool = new DefaultMarcXMergerPool();
+
     RelationHintsOpenAgency relationHints;
 
     protected RawRepoDAO createDAO(Connection conn) throws RawRepoException {
@@ -46,6 +54,14 @@ public class RecordSimpleBean {
     // Default constructor - required as there is another constructor
     public RecordSimpleBean() {
 
+    }
+
+    private ObjectPool<MarcXMerger> getMergerPool(boolean useParentAgency) {
+        if (useParentAgency) {
+            return customMarcXMergerPool;
+        } else {
+            return defaultMarcXMergerPool;
+        }
     }
 
     @PostConstruct
@@ -105,6 +121,50 @@ public class RecordSimpleBean {
 
                 return result;
             } catch (RawRepoException ex) {
+                conn.rollback();
+                LOGGER.error(ex.getMessage(), ex);
+                throw new InternalServerException(ex.getMessage(), ex);
+            }
+        } catch (SQLException ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            throw new InternalServerException(ex.getMessage(), ex);
+        }
+    }
+
+    public Record fetchRecordMerged(String bibliographicRecordId, int agencyId, boolean allowAll, boolean useParentAgency) throws InternalServerException {
+        Record result;
+        try (Connection conn = dataSource.getConnection()) {
+            try {
+                final RawRepoDAO dao = createDAO(conn);
+                final ObjectPool<MarcXMerger> mergePool = getMergerPool(useParentAgency);
+                final MarcXMerger merger = mergePool.checkOut();
+                result = dao.fetchMergedRecord(bibliographicRecordId, agencyId, merger, allowAll);
+                mergePool.checkIn(merger);
+
+                return result;
+            } catch (RawRepoException | MarcXMergerException ex) {
+                conn.rollback();
+                LOGGER.error(ex.getMessage(), ex);
+                throw new InternalServerException(ex.getMessage(), ex);
+            }
+        } catch (SQLException ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            throw new InternalServerException(ex.getMessage(), ex);
+        }
+    }
+
+    public Record fetchRecordExpanded(String bibliographicRecordId, int agencyId, boolean allowAll, boolean useParentAgency) throws InternalServerException {
+        Record result;
+        try (Connection conn = dataSource.getConnection()) {
+            try {
+                final RawRepoDAO dao = createDAO(conn);
+                final ObjectPool<MarcXMerger> mergePool = getMergerPool(useParentAgency);
+                final MarcXMerger merger = mergePool.checkOut();
+                result = dao.fetchMergedRecordExpanded(bibliographicRecordId, agencyId, merger, allowAll);
+                mergePool.checkIn(merger);
+
+                return result;
+            } catch (RawRepoException | MarcXMergerException ex) {
                 conn.rollback();
                 LOGGER.error(ex.getMessage(), ex);
                 throw new InternalServerException(ex.getMessage(), ex);

@@ -6,17 +6,30 @@
 package dk.dbc.rawrepo.service;
 
 import dk.dbc.httpclient.HttpGet;
+import dk.dbc.httpclient.HttpPost;
 import dk.dbc.httpclient.PathBuilder;
 import dk.dbc.marc.binding.MarcRecord;
+import dk.dbc.marc.reader.MarcReaderException;
+import dk.dbc.marc.reader.MarcXchangeV1Reader;
 import dk.dbc.rawrepo.RecordDTOCollection;
+import dk.dbc.rawrepo.dto.RecordCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordDTO;
+import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
+import dk.dbc.rawrepo.dto.RecordIdDTO;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -67,8 +80,8 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
             saveRecord(rawrepoConnection, "sql/collection/27218865-870970.xml", MIMETYPE_MARCXCHANGE);
             saveRelations(rawrepoConnection, "27218865", 191919, "27218865", 870970);
 
-            saveRecord(rawrepoConnection, "sql/collection/30707605-191919.xml", MIMETYPE_ENRICHMENT);
-            saveRecord(rawrepoConnection, "sql/collection/30707605-870976.xml", MIMETYPE_MATVURD);
+            saveRecord(rawrepoConnection, "sql/collection/30707605-191919.xml", MIMETYPE_ENRICHMENT, "2020-10-19T09:42:42.000Z", "2020-10-19T09:43:42.000Z");
+            saveRecord(rawrepoConnection, "sql/collection/30707605-870976.xml", MIMETYPE_MATVURD, "2020-10-19T09:44:42.000Z", "2020-10-19T09:45:42.000Z");
             saveRelations(rawrepoConnection, "30707605", 191919, "30707605", 870976);
             saveRelations(rawrepoConnection, "30707605", 870976, "27218865", 870970);
         } catch (Exception e) {
@@ -361,6 +374,96 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         assertThat("collection content 30707605", actual.get("30707605"), is(getMarcRecordFromFile("sql/collection/30707605-870976-merged.xml")));
         assertThat("collection contains 27218865", actual.containsKey("27218865"), is(true));
         assertThat("collection content 27218865", actual.get("27218865"), is(getMarcRecordFromFile("sql/collection/27218865-870970.xml")));
+    }
+
+    @Test
+    void fetchRecordCollection_Raw() throws Exception {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("exclude-attribute", "contentJSON");
+
+        final RecordIdCollectionDTO recordIdCollectionDTO = new RecordIdCollectionDTO();
+        List<RecordIdDTO> recordIdDTOList = new ArrayList<>();
+        recordIdDTOList.add(new RecordIdDTO("30707605", 870976));
+        recordIdDTOList.add(new RecordIdDTO("27218865", 870970));
+        recordIdCollectionDTO.setRecordIds(recordIdDTOList);
+
+        final PathBuilder path = new PathBuilder("/api/v1/records/fetch");
+        final HttpPost httpPost = new HttpPost(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build())
+                .withData(recordIdCollectionDTO, MediaType.APPLICATION_JSON);
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            httpPost.withQueryParameter(param.getKey(), param.getValue());
+        }
+        final Response response = httpClient.execute(httpPost);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        final RecordCollectionDTO actual = response.readEntity(RecordCollectionDTO.class);
+
+        RecordDTO recordDTO = actual.getRecords().get(0);
+        assertThat("collection contains 30707605", recordDTO.getRecordId(), is(new RecordIdDTO("30707605", 870976)));
+        assertThat("collection mimetype 30707605", recordDTO.getMimetype(), is("text/matvurd+marcxchange"));
+        assertThat("collection created 30707605", recordDTO.getCreated(), is("2020-10-19T09:44:42Z"));
+        assertThat("collection modified 30707605", recordDTO.getModified(), is("2020-10-19T09:45:42Z"));
+        assertThat("collection enrichment trail 30707605", recordDTO.getEnrichmentTrail(), is("870976"));
+        assertThat("collection content 30707605", byteArrayToRecord(recordDTO.getContent()), is(getMarcRecordFromFile("sql/collection/30707605-870976.xml")));
+
+
+        recordDTO = actual.getRecords().get(1);
+        assertThat("collection contains 27218865", recordDTO.getRecordId(), is(new RecordIdDTO("27218865", 870970)));
+        assertThat("collection mimetype 27218865", recordDTO.getMimetype(), is("text/marcxchange"));
+        assertThat("collection enrichment trail 27218865", recordDTO.getEnrichmentTrail(), is("870970"));
+        assertThat("collection content 27218865", byteArrayToRecord(recordDTO.getContent()), is(getMarcRecordFromFile("sql/collection/27218865-870970.xml")));
+    }
+
+    @Test
+    void fetchRecordCollection_Merged() throws Exception {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("mode", "merged");
+        params.put("use-parent-agency", "true");
+        params.put("exclude-attribute", "contentJSON");
+
+        final RecordIdCollectionDTO recordIdCollectionDTO = new RecordIdCollectionDTO();
+        List<RecordIdDTO> recordIdDTOList = new ArrayList<>();
+        recordIdDTOList.add(new RecordIdDTO("30707605", 191919));
+        recordIdDTOList.add(new RecordIdDTO("27218865", 191919));
+        recordIdCollectionDTO.setRecordIds(recordIdDTOList);
+
+        final PathBuilder path = new PathBuilder("/api/v1/records/fetch");
+        final HttpPost httpPost = new HttpPost(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build())
+                .withData(recordIdCollectionDTO, MediaType.APPLICATION_JSON);
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            httpPost.withQueryParameter(param.getKey(), param.getValue());
+        }
+        final Response response = httpClient.execute(httpPost);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        final RecordCollectionDTO actual = response.readEntity(RecordCollectionDTO.class);
+
+        RecordDTO recordDTO = actual.getRecords().get(0);
+        assertThat("collection contains 30707605", recordDTO.getRecordId(), is(new RecordIdDTO("30707605", 191919)));
+        assertThat("collection mimetype 30707605", recordDTO.getMimetype(), is("text/matvurd+marcxchange"));
+        assertThat("collection created 30707605", recordDTO.getCreated(), is("2020-10-19T09:44:42Z"));
+        assertThat("collection modified 30707605", recordDTO.getModified(), is("2020-10-19T09:45:42Z"));
+        assertThat("collection enrichment trail 30707605", recordDTO.getEnrichmentTrail(), is("870976,191919"));
+        assertThat("collection content 30707605", byteArrayToRecord(recordDTO.getContent()), is(getMarcRecordFromFile("sql/collection/30707605-870976-merged.xml")));
+
+
+        recordDTO = actual.getRecords().get(1);
+        assertThat("collection contains 27218865", recordDTO.getRecordId(), is(new RecordIdDTO("27218865", 191919)));
+        assertThat("collection mimetype 27218865", recordDTO.getMimetype(), is("text/marcxchange"));
+        assertThat("collection enrichment trail 27218865", recordDTO.getEnrichmentTrail(), is("870970,191919"));
+        assertThat("collection content 27218865", byteArrayToRecord(recordDTO.getContent()), is(getMarcRecordFromFile("sql/collection/27218865-870970.xml")));
+    }
+
+    private MarcRecord byteArrayToRecord(byte[] content) throws MarcReaderException {
+        final InputStream inputStream = new ByteArrayInputStream(content);
+        final BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+        final MarcXchangeV1Reader reader = new MarcXchangeV1Reader(bufferedInputStream, StandardCharsets.UTF_8);
+
+        return reader.read();
     }
 
 }

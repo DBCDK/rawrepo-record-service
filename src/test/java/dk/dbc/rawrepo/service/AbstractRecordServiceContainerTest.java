@@ -169,6 +169,10 @@ class AbstractRecordServiceContainerTest {
     }
 
     static void saveRecord(Connection connection, String fileName, String mimeType) throws Exception {
+        saveRecord(connection, fileName, mimeType, null, null);
+    }
+
+    static void saveRecord(Connection connection, String fileName, String mimeType, String created, String modified) throws Exception {
         final RawRepoDAO dao = createDAO(connection);
         final MarcXchangeV1Writer writer = new MarcXchangeV1Writer();
 
@@ -184,8 +188,16 @@ class AbstractRecordServiceContainerTest {
         record.setDeleted(deleted);
         record.setMimeType(mimeType);
         record.setContent(content);
-        record.setCreated(Instant.now());
-        record.setModified(Instant.now());
+        if (created == null) {
+            record.setCreated(Instant.now());
+        } else {
+            record.setCreated(Instant.parse(created));
+        }
+        if (modified == null) {
+            record.setModified(Instant.now());
+        } else {
+            record.setModified(Instant.parse(modified));
+        }
         record.setTrackingId(trackingId);
 
         dao.saveRecord(record);
