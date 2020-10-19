@@ -13,16 +13,16 @@ public class RecordItem {
 
     public RecordItem(String bibliographicRecordId, byte[] common, byte[] local) {
         this.bibliographicRecordId = bibliographicRecordId;
-        this.common = common;
-        this.local = local;
+        this.common = (common != null) ? common.clone() : null;
+        this.local = (local != null) ? local.clone() : null;
     }
 
     public byte[] getCommon() {
-        return common;
+        return (common != null) ? common.clone() : null;
     }
 
     public byte[] getLocal() {
-        return local;
+        return (local != null) ? local.clone() : null;
     }
 
     public String getBibliographicRecordId() {

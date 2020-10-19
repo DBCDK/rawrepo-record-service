@@ -5,7 +5,7 @@
 
 package dk.dbc.rawrepo;
 
-import dk.dbc.marc.binding.Field;
+import dk.dbc.marc.binding.DataField;
 import dk.dbc.marc.binding.MarcRecord;
 
 import java.util.ArrayList;
@@ -19,9 +19,9 @@ public class RecordBeanUtils {
     public static final List<Integer> DBC_AGENCIES = Collections.unmodifiableList(Arrays.asList(870970, 870971, 870974, 870979, 190002, 190004));
 
     public static MarcRecord removePrivateFields(MarcRecord marcRecord) {
-        final List<Field> fields = new ArrayList<>();
+        final List<DataField> fields = new ArrayList<>();
 
-        for (Field field : marcRecord.getFields()) {
+        for (DataField field : marcRecord.getFields(DataField.class)) {
             if (field.getTag().matches("^[0-9].*")) {
                 fields.add(field);
             }

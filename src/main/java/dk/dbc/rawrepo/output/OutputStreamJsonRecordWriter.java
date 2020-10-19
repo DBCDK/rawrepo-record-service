@@ -29,7 +29,7 @@ public class OutputStreamJsonRecordWriter implements OutputStreamRecordWriter {
         ContentDTO contentDTO = RecordDTOMapper.contentToDTO(marcRecord);
         synchronized (this) {
             outputStream.write(jsonbContext.marshall(contentDTO).getBytes(encoding));
-            outputStream.write("\n".getBytes());
+            outputStream.write("\n".getBytes(encoding));
         }
     }
 }

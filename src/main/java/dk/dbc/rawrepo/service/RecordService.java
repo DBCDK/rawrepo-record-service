@@ -40,6 +40,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -150,7 +151,7 @@ public class RecordService {
     @Path("v1/record/{agencyid}/{bibliographicrecordid}/content")
     @Produces({MediaType.APPLICATION_XML})
     @Timed
-    public Response GetContent(@PathParam("agencyid") int agencyId,
+    public Response getContent(@PathParam("agencyid") int agencyId,
                                @PathParam("bibliographicrecordid") String bibliographicRecordId,
                                @DefaultValue("merged") @QueryParam("mode") Mode mode,
                                @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
@@ -172,7 +173,7 @@ public class RecordService {
                 return Response.status(Response.Status.NO_CONTENT).build();
             }
 
-            res = new String(RecordObjectMapper.marcToContent(record));
+            res = new String(RecordObjectMapper.marcToContent(record), StandardCharsets.UTF_8);
 
             return Response.ok(res, MediaType.APPLICATION_XML).build();
         } catch (InternalServerException ex) {

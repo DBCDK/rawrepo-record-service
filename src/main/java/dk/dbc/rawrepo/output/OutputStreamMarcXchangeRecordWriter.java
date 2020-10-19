@@ -26,7 +26,7 @@ public class OutputStreamMarcXchangeRecordWriter implements OutputStreamRecordWr
     public void write(MarcRecord marcRecord) throws IOException {
         synchronized (this) {
             outputStream.write(marcXchangeV1Writer.write(marcRecord, Charset.forName(encoding)));
-            outputStream.write("\n".getBytes());
+            outputStream.write("\n".getBytes(encoding));
         }
     }
 }

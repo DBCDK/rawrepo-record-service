@@ -56,6 +56,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 @Interceptors({StopwatchInterceptor.class})
 @Stateless
 @Path("api")
@@ -134,7 +136,7 @@ public class RecordCollectionService {
                     keepAutFields,
                     excludeAutRecords);
 
-            res = new String(RecordObjectMapper.marcRecordCollectionToContent(marcRecords));
+            res = new String(RecordObjectMapper.marcRecordCollectionToContent(marcRecords), UTF_8);
 
             return Response.ok(res, MediaType.APPLICATION_XML).build();
         } catch (MarcReaderException | InternalServerException | MarcXMergerException ex) {
@@ -174,7 +176,7 @@ public class RecordCollectionService {
         String res;
         RecordCollectionDTO dtoList = RecordDTOMapper.recordCollectionToDTO(collection, excludeAttributes);
 
-         res = jsonbContext.marshall(dtoList);
+        res = jsonbContext.marshall(dtoList);
 
         return Response.ok(res, MediaType.APPLICATION_JSON).build();
     }

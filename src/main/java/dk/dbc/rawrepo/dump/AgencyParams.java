@@ -99,27 +99,27 @@ public class AgencyParams extends Params {
 
         if (this.agencies == null || this.agencies.size() == 0) {
             result.add(new ParamsValidationItemDTO("agencies", "Field is mandatory and must contain at least one agency id"));
-        }
-
-        for (Integer agencyId : this.agencies) {
-            if (agencyId.toString().length() != 6) {
-                result.add(new ParamsValidationItemDTO("agencies", "Agency " + agencyId.toString() + " is not a valid agency id as the text length is not 6 chars"));
-            }
-
-            if (agencyId == 191919 && this.agencies.size() > 1) {
-                result.add(new ParamsValidationItemDTO("agencies", "The combination of 191919 and other agencies is now allowed. If you are absolutely certain you want to dump agency 191919 (DBC enrichments) then it can be done with a request with 191919 as the only agency"));
-            }
-        }
-
-        for (int agencyId : this.agencies) {
-            try {
-                AgencyType agencyType = AgencyType.getAgencyType(openAgencyServiceFromURL, agencyId);
-
-                if (agencyType == AgencyType.FBS) {
-                    hasFBSLibrary = true;
+        } else {
+            for (Integer agencyId : this.agencies) {
+                if (agencyId.toString().length() != 6) {
+                    result.add(new ParamsValidationItemDTO("agencies", "Agency " + agencyId.toString() + " is not a valid agency id as the text length is not 6 chars"));
                 }
-            } catch (OpenAgencyException e) {
-                result.add(new ParamsValidationItemDTO("agencies", "Agency " + agencyId + " could not be validated by OpenAgency"));
+
+                if (agencyId == 191919 && this.agencies.size() > 1) {
+                    result.add(new ParamsValidationItemDTO("agencies", "The combination of 191919 and other agencies is now allowed. If you are absolutely certain you want to dump agency 191919 (DBC enrichments) then it can be done with a request with 191919 as the only agency"));
+                }
+            }
+
+            for (int agencyId : this.agencies) {
+                try {
+                    AgencyType agencyType = AgencyType.getAgencyType(openAgencyServiceFromURL, agencyId);
+
+                    if (agencyType == AgencyType.FBS) {
+                        hasFBSLibrary = true;
+                    }
+                } catch (OpenAgencyException e) {
+                    result.add(new ParamsValidationItemDTO("agencies", "Agency " + agencyId + " could not be validated by OpenAgency"));
+                }
             }
         }
 
