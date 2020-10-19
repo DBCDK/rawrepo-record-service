@@ -310,8 +310,6 @@ public class RecordCollectionService {
 
             res = jsonbContext.marshall(dto);
 
-            LOGGER.info(res);
-
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
         } catch (JSONBException | MarcReaderException | InternalServerException ex) {
             LOGGER.error("Exception during fetchRecordList", ex);
