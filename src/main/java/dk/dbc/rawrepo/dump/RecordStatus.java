@@ -11,7 +11,7 @@ import java.util.List;
 public enum RecordStatus {
     ACTIVE("ACTIVE"), DELETED("DELETED"), ALL("ALL");
 
-    private String value;
+    private final String value;
 
     RecordStatus(String value) {
         this.value = value;

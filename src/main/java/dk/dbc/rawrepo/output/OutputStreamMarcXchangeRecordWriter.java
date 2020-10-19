@@ -13,9 +13,9 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 public class OutputStreamMarcXchangeRecordWriter implements OutputStreamRecordWriter {
-    private OutputStream outputStream;
-    private String encoding;
-    private MarcXchangeV1Writer dsfg = new MarcXchangeV1Writer();
+    private final OutputStream outputStream;
+    private final String encoding;
+    private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
 
     public OutputStreamMarcXchangeRecordWriter(OutputStream stream, String encoding) {
         this.outputStream = stream;
@@ -25,7 +25,7 @@ public class OutputStreamMarcXchangeRecordWriter implements OutputStreamRecordWr
     @Override
     public void write(MarcRecord marcRecord) throws IOException {
         synchronized (this) {
-            outputStream.write(dsfg.write(marcRecord, Charset.forName(encoding)));
+            outputStream.write(marcXchangeV1Writer.write(marcRecord, Charset.forName(encoding)));
             outputStream.write("\n".getBytes());
         }
     }

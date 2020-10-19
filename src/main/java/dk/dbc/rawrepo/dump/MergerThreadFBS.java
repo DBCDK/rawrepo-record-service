@@ -47,13 +47,13 @@ public class MergerThreadFBS implements Callable<Boolean> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MergerThreadFBS.class);
     private final List<Integer> EXPANDABLE_AGENCIES = Arrays.asList(190002, 190004, 870970, 870971, 870974);
 
-    private RawRepoBean rawRepoBean;
-    private HashMap<String, String> recordSet;
-    private RecordByteWriter writer;
-    private int agencyId;
-    private Mode mode;
-    private MarcXMerger merger;
-    private RecordRelationsBean recordBean;
+    private final RawRepoBean rawRepoBean;
+    private final HashMap<String, String> recordSet;
+    private final RecordByteWriter writer;
+    private final int agencyId;
+    private final Mode mode;
+    private final MarcXMerger merger;
+    private final RecordRelationsBean recordBean;
 
     MergerThreadFBS(RawRepoBean rawRepoBean, RecordRelationsBean recordRelationsBean, HashMap<String, String> recordSet, RecordByteWriter writer, int agencyId, String modeAsString) {
         this.rawRepoBean = rawRepoBean;

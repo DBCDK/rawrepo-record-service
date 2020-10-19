@@ -174,8 +174,6 @@ public class RecordRelationsBeanTest {
 
         final String bibliographicRecordId = "50938409";
 
-        final MarcRecord marcRecord = loadMarcRecord("getRelationsParents/fbs-enrichment.xml");
-
         when(recordSimpleBean.recordIsActive(bibliographicRecordId, 911116)).thenReturn(true);
 
         Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 911116);

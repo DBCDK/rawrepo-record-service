@@ -14,8 +14,8 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 public class OutputStreamLineRecordWriter implements OutputStreamRecordWriter {
-    private OutputStream outputStream;
-    private String encoding;
+    private final OutputStream outputStream;
+    private final String encoding;
     private final DanMarc2LineFormatWriter lineFormatWriter = new DanMarc2LineFormatWriter();
 
     public OutputStreamLineRecordWriter(OutputStream stream, String encoding) {

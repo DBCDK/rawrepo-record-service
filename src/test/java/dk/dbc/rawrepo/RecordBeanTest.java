@@ -55,7 +55,7 @@ public class RecordBeanTest {
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
@@ -121,9 +121,7 @@ public class RecordBeanTest {
 
         when(rawRepoDAO.allAgenciesForBibliographicRecordId(eq(bibliographicRecordId))).thenReturn(agenciesFound);
 
-        Assertions.assertThrows(RecordNotFoundException.class, () -> {
-            bean.parentCommonAgencyId(bibliographicRecordId, rawRepoDAO);
-        });
+        Assertions.assertThrows(RecordNotFoundException.class, () -> bean.parentCommonAgencyId(bibliographicRecordId, rawRepoDAO));
     }
 
     @Test

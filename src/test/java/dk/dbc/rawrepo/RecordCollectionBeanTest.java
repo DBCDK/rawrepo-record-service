@@ -50,7 +50,7 @@ public class RecordCollectionBeanTest {
 
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
 
-    private class RecordCollectionBeanMock extends RecordCollectionBean {
+    private static class RecordCollectionBeanMock extends RecordCollectionBean {
         RecordCollectionBeanMock(DataSource globalDataSource, RecordBean recordBean, RecordRelationsBean recordRelationsBean) {
             super(globalDataSource);
 

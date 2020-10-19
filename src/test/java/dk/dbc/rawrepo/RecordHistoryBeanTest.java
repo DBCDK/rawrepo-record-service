@@ -5,7 +5,6 @@
 
 package dk.dbc.rawrepo;
 
-import dk.dbc.marc.writer.MarcXchangeV1Writer;
 import dk.dbc.marcxmerge.MarcXChangeMimeType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,11 +28,6 @@ public class RecordHistoryBeanTest {
 
     @Mock
     private RawRepoDAO rawRepoDAO;
-
-    @Mock
-    private static RelationHintsOpenAgency relationHintsOpenAgency;
-
-    private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
 
     private class RecordHistoryBeanMock extends RecordHistoryBean {
         RecordHistoryBeanMock(DataSource globalDataSource) {

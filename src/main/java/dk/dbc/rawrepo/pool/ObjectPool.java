@@ -10,7 +10,7 @@ import java.util.Hashtable;
 
 //Class stolen from https://sourcemaking.com/design_patterns/object_pool/java
 public abstract class ObjectPool<T> {
-    private long expirationTime;
+    private final long expirationTime;
 
     private Hashtable<T, Long> locked, unlocked;
 

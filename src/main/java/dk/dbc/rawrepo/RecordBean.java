@@ -218,8 +218,8 @@ public class RecordBean {
      * @param bibliographicRecordId Id of the record
      * @param dao                   Reference to the RawRepoAccess DAP
      * @return The parent DBC agency
-     * @throws RawRepoException
-     * @throws RecordNotFoundException
+     * @throws RawRepoException When exception is throw from AccessDTO
+     * @throws RecordNotFoundException When the record is not found
      */
     int parentCommonAgencyId(String bibliographicRecordId, RawRepoDAO dao) throws RawRepoException, RecordNotFoundException {
         final Set<Integer> agencies = dao.allAgenciesForBibliographicRecordId(bibliographicRecordId);
@@ -271,9 +271,9 @@ public class RecordBean {
      * @param agencyId              Agency of the child/enrichment record
      * @param merger                Merge object
      * @return Record object with merged values from the input record and its parent record
-     * @throws InternalServerException
-     * @throws RawRepoException
-     * @throws RecordNotFoundException
+     * @throws InternalServerException When unexpected exception is throw
+     * @throws RawRepoException When exception is throw from AccessDTO
+     * @throws RecordNotFoundException When the record is not found
      */
     private Record fetchRecord(String bibliographicRecordId, int originalAgencyId, int agencyId, MarcXMerger merger, boolean doExpand, boolean keepAutField) throws InternalServerException, RawRepoException, RecordNotFoundException {
         try (Connection conn = dataSource.getConnection()) {

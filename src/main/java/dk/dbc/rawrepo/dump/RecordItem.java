@@ -7,9 +7,9 @@ package dk.dbc.rawrepo.dump;
 
 public class RecordItem {
 
-    private String bibliographicRecordId;
-    private byte[] common;
-    private byte[] local;
+    private final String bibliographicRecordId;
+    private final byte[] common;
+    private final byte[] local;
 
     public RecordItem(String bibliographicRecordId, byte[] common, byte[] local) {
         this.bibliographicRecordId = bibliographicRecordId;

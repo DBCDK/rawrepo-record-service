@@ -5,17 +5,13 @@
 
 package dk.dbc.rawrepo.dump;
 
-import dk.dbc.rawrepo.dao.HoldingsItemsBean;
-import dk.dbc.rawrepo.dao.RawRepoBean;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -45,21 +41,15 @@ public class BibliographicIdResultSetTest {
         put("E", "text/marcxchange");
     }};
 
-    @Mock
-    private RawRepoBean rawRepoBean;
-
-    @Mock
-    private HoldingsItemsBean holdingsItemsBean;
-
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void testNormalList() throws Exception {
+    public void testNormalList() {
         AgencyParams params = new AgencyParams();
-        params.setAgencies(Arrays.asList(870970));
+        params.setAgencies(Collections.singletonList(870970));
         params.setRecordStatus(RecordStatus.ALL.toString());
 
         BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.DBC, 2, rawrepoRecordIdsFor870970, null);
@@ -79,9 +69,9 @@ public class BibliographicIdResultSetTest {
     }
 
     @Test
-    public void testListSmallerThanSliceSize() throws Exception {
+    public void testListSmallerThanSliceSize() {
         AgencyParams params = new AgencyParams();
-        params.setAgencies(Arrays.asList(870970));
+        params.setAgencies(Collections.singletonList(870970));
         params.setRecordStatus(RecordStatus.ALL.toString());
 
         BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.DBC, 10, rawrepoRecordIdsFor870970, null);
@@ -97,9 +87,9 @@ public class BibliographicIdResultSetTest {
     }
 
     @Test
-    public void testListSizeEqualsSliceSize() throws Exception {
+    public void testListSizeEqualsSliceSize() {
         AgencyParams params = new AgencyParams();
-        params.setAgencies(Arrays.asList(870970));
+        params.setAgencies(Collections.singletonList(870970));
         params.setRecordStatus(RecordStatus.ALL.toString());
 
         BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.DBC, 5, rawrepoRecordIdsFor870970, null);
@@ -115,9 +105,9 @@ public class BibliographicIdResultSetTest {
     }
 
     @Test
-    public void testEmptyList() throws Exception {
+    public void testEmptyList() {
         AgencyParams params = new AgencyParams();
-        params.setAgencies(Arrays.asList(870970));
+        params.setAgencies(Collections.singletonList(870970));
         params.setRecordStatus(RecordStatus.ALL.toString());
 
         BibliographicIdResultSet resultSet = new BibliographicIdResultSet(params, AgencyType.DBC, 2, new HashMap<>(), null);
@@ -126,7 +116,7 @@ public class BibliographicIdResultSetTest {
     }
 
     @Test
-    public void testFBSAllRecordTypes() throws Exception {
+    public void testFBSAllRecordTypes() {
         AgencyParams params = new AgencyParams();
         params.setRecordType(new ArrayList<>());
         params.getRecordType().add(RecordType.LOCAL.toString());
@@ -151,7 +141,7 @@ public class BibliographicIdResultSetTest {
     }
 
     @Test
-    public void testFBSLocalAndEnrichments() throws Exception {
+    public void testFBSLocalAndEnrichments() {
         AgencyParams params = new AgencyParams();
         params.setRecordType(new ArrayList<>());
         params.getRecordType().add(RecordType.LOCAL.toString());
@@ -172,7 +162,7 @@ public class BibliographicIdResultSetTest {
     }
 
     @Test
-    public void testFSBLocalAndHoldings() throws Exception {
+    public void testFSBLocalAndHoldings() {
         AgencyParams params = new AgencyParams();
         params.setRecordType(new ArrayList<>());
         params.getRecordType().add(RecordType.LOCAL.toString());
@@ -193,7 +183,7 @@ public class BibliographicIdResultSetTest {
     }
 
     @Test
-    public void testFSBEnrichmentAndHoldings() throws Exception {
+    public void testFSBEnrichmentAndHoldings() {
         AgencyParams params = new AgencyParams();
         params.setRecordType(new ArrayList<>());
         params.getRecordType().add(RecordType.ENRICHMENT.toString());
@@ -214,7 +204,7 @@ public class BibliographicIdResultSetTest {
     }
 
     @Test
-    public void testFSBHoldingsOnly() throws Exception {
+    public void testFSBHoldingsOnly() {
         AgencyParams params = new AgencyParams();
         params.setRecordType(new ArrayList<>());
         params.getRecordType().add(RecordType.HOLDINGS.toString());
@@ -231,7 +221,7 @@ public class BibliographicIdResultSetTest {
     }
 
     @Test
-    public void testRecordParams() throws Exception {
+    public void testRecordParams() {
         RecordParams params = new RecordParams();
 
         List<RecordIdDTO> recordIdDTOs = new ArrayList<>();
@@ -253,7 +243,7 @@ public class BibliographicIdResultSetTest {
     }
 
     @Test
-    public void testRecordParamsBibliographicIdResultSet() throws Exception {
+    public void testRecordParamsBibliographicIdResultSet() {
         BibliographicIdResultSet resultSet = new BibliographicIdResultSet(3, rawrepoRecordIdsFor870970);
 
         assertThat(resultSet.size(), is(5));

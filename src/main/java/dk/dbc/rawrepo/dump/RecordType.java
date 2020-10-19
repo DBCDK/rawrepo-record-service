@@ -11,7 +11,7 @@ import java.util.List;
 public enum RecordType {
     LOCAL("LOCAL"), ENRICHMENT("ENRICHMENT"), HOLDINGS("HOLDINGS");
 
-    private String value;
+    private final String value;
 
     RecordType(String value) {
         this.value = value;

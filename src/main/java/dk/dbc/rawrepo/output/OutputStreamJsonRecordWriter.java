@@ -15,8 +15,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class OutputStreamJsonRecordWriter implements OutputStreamRecordWriter {
-    private OutputStream outputStream;
-    private String encoding;
+    private final OutputStream outputStream;
+    private final String encoding;
     private final JSONBContext jsonbContext = new JSONBContext();
 
     public OutputStreamJsonRecordWriter(OutputStream stream, String encoding) {

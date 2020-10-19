@@ -29,12 +29,12 @@ public class MergerThreadDBC implements Callable<Boolean> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MergerThreadDBC.class);
 
-    private RawRepoBean bean;
-    private HashMap<String, String> recordSet;
-    private RecordByteWriter writer;
-    private int agencyId;
-    private MarcXMerger merger;
-    private Mode mode;
+    private final RawRepoBean bean;
+    private final HashMap<String, String> recordSet;
+    private final RecordByteWriter writer;
+    private final int agencyId;
+    private final MarcXMerger merger;
+    private final Mode mode;
 
     MergerThreadDBC(RawRepoBean bean, HashMap<String, String> recordSet, RecordByteWriter writer, int agencyId, String modeAsString) {
         this.bean = bean;

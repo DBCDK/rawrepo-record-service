@@ -82,8 +82,6 @@ public class RecordSimpleBeanTest {
 
         when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)).thenReturn(false);
 
-        Assertions.assertThrows(RecordNotFoundException.class, () -> {
-            assertThat(bean.recordIsActive(bibliographicRecordId, agencyId), is(true));
-        });
+        Assertions.assertThrows(RecordNotFoundException.class, () -> assertThat(bean.recordIsActive(bibliographicRecordId, agencyId), is(true)));
     }
 }

@@ -22,10 +22,10 @@ public class MergerThreadLocal implements Callable<Boolean> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MergerThreadLocal.class);
 
-    private RawRepoBean bean;
-    private HashMap<String, String> recordSet;
-    private RecordByteWriter writer;
-    private int agencyId;
+    private final RawRepoBean bean;
+    private final HashMap<String, String> recordSet;
+    private final RecordByteWriter writer;
+    private final int agencyId;
 
     MergerThreadLocal(RawRepoBean bean, HashMap<String, String> recordSet, RecordByteWriter writer, int agencyId) {
         this.bean = bean;
