@@ -52,12 +52,10 @@ public class MergerThreadLocal implements Callable<Boolean> {
                     }
                 }
             }
-
-            return true;
         } catch (IOException | MarcReaderException | MarcWriterException | JSONBException ex) {
             LOGGER.error("Caught exception while merging record: ", ex);
         }
 
-        return null;
+        return true;
     }
 }

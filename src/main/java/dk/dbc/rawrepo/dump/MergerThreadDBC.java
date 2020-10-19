@@ -93,12 +93,10 @@ public class MergerThreadDBC implements Callable<Boolean> {
                     }
                 }
             }
-
-            return true;
         } catch (MarcXMergerException | IOException | MarcReaderException | MarcWriterException | JSONBException ex) {
             LOGGER.error("Caught exception while merging record: ", ex);
         }
 
-        return null;
+        return true;
     }
 }

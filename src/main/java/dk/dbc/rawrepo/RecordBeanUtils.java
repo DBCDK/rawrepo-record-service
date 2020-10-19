@@ -10,13 +10,13 @@ import dk.dbc.marc.binding.MarcRecord;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class RecordBeanUtils {
 
     public static final int DBC_ENRICHMENT_AGENCY = 191919;
-    public static final List<Integer> DBC_AGENCIES = Arrays.asList(870970, 870971, 870974, 870979, 190002, 190004);
-    public static final List<Integer> DBC_AGENCIES_ALL = Arrays.asList(191919, 870970, 870971, 870974, 870979, 190002, 190004);
+    public static final List<Integer> DBC_AGENCIES = Collections.unmodifiableList(Arrays.asList(870970, 870971, 870974, 870979, 190002, 190004));
 
     public static MarcRecord removePrivateFields(MarcRecord marcRecord) {
         final List<Field> fields = new ArrayList<>();
