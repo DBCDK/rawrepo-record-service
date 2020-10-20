@@ -77,7 +77,9 @@ public class BibliographicIdResultSet {
     }
 
     public boolean hasNext() {
-        return index < bibliographicRecordIdList.size();
+        synchronized (this) {
+            return index < bibliographicRecordIdList.size();
+        }
     }
 
     public HashMap<String, String> next() {

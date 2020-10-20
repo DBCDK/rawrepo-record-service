@@ -20,7 +20,6 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import javax.sql.DataSource;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,14 +40,11 @@ public class RawRepoQueueBean {
     private static final String SELECT_QUEUE_COUNT_BY_AGENCY = "SELECT agencyid AS text, COUNT(*), MAX(queued) FROM queue GROUP BY agencyid ORDER BY agencyid";
 
     private static final String ENQUEUE_AGENCY = "INSERT INTO queue SELECT bibliographicrecordid, ?, ?, now(), ? FROM records WHERE agencyid=?";
-    private static final String CALL_ENQUEUE_BULK = "SELECT * FROM enqueue_bulk(?, ?, ?, ?, ?)";
     private static final String CALL_ENQUEUE = "SELECT * FROM enqueue(?, ?, ?, ?, ?, ?)";
 
     private static final String DELETE_RECORD_CACHE = "DELETE FROM records_cache WHERE bibliographicrecordid=? AND agencyid=?";
 
     private static final String LOG_DATABASE_ERROR = "Error accessing database";
-
-    public static final int DEFAULT_PRIORITY = 1000;
 
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
@@ -169,10 +165,6 @@ public class RawRepoQueueBean {
         }
     }
 
-    public List<EnqueueResultDTO> enqueueRecord(String bibliographicRecordId, int agencyId, String provider, boolean changed, boolean leaf) throws QueueException {
-        return enqueueRecord(bibliographicRecordId, agencyId, provider, changed, leaf, DEFAULT_PRIORITY);
-    }
-
     public List<EnqueueResultDTO> enqueueRecord(String bibliographicRecordId, int agencyId, String provider, boolean changed, boolean leaf, int priority) throws QueueException {
         final List<EnqueueResultDTO> res = new ArrayList<>();
 
@@ -210,58 +202,6 @@ public class RawRepoQueueBean {
         }
 
         return res;
-    }
-
-    public List<EnqueueResultDTO> enqueueBulk(List<String> bibliographicRecordIdList,
-                                              List<Integer> agencyList,
-                                              List<String> providerList,
-                                              List<Boolean> changedList,
-                                              List<Boolean> leafList) throws SQLException, QueueException {
-        LOGGER.entry();
-
-        if (!(bibliographicRecordIdList.size() == agencyList.size() &&
-                agencyList.size() == providerList.size() &&
-                providerList.size() == changedList.size() &&
-                changedList.size() == leafList.size())) {
-            throw new QueueException("All input list must have same size");
-        }
-
-        // Convert true/false to Y/N
-        List<String> changedListChar = new ArrayList<>();
-        List<String> leafListChar = new ArrayList<>();
-
-        for (Boolean changed : changedList) {
-            changedListChar.add(changed ? "Y" : "N");
-        }
-
-        for (Boolean leaf : leafList) {
-            leafListChar.add(leaf ? "Y" : "N");
-        }
-
-        List<EnqueueResultDTO> result = new ArrayList<>();
-        try (Connection connection = dataSource.getConnection();
-             CallableStatement stmt = connection.prepareCall(CALL_ENQUEUE_BULK)) {
-            stmt.setArray(1, stmt.getConnection().createArrayOf("VARCHAR", bibliographicRecordIdList.toArray()));
-            stmt.setArray(2, stmt.getConnection().createArrayOf("NUMERIC", agencyList.toArray()));
-            stmt.setArray(3, stmt.getConnection().createArrayOf("VARCHAR", providerList.toArray()));
-            stmt.setArray(4, stmt.getConnection().createArrayOf("VARCHAR", changedListChar.toArray()));
-            stmt.setArray(5, stmt.getConnection().createArrayOf("VARCHAR", leafListChar.toArray()));
-
-            try (ResultSet resultSet = stmt.executeQuery()) {
-                while (resultSet.next()) {
-                    final String recordId = resultSet.getString("bibliographicrecordid");
-                    final int agencyId = resultSet.getInt("agencyid");
-                    final String worker = resultSet.getString("worker");
-                    final boolean enqueued = resultSet.getString("queued").toUpperCase().equals("T");
-
-                    result.add(new EnqueueResultDTO(recordId, agencyId, worker, enqueued));
-                }
-            }
-
-            return result;
-        } finally {
-            LOGGER.exit(result);
-        }
     }
 
     public int enqueueAgency(int agencyId, String worker, int priority) throws QueueException {

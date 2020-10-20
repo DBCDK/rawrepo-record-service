@@ -68,7 +68,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
 
         final byte[] content = response.readEntity(byte[].class);
 
-        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-raw.xml")));
+        assertThat("content", getMarcRecordFromString(content), is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-raw.xml")));
     }
 
     @Test
@@ -89,7 +89,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
 
         final byte[] content = response.readEntity(byte[].class);
 
-        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-merged.xml")));
+        assertThat("content", getMarcRecordFromString(content), is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-merged.xml")));
     }
 
     @Test
@@ -110,7 +110,29 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
 
         final byte[] content = response.readEntity(byte[].class);
 
-        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-expanded.xml")));
+        assertThat("content", getMarcRecordFromString(content), is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-expanded.xml")));
+    }
+
+    //@Test TODO Figure out how to put expected ISO data in file
+    public void dumpAgencyDBCExpanded_ISO_DANMARC2() throws Exception {
+        AgencyParams params = new AgencyParams();
+        params.setAgencies(Collections.singletonList(870970));
+        params.setMode("expanded");
+        params.setOutputFormat("ISO");
+        params.setOutputEncoding("DANMARC2");
+
+        final PathBuilder path = new PathBuilder("/api/v1/dump");
+        final HttpPost httpPost = new HttpPost(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build())
+                .withData(params, MediaType.APPLICATION_JSON);
+
+        final Response response = httpClient.execute(httpPost);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        final byte[] content = response.readEntity(byte[].class);
+
+        assertThat("content", content, is(getContentFromFile("sql/dump/agency-dbc/expected-common-expanded.iso")));
     }
 
     @Test
@@ -135,7 +157,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
 
         final byte[] content = response.readEntity(byte[].class);
 
-        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-raw.xml")));
+        assertThat("content", getMarcRecordFromString(content), is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-raw.xml")));
     }
 
     @Test
@@ -160,7 +182,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
 
         final byte[] content = response.readEntity(byte[].class);
 
-        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-merged.xml")));
+        assertThat("content", getMarcRecordFromString(content), is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-merged.xml")));
     }
 
     @Test
@@ -185,7 +207,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
 
         final byte[] content = response.readEntity(byte[].class);
 
-        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-expanded.xml")));
+        assertThat("content", getMarcRecordFromString(content), is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-common-expanded.xml")));
     }
 
     @Test
@@ -210,7 +232,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
 
         final byte[] content = response.readEntity(byte[].class);
 
-        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-fbs-raw.xml")));
+        assertThat("content", getMarcRecordFromString(content), is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-fbs-raw.xml")));
     }
 
     @Test
@@ -234,7 +256,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
 
         final byte[] content = response.readEntity(byte[].class);
 
-        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-fbs-merged.xml")));
+        assertThat("content", getMarcRecordFromString(content), is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-fbs-merged.xml")));
     }
 
     @Test
@@ -259,7 +281,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
 
         final byte[] content = response.readEntity(byte[].class);
 
-        assertThat("content", getMarcRecordFromString(content), CoreMatchers.is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-fbs-expanded.xml")));
+        assertThat("content", getMarcRecordFromString(content), is(getMarcRecordFromFile("sql/dump/agency-dbc/expected-fbs-expanded.xml")));
     }
 
 }

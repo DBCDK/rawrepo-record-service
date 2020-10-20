@@ -16,7 +16,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 public class RecordSimpleBeanTest {
@@ -82,8 +82,6 @@ public class RecordSimpleBeanTest {
 
         when(rawRepoDAO.recordExistsMaybeDeleted(bibliographicRecordId, agencyId)).thenReturn(false);
 
-        Assertions.assertThrows(RecordNotFoundException.class, () -> {
-            assertThat(bean.recordIsActive(bibliographicRecordId, agencyId), is(true));
-        });
+        Assertions.assertThrows(RecordNotFoundException.class, () -> assertThat(bean.recordIsActive(bibliographicRecordId, agencyId), is(true)));
     }
 }

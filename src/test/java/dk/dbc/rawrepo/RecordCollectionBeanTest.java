@@ -27,7 +27,7 @@ import static dk.dbc.rawrepo.BeanTestHelper.createRecordMock;
 import static dk.dbc.rawrepo.BeanTestHelper.getInstant;
 import static dk.dbc.rawrepo.BeanTestHelper.loadMarcRecord;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -50,7 +50,7 @@ public class RecordCollectionBeanTest {
 
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
 
-    private class RecordCollectionBeanMock extends RecordCollectionBean {
+    private static class RecordCollectionBeanMock extends RecordCollectionBean {
         RecordCollectionBeanMock(DataSource globalDataSource, RecordBean recordBean, RecordRelationsBean recordRelationsBean) {
             super(globalDataSource);
 

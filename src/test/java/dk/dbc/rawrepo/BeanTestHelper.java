@@ -52,12 +52,4 @@ public class BeanTestHelper {
         return localDateTime.toInstant(ZoneOffset.UTC);
     }
 
-    public static MarcXMerger getMerger() throws Exception {
-        final String immutable = "001;010;020;990;991;996";
-        final String overwrite = "004;005;013;014;017;035;036;240;243;247;300;008 009 038 039 100 110 239 245 652 654";
-
-        final FieldRules customFieldRules = new FieldRules(immutable, overwrite, FieldRules.INVALID_DEFAULT, FieldRules.VALID_REGEX_DANMARC2);
-
-        return new MarcXMerger(customFieldRules, "CUSTOM");
-    }
 }

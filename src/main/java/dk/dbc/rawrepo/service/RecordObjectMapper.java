@@ -14,12 +14,13 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 public class RecordObjectMapper {
 
     private final static MarcXchangeV1Writer marcRecordWriter = new MarcXchangeV1Writer();
-    private final static Charset charset = Charset.forName("UTF-8");
+    private final static Charset charset = StandardCharsets.UTF_8;
 
     public static byte[] marcToContent(MarcRecord marcRecord) {
         return marcRecordWriter.write(marcRecord, charset);

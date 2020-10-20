@@ -25,7 +25,7 @@ import java.util.Set;
 import static dk.dbc.rawrepo.BeanTestHelper.createRecordMock;
 import static dk.dbc.rawrepo.BeanTestHelper.loadMarcRecord;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -115,7 +115,7 @@ public class RecordRelationsBeanTest {
         when(recordSimpleBean.recordExists(COMMON, 870970, false)).thenReturn(true);
         when(recordSimpleBean.recordExists(ARTICLE, 870971, false)).thenReturn(true);
         when(recordSimpleBean.recordExists(LITTOLK, 870974, false)).thenReturn(true);
-        when(recordSimpleBean.recordExists(AUTHORITY, 870979, false )).thenReturn(true);
+        when(recordSimpleBean.recordExists(AUTHORITY, 870979, false)).thenReturn(true);
 
         assertFindParentRelationAgency(bean);
     }
@@ -173,8 +173,6 @@ public class RecordRelationsBeanTest {
         final RecordRelationsBean bean = new RecordRelationsBeanMock(globalDataSource, recordSimpleBean);
 
         final String bibliographicRecordId = "50938409";
-
-        final MarcRecord marcRecord = loadMarcRecord("getRelationsParents/fbs-enrichment.xml");
 
         when(recordSimpleBean.recordIsActive(bibliographicRecordId, 911116)).thenReturn(true);
 

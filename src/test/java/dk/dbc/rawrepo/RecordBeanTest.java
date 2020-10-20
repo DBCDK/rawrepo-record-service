@@ -31,7 +31,7 @@ import static dk.dbc.rawrepo.BeanTestHelper.createRecordMock;
 import static dk.dbc.rawrepo.BeanTestHelper.getInstant;
 import static dk.dbc.rawrepo.BeanTestHelper.loadMarcRecord;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -55,7 +55,7 @@ public class RecordBeanTest {
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
@@ -121,9 +121,7 @@ public class RecordBeanTest {
 
         when(rawRepoDAO.allAgenciesForBibliographicRecordId(eq(bibliographicRecordId))).thenReturn(agenciesFound);
 
-        Assertions.assertThrows(RecordNotFoundException.class, () -> {
-            bean.parentCommonAgencyId(bibliographicRecordId, rawRepoDAO);
-        });
+        Assertions.assertThrows(RecordNotFoundException.class, () -> bean.parentCommonAgencyId(bibliographicRecordId, rawRepoDAO));
     }
 
     @Test

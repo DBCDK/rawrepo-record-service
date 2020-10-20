@@ -26,6 +26,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -128,6 +129,16 @@ class AbstractRecordServiceContainerTest {
         return reader.read();
     }
 
+    static byte[] getContentFromFile(String fileName) throws IOException {
+        final InputStream inputStream = AbstractRecordServiceContainerTest.class.getResourceAsStream(fileName);
+        final BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+        final int numByte = bufferedInputStream.available();
+        final byte[] buf = new byte[numByte];
+        bufferedInputStream.read(buf, 0, numByte);
+
+        return buf;
+    }
+
     static MarcRecord getMarcRecordFromString(byte[] content) throws MarcReaderException {
         final InputStream inputStream = new ByteArrayInputStream(content);
         final BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
@@ -169,6 +180,10 @@ class AbstractRecordServiceContainerTest {
     }
 
     static void saveRecord(Connection connection, String fileName, String mimeType) throws Exception {
+        saveRecord(connection, fileName, mimeType, null, null);
+    }
+
+    static void saveRecord(Connection connection, String fileName, String mimeType, String created, String modified) throws Exception {
         final RawRepoDAO dao = createDAO(connection);
         final MarcXchangeV1Writer writer = new MarcXchangeV1Writer();
 
@@ -184,8 +199,16 @@ class AbstractRecordServiceContainerTest {
         record.setDeleted(deleted);
         record.setMimeType(mimeType);
         record.setContent(content);
-        record.setCreated(Instant.now());
-        record.setModified(Instant.now());
+        if (created == null) {
+            record.setCreated(Instant.now());
+        } else {
+            record.setCreated(Instant.parse(created));
+        }
+        if (modified == null) {
+            record.setModified(Instant.now());
+        } else {
+            record.setModified(Instant.parse(modified));
+        }
         record.setTrackingId(trackingId);
 
         dao.saveRecord(record);

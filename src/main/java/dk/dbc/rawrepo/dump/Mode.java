@@ -6,7 +6,7 @@ import java.util.List;
 public enum Mode {
     RAW("RAW"), MERGED("MERGED"), EXPANDED("EXPANDED");
 
-    private String value;
+    private final String value;
 
     Mode(String value) {
         this.value = value;
