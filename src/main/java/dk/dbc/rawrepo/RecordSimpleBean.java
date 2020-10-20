@@ -111,15 +111,22 @@ public class RecordSimpleBean {
         }
     }
 
-    public Record fetchRecord(String bibliographicRecordId, int agencyId) throws InternalServerException {
-        Record result;
+    public Record fetchRecord(String bibliographicRecordId, int agencyId) throws InternalServerException, RecordNotFoundException {
+        final Record result;
         try (Connection conn = dataSource.getConnection()) {
             try {
                 final RawRepoDAO dao = createDAO(conn);
 
                 result = dao.fetchRecord(bibliographicRecordId, agencyId);
 
-                return result;
+                // fetchRecord will return a new empty record if the requested record is not found in the database.
+                // One solution would be to check if the record exists but that requires an extra request to the database
+                // In order to save a round trip we just check if the record has any content.
+                if (result.getContent().length == 0) {
+                    throw new RecordNotFoundException(String.format("The Record %s:%s does not exist", bibliographicRecordId, agencyId));
+                } else {
+                    return result;
+                }
             } catch (RawRepoException ex) {
                 conn.rollback();
                 LOGGER.error(ex.getMessage(), ex);
@@ -131,7 +138,7 @@ public class RecordSimpleBean {
         }
     }
 
-    public Record fetchRecordMerged(String bibliographicRecordId, int agencyId, boolean allowAll, boolean useParentAgency) throws InternalServerException {
+    public Record fetchRecordMerged(String bibliographicRecordId, int agencyId, boolean allowAll, boolean useParentAgency) throws InternalServerException, RecordNotFoundException {
         Record result;
         try (Connection conn = dataSource.getConnection()) {
             try {
@@ -142,6 +149,8 @@ public class RecordSimpleBean {
                 mergePool.checkIn(merger);
 
                 return result;
+            } catch (RawRepoExceptionRecordNotFound ex) {
+                throw new RecordNotFoundException(String.format("The Record %s:%s does not exist", bibliographicRecordId, agencyId));
             } catch (RawRepoException | MarcXMergerException ex) {
                 conn.rollback();
                 LOGGER.error(ex.getMessage(), ex);
@@ -153,7 +162,7 @@ public class RecordSimpleBean {
         }
     }
 
-    public Record fetchRecordExpanded(String bibliographicRecordId, int agencyId, boolean allowAll, boolean useParentAgency) throws InternalServerException {
+    public Record fetchRecordExpanded(String bibliographicRecordId, int agencyId, boolean allowAll, boolean useParentAgency) throws InternalServerException, RecordNotFoundException {
         Record result;
         try (Connection conn = dataSource.getConnection()) {
             try {
@@ -164,6 +173,8 @@ public class RecordSimpleBean {
                 mergePool.checkIn(merger);
 
                 return result;
+            } catch (RawRepoExceptionRecordNotFound ex) {
+                throw new RecordNotFoundException(String.format("The Record %s:%s does not exist", bibliographicRecordId, agencyId));
             } catch (RawRepoException | MarcXMergerException ex) {
                 conn.rollback();
                 LOGGER.error(ex.getMessage(), ex);

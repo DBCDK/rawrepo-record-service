@@ -12,7 +12,7 @@ import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marc.reader.MarcXchangeV1Reader;
 import dk.dbc.rawrepo.RecordDTOCollection;
-import dk.dbc.rawrepo.dto.RecordCollectionDTO;
+import dk.dbc.rawrepo.dto.RecordCollectionDTOv2;
 import dk.dbc.rawrepo.dto.RecordDTO;
 import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
@@ -39,7 +39,6 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
 
     @BeforeAll
     static void initDB() {
-
         try {
             Connection rawrepoConnection = connectToRawrepoDb();
             resetRawrepoDb(rawrepoConnection);
@@ -385,6 +384,7 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         List<RecordIdDTO> recordIdDTOList = new ArrayList<>();
         recordIdDTOList.add(new RecordIdDTO("30707605", 870976));
         recordIdDTOList.add(new RecordIdDTO("27218865", 870970));
+        recordIdDTOList.add(new RecordIdDTO("not found", 123456));
         recordIdCollectionDTO.setRecordIds(recordIdDTOList);
 
         final PathBuilder path = new PathBuilder("/api/v1/records/fetch");
@@ -398,9 +398,9 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
-        final RecordCollectionDTO actual = response.readEntity(RecordCollectionDTO.class);
+        final RecordCollectionDTOv2 actual = response.readEntity(RecordCollectionDTOv2.class);
 
-        RecordDTO recordDTO = actual.getRecords().get(0);
+        RecordDTO recordDTO = actual.getFound().get(0);
         assertThat("collection contains 30707605", recordDTO.getRecordId(), is(new RecordIdDTO("30707605", 870976)));
         assertThat("collection mimetype 30707605", recordDTO.getMimetype(), is("text/matvurd+marcxchange"));
         assertThat("collection created 30707605", recordDTO.getCreated(), is("2020-10-19T09:44:42Z"));
@@ -409,11 +409,14 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         assertThat("collection content 30707605", byteArrayToRecord(recordDTO.getContent()), is(getMarcRecordFromFile("sql/collection/30707605-870976.xml")));
 
 
-        recordDTO = actual.getRecords().get(1);
+        recordDTO = actual.getFound().get(1);
         assertThat("collection contains 27218865", recordDTO.getRecordId(), is(new RecordIdDTO("27218865", 870970)));
         assertThat("collection mimetype 27218865", recordDTO.getMimetype(), is("text/marcxchange"));
         assertThat("collection enrichment trail 27218865", recordDTO.getEnrichmentTrail(), is("870970"));
         assertThat("collection content 27218865", byteArrayToRecord(recordDTO.getContent()), is(getMarcRecordFromFile("sql/collection/27218865-870970.xml")));
+
+        assertThat("collection is missing record", actual.getMissing().size(), is(1));
+        assertThat("collection is missing record", actual.getMissing().get(0), is(new RecordIdDTO("not found", 123456)));
     }
 
     @Test
@@ -427,6 +430,7 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         List<RecordIdDTO> recordIdDTOList = new ArrayList<>();
         recordIdDTOList.add(new RecordIdDTO("30707605", 191919));
         recordIdDTOList.add(new RecordIdDTO("27218865", 191919));
+        recordIdDTOList.add(new RecordIdDTO("not found", 123456));
         recordIdCollectionDTO.setRecordIds(recordIdDTOList);
 
         final PathBuilder path = new PathBuilder("/api/v1/records/fetch");
@@ -440,9 +444,9 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         final Response response = httpClient.execute(httpPost);
         assertThat("Response code", response.getStatus(), is(200));
 
-        final RecordCollectionDTO actual = response.readEntity(RecordCollectionDTO.class);
+        final RecordCollectionDTOv2 actual = response.readEntity(RecordCollectionDTOv2.class);
 
-        RecordDTO recordDTO = actual.getRecords().get(0);
+        RecordDTO recordDTO = actual.getFound().get(0);
         assertThat("collection contains 30707605", recordDTO.getRecordId(), is(new RecordIdDTO("30707605", 191919)));
         assertThat("collection mimetype 30707605", recordDTO.getMimetype(), is("text/matvurd+marcxchange"));
         assertThat("collection created 30707605", recordDTO.getCreated(), is("2020-10-19T09:44:42Z"));
@@ -450,12 +454,14 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         assertThat("collection enrichment trail 30707605", recordDTO.getEnrichmentTrail(), is("870976,191919"));
         assertThat("collection content 30707605", byteArrayToRecord(recordDTO.getContent()), is(getMarcRecordFromFile("sql/collection/30707605-870976-merged.xml")));
 
-
-        recordDTO = actual.getRecords().get(1);
+        recordDTO = actual.getFound().get(1);
         assertThat("collection contains 27218865", recordDTO.getRecordId(), is(new RecordIdDTO("27218865", 191919)));
         assertThat("collection mimetype 27218865", recordDTO.getMimetype(), is("text/marcxchange"));
         assertThat("collection enrichment trail 27218865", recordDTO.getEnrichmentTrail(), is("870970,191919"));
         assertThat("collection content 27218865", byteArrayToRecord(recordDTO.getContent()), is(getMarcRecordFromFile("sql/collection/27218865-870970.xml")));
+
+        assertThat("collection is missing record", actual.getMissing().size(), is(1));
+        assertThat("collection is missing record", actual.getMissing().get(0), is(new RecordIdDTO("not found", 123456)));
     }
 
     private MarcRecord byteArrayToRecord(byte[] content) throws MarcReaderException {
