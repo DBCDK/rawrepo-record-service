@@ -282,7 +282,7 @@ public class RecordCollectionService {
     @POST
     @Path("v1/records/fetch")
     @Consumes({MediaType.APPLICATION_JSON})
-    @Produces({MediaType.TEXT_PLAIN})
+    @Produces({MediaType.APPLICATION_JSON})
     @Timed
     public Response fetchRecordList(String request,
                                     @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
