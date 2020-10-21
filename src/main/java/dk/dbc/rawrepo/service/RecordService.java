@@ -139,6 +139,8 @@ public class RecordService {
             res = jsonbContext.marshall(recordDTO);
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
+        } catch (RecordNotFoundException ex) {
+            return Response.status(Response.Status.NO_CONTENT).build();
         } catch (JSONBException | InternalServerException | MarcReaderException ex) {
             LOGGER.error("Exception during fetchRecord", ex);
             return Response.serverError().build();

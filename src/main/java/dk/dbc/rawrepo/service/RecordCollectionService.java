@@ -16,6 +16,7 @@ import dk.dbc.rawrepo.RecordBean;
 import dk.dbc.rawrepo.RecordCollectionBean;
 import dk.dbc.rawrepo.RecordSimpleBean;
 import dk.dbc.rawrepo.dto.RecordCollectionDTO;
+import dk.dbc.rawrepo.dto.RecordCollectionDTOv2;
 import dk.dbc.rawrepo.dto.RecordDTO;
 import dk.dbc.rawrepo.dto.RecordDTOMapper;
 import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
@@ -281,34 +282,40 @@ public class RecordCollectionService {
     @POST
     @Path("v1/records/fetch")
     @Consumes({MediaType.APPLICATION_JSON})
-    @Produces({MediaType.TEXT_PLAIN})
+    @Produces({MediaType.APPLICATION_JSON})
     @Timed
     public Response fetchRecordList(String request,
                                     @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
                                     @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                     @DefaultValue("raw") @QueryParam("mode") RecordService.Mode mode,
                                     @QueryParam("exclude-attribute") List<String> excludeAttributes) {
-        final RecordCollectionDTO dto = new RecordCollectionDTO();
-        final List<RecordDTO> recordDTOs = new ArrayList<>();
+        final RecordCollectionDTOv2 dto = new RecordCollectionDTOv2();
+        final List<RecordDTO> found = new ArrayList<>();
+        final List<RecordIdDTO> missing = new ArrayList<>();
         final String res;
         Record record;
         try {
             final RecordIdCollectionDTO recordIdCollectionDTO = jsonbContext.unmarshall(request, RecordIdCollectionDTO.class);
 
             for (RecordIdDTO recordId : recordIdCollectionDTO.getRecordIds()) {
-                if (mode == RecordService.Mode.EXPANDED) {
-                    record = recordSimpleBean.fetchRecordExpanded(recordId.getBibliographicRecordId(), recordId.getAgencyId(), allowDeleted, useParentAgency);
-                } else if (mode == RecordService.Mode.MERGED) {
-                    record = recordSimpleBean.fetchRecordMerged(recordId.getBibliographicRecordId(), recordId.getAgencyId(), allowDeleted, useParentAgency);
-                } else {
-                    record = recordSimpleBean.fetchRecord(recordId.getBibliographicRecordId(), recordId.getAgencyId());
-                }
+                try {
+                    if (mode == RecordService.Mode.EXPANDED) {
+                        record = recordSimpleBean.fetchRecordExpanded(recordId.getBibliographicRecordId(), recordId.getAgencyId(), allowDeleted, useParentAgency);
+                    } else if (mode == RecordService.Mode.MERGED) {
+                        record = recordSimpleBean.fetchRecordMerged(recordId.getBibliographicRecordId(), recordId.getAgencyId(), allowDeleted, useParentAgency);
+                    } else {
+                        record = recordSimpleBean.fetchRecord(recordId.getBibliographicRecordId(), recordId.getAgencyId());
+                    }
 
-                final RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record, excludeAttributes);
-                recordDTOs.add(recordDTO);
+                    final RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record, excludeAttributes);
+                    found.add(recordDTO);
+                } catch (RecordNotFoundException e) {
+                    missing.add(recordId);
+                }
             }
 
-            dto.setRecords(recordDTOs);
+            dto.setFound(found);
+            dto.setMissing(missing);
 
             res = jsonbContext.marshall(dto);
 
