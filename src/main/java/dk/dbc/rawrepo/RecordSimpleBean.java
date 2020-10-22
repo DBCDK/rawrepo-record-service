@@ -119,14 +119,7 @@ public class RecordSimpleBean {
 
                 result = dao.fetchRecord(bibliographicRecordId, agencyId);
 
-                // fetchRecord will return a new empty record if the requested record is not found in the database.
-                // One solution would be to check if the record exists but that requires an extra request to the database
-                // In order to save a round trip we just check if the record has any content.
-                if (result.getContent().length == 0) {
-                    throw new RecordNotFoundException(String.format("The Record %s:%s does not exist", bibliographicRecordId, agencyId));
-                } else {
-                    return result;
-                }
+                return result;
             } catch (RawRepoException ex) {
                 conn.rollback();
                 LOGGER.error(ex.getMessage(), ex);
