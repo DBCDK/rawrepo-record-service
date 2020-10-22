@@ -307,8 +307,15 @@ public class RecordCollectionService {
                         record = recordSimpleBean.fetchRecord(recordId.getBibliographicRecordId(), recordId.getAgencyId());
                     }
 
-                    final RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record, excludeAttributes);
-                    found.add(recordDTO);
+                    // fetchRecord will return a new empty record if the requested record is not found in the database.
+                    // One solution would be to check if the record exists but that requires an extra request to the database
+                    // In order to save a round trip we just check if the record has any content.
+                    if (record.getContent() != null && record.getContent().length > 0) {
+                        final RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record, excludeAttributes);
+                        found.add(recordDTO);
+                    } else {
+                        missing.add(recordId);
+                    }
                 } catch (RecordNotFoundException e) {
                     missing.add(recordId);
                 }
