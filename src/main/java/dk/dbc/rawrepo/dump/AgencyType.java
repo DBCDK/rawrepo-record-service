@@ -10,13 +10,11 @@ import dk.dbc.openagency.client.OpenAgencyException;
 import dk.dbc.openagency.client.OpenAgencyServiceFromURL;
 import dk.dbc.rawrepo.RecordBeanUtils;
 
-import java.util.Arrays;
-
 public enum AgencyType {
     DBC, FBS, LOCAL;
 
     public static AgencyType getAgencyType(OpenAgencyServiceFromURL openAgencyServiceFromURL, int agencyId) throws OpenAgencyException {
-        if (Arrays.asList(870970, 870971, 870974, 870975, 870976, 870977, 870979, 190002, 190004, 190007).contains(agencyId)) {
+        if (RecordBeanUtils.DBC_AGENCIES.contains(agencyId)) {
             return AgencyType.DBC;
         }
 

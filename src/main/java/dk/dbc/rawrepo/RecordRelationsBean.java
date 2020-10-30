@@ -299,7 +299,7 @@ public class RecordRelationsBean {
                 final Set<RecordId> result = new HashSet<>();
                 final RawRepoDAO dao = createDAO(conn);
 
-                if (Arrays.asList(870970, 870971, 870974, 870979, 190002, 190004).contains(agencyId)) {
+                if (RecordBeanUtils.DBC_AGENCIES.contains(agencyId)) {
                     final Set<Integer> agenciesForRecord = dao.allAgenciesForBibliographicRecordId(bibliographicRecordId);
 
                     for (Integer agencyForRecord : agenciesForRecord) {

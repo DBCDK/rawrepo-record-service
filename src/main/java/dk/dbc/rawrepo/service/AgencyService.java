@@ -31,7 +31,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -41,7 +40,6 @@ import java.util.List;
 public class AgencyService {
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(AgencyService.class);
     private final JSONBContext jsonbContext = new JSONBContext();
-    private final List<Integer> DBC_AGENCIES = Arrays.asList(870970, 870971, 870974, 870979);
 
     @EJB
     private RawRepoBean rawRepoBean;
@@ -84,11 +82,11 @@ public class AgencyService {
         String res;
 
         try {
-            HashMap<String,String> bibliographicRecordIdList;
+            HashMap<String, String> bibliographicRecordIdList;
 
             RecordStatus recordStatus = allowDeleted ? RecordStatus.ALL : RecordStatus.ACTIVE;
 
-            if (createdBefore == null && createdAfter == null &&  modifiedBefore == null && modifiedAfter == null) {
+            if (createdBefore == null && createdAfter == null && modifiedBefore == null && modifiedAfter == null) {
                 bibliographicRecordIdList = rawRepoBean.getBibliographicRecordIdForAgency(agencyId, recordStatus);
             } else {
                 // The created and modified fields are timestamps. So if only the date is set then add time
@@ -117,7 +115,7 @@ public class AgencyService {
             int returnAgencyId = agencyId;
 
             // If internalAgencyHandling is true a list of bibliographicRecordId:191919 is returned instead of bibliographicRecordId:agencyId
-            if (internalAgencyHandling && DBC_AGENCIES.contains(agencyId)) {
+            if (internalAgencyHandling && RecordBeanUtils.DBC_AGENCIES.contains(agencyId)) {
                 returnAgencyId = RecordBeanUtils.DBC_ENRICHMENT_AGENCY;
             }
 
