@@ -71,7 +71,7 @@ public class RecordCollectionBean {
                     final Record rawRecord = entry.getValue();
                     if (!isMarcXChange(rawRecord.getMimeType())) {
                         throw new MarcXMergerException(
-                                String.format("Cannot make marcx:collection for record ‰s:%s with mimetype '%s'",
+                                String.format("Cannot make marcx:collection for record %s:%s with mimetype '%s'",
                                         rawRecord.getId().getBibliographicRecordId(),
                                         rawRecord.getId().getAgencyId(),
                                         rawRecord.getMimeType()));
