@@ -70,7 +70,11 @@ public class RecordCollectionBean {
                 for (Map.Entry<String, Record> entry : collection.entrySet()) {
                     final Record rawRecord = entry.getValue();
                     if (!isMarcXChange(rawRecord.getMimeType())) {
-                        throw new MarcXMergerException("Cannot make marcx:collection from mimetype: " + rawRecord.getMimeType());
+                        throw new MarcXMergerException(
+                                String.format("Cannot make marcx:collection for record ‰s:%s with mimetype '%s'",
+                                        rawRecord.getId().getBibliographicRecordId(),
+                                        rawRecord.getId().getAgencyId(),
+                                        rawRecord.getMimeType()));
                     }
 
                     // excludeAutRecords indicate authority records should be thrown away unless it is the requested record
