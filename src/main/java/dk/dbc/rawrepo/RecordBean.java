@@ -160,17 +160,16 @@ public class RecordBean {
 
                 mergePool.checkIn(merger);
 
-                // This conversion is necessary for setting the namespace in the marcxchange document
-                MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
-
                 if (excludeDBCFields) {
-                    marcRecord = removePrivateFields(marcRecord);
-                }
+                    MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(rawRecord.getContent());
 
-                final Instant modified = rawRecord.getModified();
-                rawRecord.setContent(RecordObjectMapper.marcToContent(marcRecord));
-                // Modified is set to now() when content is changed, so we need to change it back to the original value
-                rawRecord.setModified(modified);
+                    marcRecord = removePrivateFields(marcRecord);
+
+                    final Instant modified = rawRecord.getModified();
+                    rawRecord.setContent(RecordObjectMapper.marcToContent(marcRecord));
+                    // Modified is set to now() when content is changed, so we need to change it back to the original value
+                    rawRecord.setModified(modified);
+                }
 
                 return rawRecord;
             } catch (RawRepoExceptionRecordNotFound ex) {
