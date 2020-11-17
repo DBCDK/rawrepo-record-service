@@ -7,9 +7,7 @@ package dk.dbc.rawrepo.service;
 
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
-import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
-import dk.dbc.rawrepo.MarcRecordBean;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.RecordBean;
@@ -40,7 +38,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -57,9 +54,6 @@ public class RecordService {
 
     @EJB
     private RecordSimpleBean recordSimpleBean;
-
-    @EJB
-    private MarcRecordBean marcRecordBean;
 
     @EJB
     private RecordRelationsBean recordRelationsBean;
@@ -82,17 +76,7 @@ public class RecordService {
         String res;
 
         try {
-            Record record;
-
-            if (Mode.RAW.equals(mode)) {
-                record = recordBean.getRawRepoRecordRaw(bibliographicRecordId, agencyId, allowDeleted);
-            } else if (Mode.MERGED.equals(mode)) {
-                record = recordBean.getRawRepoRecordMerged(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency);
-            } else if (Mode.EXPANDED.equals(mode)) {
-                record = recordBean.getRawRepoRecordExpanded(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
-            } else {
-                return Response.serverError().build();
-            }
+            final Record record = getRawRepoRecord(agencyId, bibliographicRecordId, mode, allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
 
             if (record == null) {
                 return Response.status(Response.Status.NO_CONTENT).build();
@@ -163,19 +147,13 @@ public class RecordService {
         String res;
 
         try {
-            MarcRecord record;
-
-            if (Mode.RAW.equals(mode) || Mode.MERGED.equals(mode)) {
-                record = marcRecordBean.getMarcRecordMerged(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency);
-            } else {
-                record = marcRecordBean.getMarcRecordExpanded(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
-            }
+            final Record record = getRawRepoRecord(agencyId, bibliographicRecordId, mode, allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
 
             if (record == null) {
                 return Response.status(Response.Status.NO_CONTENT).build();
             }
 
-            res = new String(RecordObjectMapper.marcToContent(record), StandardCharsets.UTF_8);
+            res = new String(record.getContent());
 
             return Response.ok(res, MediaType.APPLICATION_XML).build();
         } catch (InternalServerException ex) {
@@ -446,6 +424,26 @@ public class RecordService {
         } finally {
             LOGGER.info("v1/record/{}/{}/{}", agencyId, bibliographicRecordId, historicDate);
         }
+    }
+
+    private Record getRawRepoRecord(int agencyId,
+                                    String bibliographicRecordId,
+                                    Mode mode,
+                                    boolean allowDeleted,
+                                    boolean excludeDBCFields,
+                                    boolean useParentAgency,
+                                    boolean keepAutFields) throws RecordNotFoundException, InternalServerException {
+        final Record record;
+
+        if (Mode.RAW.equals(mode)) {
+            record = recordBean.getRawRepoRecordRaw(bibliographicRecordId, agencyId, allowDeleted);
+        } else if (Mode.MERGED.equals(mode)) {
+            record = recordBean.getRawRepoRecordMerged(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency);
+        } else {
+            record = recordBean.getRawRepoRecordExpanded(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
+        }
+
+        return record;
     }
 
     public enum Mode {
