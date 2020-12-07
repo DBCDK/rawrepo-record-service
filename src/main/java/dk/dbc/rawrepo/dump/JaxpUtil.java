@@ -28,6 +28,11 @@ import java.io.IOException;
  */
 public class JaxpUtil {
 
+    // SonarLint S1118 - Utility classes should not have public constructors
+    private JaxpUtil() {
+
+    }
+
     /**
      * Thread local variable used to give each thread its own DocumentBuilderFactory (since it is not thread-safe)
      */
@@ -48,7 +53,7 @@ public class JaxpUtil {
      * @throws SAXException          If any parse errors occur
      * @throws IllegalStateException if a DocumentBuilder cannot be created
      */
-    public static Document toDocument(byte[] bytes) throws IOException, SAXException, IllegalStateException {
+    public static Document toDocument(byte[] bytes) throws IOException, SAXException {
         try {
             final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
             final DocumentBuilderFactory documentBuilderFactory = JaxpUtil.documentBuilderFactory.get();

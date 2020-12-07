@@ -179,10 +179,11 @@ public class DumpService {
                             // Execute the threads when either the outstanding thread count has reached max or it is the last loop
                             if (loopCount % MAX_THREAD_COUNT == 0 || !bibliographicIdResultSet.hasNext()) {
                                 final List<Future<Boolean>> futures = executor.invokeAll(threadList);
-                                for (Future f : futures) {
+                                for (Future<Boolean> f : futures) {
                                     try {
                                         f.get(); // We don't care about the result, we just want to see if there was an exception during execution
                                     } catch (ExecutionException e) {
+                                        LOGGER.error("Caught exception in a thread", e.getCause());
                                         throw new WebApplicationException(e.getMessage(), e);
                                     }
                                 }
@@ -283,10 +284,11 @@ public class DumpService {
                             // Execute the threads when either the outstanding thread count has reached max or it is the last loop
                             if (loopCount % MAX_THREAD_COUNT == 0 || !bibliographicIdResultSet.hasNext()) {
                                 final List<Future<Boolean>> futures = executor.invokeAll(threadList);
-                                for (Future f : futures) {
+                                for (Future<Boolean> f : futures) {
                                     try {
                                         f.get(); // We don't care about the result, we just want to see if there was an exception during execution
                                     } catch (ExecutionException e) {
+                                        LOGGER.error("Caught exception in thread", e);
                                         throw new WebApplicationException(e.getMessage(), e);
                                     }
                                 }

@@ -97,7 +97,7 @@ public class AgencyParams extends Params {
         List<ParamsValidationItemDTO> result = validateParams();
         boolean hasFBSLibrary = false;
 
-        if (this.agencies == null || this.agencies.size() == 0) {
+        if (this.agencies == null || this.agencies.isEmpty()) {
             result.add(new ParamsValidationItemDTO("agencies", "Field is mandatory and must contain at least one agency id"));
         } else {
             for (Integer agencyId : this.agencies) {
@@ -134,14 +134,14 @@ public class AgencyParams extends Params {
         }
 
         if (this.recordType != null) { // Validate values if present
-            if (this.recordType.size() == 0) {
+            if (this.recordType.isEmpty()) {
                 result.add(new ParamsValidationItemDTO("recordType", "If the field is present it must contain at least one value. Allowed values are: " + RecordType.validValues()));
             } else {
-                for (String recordType : this.recordType) {
+                for (String recordTypeString : this.recordType) {
                     try {
-                        RecordType.fromString(recordType);
+                        RecordType.fromString(recordTypeString);
                     } catch (IllegalArgumentException e) {
-                        result.add(new ParamsValidationItemDTO("recordType", "The value " + recordType + " is not a valid value. Allowed values are: " + RecordType.validValues()));
+                        result.add(new ParamsValidationItemDTO("recordType", "The value " + recordTypeString + " is not a valid value. Allowed values are: " + RecordType.validValues()));
                     }
                 }
             }

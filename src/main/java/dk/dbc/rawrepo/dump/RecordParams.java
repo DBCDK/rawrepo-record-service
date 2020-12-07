@@ -45,7 +45,7 @@ public class RecordParams extends Params {
     public List<ParamsValidationItemDTO> validate() {
         List<ParamsValidationItemDTO> result = validateParams();
 
-        if (this.recordIds == null || this.recordIds.size() == 0) {
+        if (this.recordIds == null || this.recordIds.isEmpty()) {
             result.add(new ParamsValidationItemDTO("recordIds", "Field is mandatory and must contain at least one record id"));
         }
 
