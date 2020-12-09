@@ -71,7 +71,7 @@ class AbstractRecordServiceContainerTest {
 
         Network network = Network.newNetwork();
 
-        rawrepoDbContainer = new GenericContainer("docker-io.dbc.dk/rawrepo-postgres-1.13-snapshot:DIT-5016")
+        rawrepoDbContainer = new GenericContainer("docker-io.dbc.dk/rawrepo-postgres-1.14-snapshot:master-5124")
                 .withNetwork(network)
                 .withNetworkAliases("rawrepoDb")
                 .withLogConsumer(new Slf4jLogConsumer(LOGGER))
