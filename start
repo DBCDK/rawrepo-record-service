@@ -7,7 +7,7 @@ record_service_port=${RAWREPO_RECORD_SERVICE_PORT:-8080}
 docker run --rm --name rawrepo-record-service -d -p ${record_service_port}:8080 \
     -e INSTANCE_NAME=${USER}_dev \
     -e VIPCORE_CACHE_AGE="1" \
-    -e VIPCORE_ENDPOINT="http://openagency.addi.dk/2.34/" \
+    -e VIPCORE_ENDPOINT="http://vipcore.iscrum-vip-extern-test.svc.cloud.dbc.dk" \
     -e RAWREPO_URL=${RAWREPO_URL} \
     -e HOLDINGS_URL=${HOLDINGS_URL} \
     -e DUMP_THREAD_COUNT="8" \
