@@ -6,7 +6,6 @@
 package dk.dbc.rawrepo;
 
 import dk.dbc.marc.binding.DataField;
-import dk.dbc.marc.binding.Field;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.binding.SubField;
 import dk.dbc.marc.reader.MarcReaderException;
