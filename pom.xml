@@ -37,11 +37,11 @@
             <version>1.5-SNAPSHOT</version>
         </dependency>
 
+        <!-- While httpclient is only used for testing in this project other dependencies need it -->
         <dependency>
             <groupId>dk.dbc</groupId>
             <artifactId>httpclient</artifactId>
             <version>0.2</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
