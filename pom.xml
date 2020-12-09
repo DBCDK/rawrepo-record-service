@@ -21,7 +21,7 @@
         <dependency>
             <groupId>dk.dbc</groupId>
             <artifactId>rawrepo-access</artifactId>
-            <version>1.13-SNAPSHOT</version>
+            <version>1.14-SNAPSHOT</version>
         </dependency>
 
         <dependency>

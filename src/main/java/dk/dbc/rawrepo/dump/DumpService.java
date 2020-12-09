@@ -7,15 +7,15 @@ package dk.dbc.rawrepo.dump;
 
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
-import dk.dbc.openagency.client.OpenAgencyException;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.RecordRelationsBean;
 import dk.dbc.rawrepo.dao.HoldingsItemsBean;
-import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.dao.RawRepoBean;
 import dk.dbc.rawrepo.dto.ParamsValidationDTO;
 import dk.dbc.rawrepo.dto.ParamsValidationItemDTO;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
+import dk.dbc.vipcore.exception.VipCoreException;
+import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnector;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,8 +64,8 @@ public class DumpService {
     @Resource(lookup = "java:comp/DefaultManagedExecutorService")
     private ManagedExecutorService executor;
 
-    @EJB
-    private OpenAgencyBean openAgency;
+    @Inject
+    private VipCoreLibraryRulesConnector vipCoreLibraryRulesConnector;
 
     @EJB
     private RawRepoBean rawRepoBean;
@@ -82,7 +82,7 @@ public class DumpService {
     @Produces({MediaType.TEXT_PLAIN})
     public Response dumpLibraryRecordsDryRun(AgencyParams params) {
         try {
-            final List<ParamsValidationItemDTO> paramsValidationItemList = params.validate(openAgency.getService());
+            final List<ParamsValidationItemDTO> paramsValidationItemList = params.validate(vipCoreLibraryRulesConnector);
             if (paramsValidationItemList.size() > 0) {
                 final ParamsValidationDTO paramsValidation = new ParamsValidationDTO();
                 paramsValidation.setErrors(paramsValidationItemList);
@@ -98,7 +98,7 @@ public class DumpService {
             StreamingOutput output = out -> {
                 try {
                     for (Integer agencyId : params.getAgencies()) {
-                        final AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
+                        final AgencyType agencyType = AgencyType.getAgencyType(vipCoreLibraryRulesConnector, agencyId);
                         final HashMap<String, String> record = getRecords(agencyId, params);
                         final HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params, true);
 
@@ -107,7 +107,7 @@ public class DumpService {
 
                         out.write(String.format("%s: %s%n", agencyId, bibliographicIdResultSet.size()).getBytes());
                     }
-                } catch (OpenAgencyException | RawRepoException | SQLException | IOException e) {
+                } catch (VipCoreException | RawRepoException | SQLException | IOException e) {
                     LOGGER.error("Caught exception during write", e);
                     throw new WebApplicationException("Caught exception during write", e);
                 }
@@ -132,7 +132,7 @@ public class DumpService {
         // The service is meant to be called from curl, so the error message should be easy to read.
         // Therefor the message is simple text instead of JSON or HTML
         try {
-            final List<ParamsValidationItemDTO> paramsValidationItemList = params.validate(openAgency.getService());
+            final List<ParamsValidationItemDTO> paramsValidationItemList = params.validate(vipCoreLibraryRulesConnector);
             if (paramsValidationItemList.size() > 0) {
                 final ParamsValidationDTO paramsValidation = new ParamsValidationDTO();
                 paramsValidation.setErrors(paramsValidationItemList);
@@ -152,7 +152,7 @@ public class DumpService {
                     for (Integer agencyId : params.getAgencies()) {
                         final RecordByteWriter recordByteWriter = new RecordByteWriter(out, params);
                         recordByteWriter.writeHeader();
-                        final AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
+                        final AgencyType agencyType = AgencyType.getAgencyType(vipCoreLibraryRulesConnector, agencyId);
                         final HashMap<String, String> record = getRecords(agencyId, params);
                         final HashMap<String, String> holdings = getHoldings(agencyId, agencyType, params, false);
 
@@ -193,7 +193,7 @@ public class DumpService {
 
                         recordByteWriter.writeFooter();
                     }
-                } catch (OpenAgencyException | InterruptedException | RawRepoException | SQLException | IOException ex) {
+                } catch (VipCoreException | InterruptedException | RawRepoException | SQLException | IOException ex) {
                     LOGGER.error("Caught exception during write", ex);
                     throw new WebApplicationException("Caught exception during write", ex);
                 }
@@ -258,7 +258,7 @@ public class DumpService {
                     for (Integer agencyId : params.getAgencies()) {
                         final RecordByteWriter recordByteWriter = new RecordByteWriter(out, params);
                         recordByteWriter.writeHeader();
-                        final AgencyType agencyType = AgencyType.getAgencyType(openAgency.getService(), agencyId);
+                        final AgencyType agencyType = AgencyType.getAgencyType(vipCoreLibraryRulesConnector, agencyId);
                         final HashMap<String, String> record = getRecords(agencyId, params);
 
                         LOGGER.info("Opening connection and RecordResultSet...");
@@ -298,7 +298,7 @@ public class DumpService {
 
                         recordByteWriter.writeFooter();
                     }
-                } catch (OpenAgencyException | InterruptedException | RawRepoException | IOException ex) {
+                } catch (VipCoreException | InterruptedException | RawRepoException | IOException ex) {
                     LOGGER.error("Caught exception during write", ex);
                     throw new WebApplicationException("Caught exception during write", ex);
                 }

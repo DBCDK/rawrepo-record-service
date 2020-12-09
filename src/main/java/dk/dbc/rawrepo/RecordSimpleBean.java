@@ -7,13 +7,13 @@ package dk.dbc.rawrepo;
 
 import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.marcxmerge.MarcXMergerException;
-import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.rawrepo.pool.CustomMarcXMergerPool;
 import dk.dbc.rawrepo.pool.DefaultMarcXMergerPool;
 import dk.dbc.rawrepo.pool.ObjectPool;
 import dk.dbc.util.Timed;
+import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnector;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -21,6 +21,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -32,13 +33,13 @@ public class RecordSimpleBean {
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
 
-    @EJB
-    private OpenAgencyBean openAgency;
+    @Inject
+    private VipCoreLibraryRulesConnector vipCoreLibraryRulesConnector;
 
     private final ObjectPool<MarcXMerger> customMarcXMergerPool = new CustomMarcXMergerPool();
     private final ObjectPool<MarcXMerger> defaultMarcXMergerPool = new DefaultMarcXMergerPool();
 
-    RelationHintsOpenAgency relationHints;
+    RelationHintsVipCore relationHints;
 
     protected RawRepoDAO createDAO(Connection conn) throws RawRepoException {
         final RawRepoDAO.Builder rawRepoBuilder = RawRepoDAO.builder(conn);
@@ -67,7 +68,7 @@ public class RecordSimpleBean {
     @PostConstruct
     public void init() {
         try {
-            relationHints = new RelationHintsOpenAgency(openAgency.getService());
+            relationHints = new RelationHintsVipCore(vipCoreLibraryRulesConnector);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

@@ -5,9 +5,9 @@
 
 package dk.dbc.rawrepo.dump;
 
-import dk.dbc.openagency.client.OpenAgencyException;
-import dk.dbc.openagency.client.OpenAgencyServiceFromURL;
 import dk.dbc.rawrepo.dto.ParamsValidationItemDTO;
+import dk.dbc.vipcore.exception.VipCoreException;
+import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnector;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -93,7 +93,7 @@ public class AgencyParams extends Params {
                 '}';
     }
 
-    public List<ParamsValidationItemDTO> validate(OpenAgencyServiceFromURL openAgencyServiceFromURL) {
+    public List<ParamsValidationItemDTO> validate(VipCoreLibraryRulesConnector vipCoreLibraryRulesConnector) {
         List<ParamsValidationItemDTO> result = validateParams();
         boolean hasFBSLibrary = false;
 
@@ -112,13 +112,13 @@ public class AgencyParams extends Params {
 
             for (int agencyId : this.agencies) {
                 try {
-                    AgencyType agencyType = AgencyType.getAgencyType(openAgencyServiceFromURL, agencyId);
+                    AgencyType agencyType = AgencyType.getAgencyType(vipCoreLibraryRulesConnector, agencyId);
 
                     if (agencyType == AgencyType.FBS) {
                         hasFBSLibrary = true;
                     }
-                } catch (OpenAgencyException e) {
-                    result.add(new ParamsValidationItemDTO("agencies", "Agency " + agencyId + " could not be validated by OpenAgency"));
+                } catch (VipCoreException e) {
+                    result.add(new ParamsValidationItemDTO("agencies", "Agency " + agencyId + " could not be validated by VipCore"));
                 }
             }
         }

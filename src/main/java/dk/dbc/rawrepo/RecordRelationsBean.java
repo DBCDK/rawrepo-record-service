@@ -10,10 +10,10 @@ import dk.dbc.marc.binding.Field;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.binding.SubField;
 import dk.dbc.marc.reader.MarcReaderException;
-import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.rawrepo.service.RecordObjectMapper;
+import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnector;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -21,6 +21,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -33,15 +34,15 @@ import java.util.Set;
 public class RecordRelationsBean {
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(RecordRelationsBean.class);
 
-    RelationHintsOpenAgency relationHints;
+    RelationHintsVipCore relationHints;
 
     private final List<String> AUTHORITY_FIELDS = Arrays.asList("100", "600", "700", "770", "780");
 
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
 
-    @EJB
-    OpenAgencyBean openAgency;
+    @Inject
+    private VipCoreLibraryRulesConnector vipCoreLibraryRulesConnector;
 
     @EJB
     RecordSimpleBean recordSimpleBean;
@@ -66,7 +67,7 @@ public class RecordRelationsBean {
     @PostConstruct
     public void init() {
         try {
-            relationHints = new RelationHintsOpenAgency(openAgency.getService());
+            relationHints = new RelationHintsVipCore(vipCoreLibraryRulesConnector);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

@@ -50,7 +50,7 @@ public class RecordBeanTest {
     private RecordRelationsBean recordRelationsBean;
 
     @Mock
-    private static RelationHintsOpenAgency relationHintsOpenAgency;
+    private static RelationHintsVipCore relationHints;
 
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
 
@@ -63,7 +63,7 @@ public class RecordBeanTest {
         RecordBeanMock(DataSource globalDataSource, RecordSimpleBean recordSimpleBean, RecordRelationsBean recordRelationsBean) {
             super(globalDataSource);
 
-            this.relationHints = relationHintsOpenAgency;
+            this.relationHints = RecordBeanTest.relationHints;
             this.recordSimpleBean = recordSimpleBean;
             this.recordRelationsBean = recordRelationsBean;
         }

@@ -5,19 +5,20 @@
 
 package dk.dbc.rawrepo.dao;
 
-import dk.dbc.rawrepo.RelationHintsOpenAgency;
+import dk.dbc.rawrepo.RelationHintsVipCore;
 import dk.dbc.rawrepo.dto.EnqueueResultDTO;
 import dk.dbc.rawrepo.dto.QueueRuleDTO;
 import dk.dbc.rawrepo.dto.QueueStatDTO;
 import dk.dbc.rawrepo.exception.QueueException;
 import dk.dbc.util.StopwatchInterceptor;
+import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnector;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -49,15 +50,15 @@ public class RawRepoQueueBean {
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
 
-    @EJB
-    private OpenAgencyBean openAgency;
+    @Inject
+    VipCoreLibraryRulesConnector libraryRulesConnector;
 
-    RelationHintsOpenAgency relationHints;
+    RelationHintsVipCore relationHints;
 
     @PostConstruct
     public void init() {
         try {
-            relationHints = new RelationHintsOpenAgency(openAgency.getService());
+            relationHints = new RelationHintsVipCore(libraryRulesConnector);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

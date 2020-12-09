@@ -5,8 +5,8 @@
 
 package dk.dbc.rawrepo;
 
-import dk.dbc.rawrepo.dao.OpenAgencyBean;
 import dk.dbc.rawrepo.exception.InternalServerException;
+import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnector;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -23,13 +24,13 @@ import java.util.List;
 public class RecordHistoryBean {
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(RecordHistoryBean.class);
 
-    RelationHintsOpenAgency relationHints;
+    @Inject
+    VipCoreLibraryRulesConnector libraryRulesConnector;
+
+    RelationHintsVipCore relationHints;
 
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
-
-    @EJB
-    private OpenAgencyBean openAgency;
 
     protected RawRepoDAO createDAO(Connection conn) throws RawRepoException {
         final RawRepoDAO.Builder rawRepoBuilder = RawRepoDAO.builder(conn);
@@ -50,7 +51,7 @@ public class RecordHistoryBean {
     @PostConstruct
     public void init() {
         try {
-            relationHints = new RelationHintsOpenAgency(openAgency.getService());
+            relationHints = new RelationHintsVipCore(libraryRulesConnector);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
