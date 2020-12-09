@@ -51,7 +51,7 @@ public class RawRepoQueueBean {
     private DataSource dataSource;
 
     @Inject
-    VipCoreLibraryRulesConnector libraryRulesConnector;
+    private VipCoreLibraryRulesConnector libraryRulesConnector;
 
     RelationHintsVipCore relationHints;
 
