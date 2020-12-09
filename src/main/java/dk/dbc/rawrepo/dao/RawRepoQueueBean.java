@@ -10,6 +10,7 @@ import dk.dbc.rawrepo.dto.EnqueueResultDTO;
 import dk.dbc.rawrepo.dto.QueueRuleDTO;
 import dk.dbc.rawrepo.dto.QueueStatDTO;
 import dk.dbc.rawrepo.exception.QueueException;
+import dk.dbc.rawrepo.exception.RecordServiceRuntimeException;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnector;
 import org.slf4j.ext.XLogger;
@@ -60,7 +61,7 @@ public class RawRepoQueueBean {
         try {
             relationHints = new RelationHintsVipCore(libraryRulesConnector);
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            throw new RecordServiceRuntimeException(ex);
         }
     }
 

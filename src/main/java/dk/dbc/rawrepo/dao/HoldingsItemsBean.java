@@ -18,6 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
 
 @Interceptors(StopwatchInterceptor.class)
 @Stateless
@@ -27,7 +28,7 @@ public class HoldingsItemsBean {
     @Resource(lookup = "jdbc/holdings")
     private DataSource dataSource;
 
-    public HashMap<String, String> getRecordIdsWithHolding(int agencyId) throws SQLException {
+    public Map<String, String> getRecordIdsWithHolding(int agencyId) throws SQLException {
         HashMap<String, String> res = new HashMap<>();
 
         try (Connection connection = dataSource.getConnection();

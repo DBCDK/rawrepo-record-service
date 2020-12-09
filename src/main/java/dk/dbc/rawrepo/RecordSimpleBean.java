@@ -9,6 +9,7 @@ import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.marcxmerge.MarcXMergerException;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
+import dk.dbc.rawrepo.exception.RecordServiceRuntimeException;
 import dk.dbc.rawrepo.pool.CustomMarcXMergerPool;
 import dk.dbc.rawrepo.pool.DefaultMarcXMergerPool;
 import dk.dbc.rawrepo.pool.ObjectPool;
@@ -69,7 +70,7 @@ public class RecordSimpleBean {
         try {
             relationHints = new RelationHintsVipCore(vipCoreLibraryRulesConnector);
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            throw new RecordServiceRuntimeException(ex);
         }
     }
 
@@ -111,7 +112,7 @@ public class RecordSimpleBean {
         }
     }
 
-    public Record fetchRecord(String bibliographicRecordId, int agencyId) throws InternalServerException, RecordNotFoundException {
+    public Record fetchRecord(String bibliographicRecordId, int agencyId) throws InternalServerException {
         final Record result;
         try (Connection conn = dataSource.getConnection()) {
             try {

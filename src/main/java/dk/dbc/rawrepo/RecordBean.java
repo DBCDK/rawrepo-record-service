@@ -13,6 +13,7 @@ import dk.dbc.marcxmerge.MarcXMergerException;
 import dk.dbc.marcxmerge.MarcXMimeTypeMerger;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
+import dk.dbc.rawrepo.exception.RecordServiceRuntimeException;
 import dk.dbc.rawrepo.pool.CustomMarcXMergerPool;
 import dk.dbc.rawrepo.pool.DefaultMarcXMergerPool;
 import dk.dbc.rawrepo.pool.ObjectPool;
@@ -86,7 +87,7 @@ public class RecordBean {
         try {
             relationHints = new RelationHintsVipCore(vipCoreLibraryRulesConnector);
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            throw new RecordServiceRuntimeException(ex);
         }
     }
 

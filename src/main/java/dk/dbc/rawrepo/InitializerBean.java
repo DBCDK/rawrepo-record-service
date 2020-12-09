@@ -6,6 +6,7 @@
 package dk.dbc.rawrepo;
 
 import dk.dbc.rawrepo.dao.RawRepoBean;
+import dk.dbc.rawrepo.exception.RecordServiceRuntimeException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -44,7 +45,7 @@ public class InitializerBean {
             LOGGER.info("postConstruct done!");
         } catch (Exception ex) {
             LOGGER.error("Caught exception", ex);
-            throw new RuntimeException(ex);
+            throw new RecordServiceRuntimeException(ex);
         }
     }
 }

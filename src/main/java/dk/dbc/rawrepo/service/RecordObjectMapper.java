@@ -19,8 +19,12 @@ import java.util.Collection;
 
 public class RecordObjectMapper {
 
-    private final static MarcXchangeV1Writer marcRecordWriter = new MarcXchangeV1Writer();
-    private final static Charset charset = StandardCharsets.UTF_8;
+    private RecordObjectMapper() {
+
+    }
+
+    private static final MarcXchangeV1Writer marcRecordWriter = new MarcXchangeV1Writer();
+    private static final Charset charset = StandardCharsets.UTF_8;
 
     public static byte[] marcToContent(MarcRecord marcRecord) {
         return marcRecordWriter.write(marcRecord, charset);
