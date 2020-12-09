@@ -19,7 +19,6 @@ import org.slf4j.ext.XLoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.sql.DataSource;
