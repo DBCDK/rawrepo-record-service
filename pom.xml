@@ -17,6 +17,13 @@
         <microprofile.version>1.2</microprofile.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>mavenrepo.dbc.dk</id>
+            <url>http://mavenrepo.dbc.dk/content/groups/public</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>dk.dbc</groupId>
