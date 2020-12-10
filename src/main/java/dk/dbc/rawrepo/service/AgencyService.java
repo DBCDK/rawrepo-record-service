@@ -31,8 +31,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Interceptors({StopwatchInterceptor.class})
 @Stateless
@@ -82,7 +82,7 @@ public class AgencyService {
         String res;
 
         try {
-            HashMap<String, String> bibliographicRecordIdList;
+            Map<String, String> bibliographicRecordIdList;
 
             RecordStatus recordStatus = allowDeleted ? RecordStatus.ALL : RecordStatus.ACTIVE;
 

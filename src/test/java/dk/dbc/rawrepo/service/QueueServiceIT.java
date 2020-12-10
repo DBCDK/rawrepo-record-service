@@ -111,7 +111,7 @@ public class QueueServiceIT extends AbstractRecordServiceContainerTest {
                 "ims-bulk",
                 "opencataloging-update",
                 "solr-sync-bulk",
-                "update-rawrepo-solr-sync");
+                "update-rawrepo-solr");
 
         final HttpGet httpGet = new HttpGet(httpClient)
                 .withBaseUrl(recordServiceBaseUrl)

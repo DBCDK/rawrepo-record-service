@@ -110,10 +110,10 @@ public class QueueService {
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
         } catch (QueueException | JSONBException ex) {
-            LOGGER.error("Exception during getQueueProviders", ex);
+            LOGGER.error("Exception during getQueueWorkers", ex);
             return Response.serverError().build();
         } finally {
-            LOGGER.info("v1/queue/providers");
+            LOGGER.info("v1/queue/workers");
         }
     }
 
@@ -133,10 +133,10 @@ public class QueueService {
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
         } catch (QueueException | JSONBException ex) {
-            LOGGER.error("Exception during getQueueProviders", ex);
+            LOGGER.error("Exception during getQueueWorkerStats", ex);
             return Response.serverError().build();
         } finally {
-            LOGGER.info("v1/queue/providers");
+            LOGGER.info("v1/queue/stats/workers");
         }
     }
 
@@ -156,10 +156,10 @@ public class QueueService {
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
         } catch (QueueException | JSONBException ex) {
-            LOGGER.error("Exception during getQueueProviders", ex);
+            LOGGER.error("Exception during getQueueAgencyStats", ex);
             return Response.serverError().build();
         } finally {
-            LOGGER.info("v1/queue/providers");
+            LOGGER.info("v1/queue/stats/agency");
         }
     }
 

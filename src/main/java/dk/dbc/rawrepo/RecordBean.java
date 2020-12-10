@@ -10,15 +10,17 @@ import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marcrecord.ExpandCommonMarcRecord;
 import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.marcxmerge.MarcXMergerException;
-import dk.dbc.rawrepo.dao.OpenAgencyBean;
+import dk.dbc.marcxmerge.MarcXMimeTypeMerger;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
+import dk.dbc.rawrepo.exception.RecordServiceRuntimeException;
 import dk.dbc.rawrepo.pool.CustomMarcXMergerPool;
 import dk.dbc.rawrepo.pool.DefaultMarcXMergerPool;
 import dk.dbc.rawrepo.pool.ObjectPool;
 import dk.dbc.rawrepo.service.RecordObjectMapper;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
+import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnector;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -26,6 +28,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -49,8 +52,8 @@ public class RecordBean {
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
 
-    @EJB
-    private OpenAgencyBean openAgency;
+    @Inject
+    private VipCoreLibraryRulesConnector vipCoreLibraryRulesConnector;
 
     @EJB
     RecordSimpleBean recordSimpleBean;
@@ -61,7 +64,7 @@ public class RecordBean {
     private final ObjectPool<MarcXMerger> customMarcXMergerPool = new CustomMarcXMergerPool();
     private final ObjectPool<MarcXMerger> defaultMarcXMergerPool = new DefaultMarcXMergerPool();
 
-    RelationHintsOpenAgency relationHints;
+    RelationHintsVipCore relationHints;
 
     // Constructor used for mocking
     RecordBean(DataSource dataSource) {
@@ -82,9 +85,9 @@ public class RecordBean {
     @PostConstruct
     public void init() {
         try {
-            relationHints = new RelationHintsOpenAgency(openAgency.getService());
+            relationHints = new RelationHintsVipCore(vipCoreLibraryRulesConnector);
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            throw new RecordServiceRuntimeException(ex);
         }
     }
 
@@ -308,7 +311,7 @@ public class RecordBean {
 
                     while (iterator.hasNext()) {
                         final Record next = iterator.next();
-                        if (!merger.canMerge(record.getMimeType(), next.getMimeType())) {
+                        if (!MarcXMimeTypeMerger.canMerge(record.getMimeType(), next.getMimeType())) {
                             LOGGER.error("Cannot merge: " + record.getMimeType() + " and " + next.getMimeType());
                             throw new MarcXMergerException("Cannot merge enrichment");
                         }
@@ -317,7 +320,7 @@ public class RecordBean {
                         enrichmentTrail.append(',').append(next.getId().getAgencyId());
 
                         record = RecordImpl.fromCache(bibliographicRecordId, next.getId().getAgencyId(), true,
-                                merger.mergedMimetype(record.getMimeType(), next.getMimeType()), content,
+                                MarcXMimeTypeMerger.mergedMimetype(record.getMimeType(), next.getMimeType()), content,
                                 record.getCreated().isAfter(next.getCreated()) ? record.getCreated() : next.getCreated(),
                                 record.getModified().isAfter(next.getModified()) ? record.getModified() : next.getModified(),
                                 record.getModified().isAfter(next.getModified()) ? record.getTrackingId() : next.getTrackingId(),

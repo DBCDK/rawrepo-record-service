@@ -46,7 +46,7 @@ public class RecordCollectionBeanTest {
     private RecordRelationsBean recordRelationsBean;
 
     @Mock
-    private static RelationHintsOpenAgency relationHintsOpenAgency;
+    private static RelationHintsVipCore relationHints;
 
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
 
@@ -67,16 +67,16 @@ public class RecordCollectionBeanTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        doCallRealMethod().when(relationHintsOpenAgency).getAgencyPriority(anyInt());
-        doCallRealMethod().when(relationHintsOpenAgency).usesCommonSchoolAgency(anyInt());
-        doCallRealMethod().when(relationHintsOpenAgency).get(anyInt());
-        when(relationHintsOpenAgency.usesCommonAgency(anyInt())).thenReturn(false);
-        when(relationHintsOpenAgency.usesCommonAgency(eq(191919))).thenReturn(true);
-        when(relationHintsOpenAgency.usesCommonAgency(eq(700300))).thenReturn(true);
-        when(relationHintsOpenAgency.usesCommonAgency(eq(870970))).thenReturn(true);
-        when(relationHintsOpenAgency.usesCommonAgency(eq(870971))).thenReturn(true);
-        when(relationHintsOpenAgency.usesCommonAgency(eq(870974))).thenReturn(true);
-        when(relationHintsOpenAgency.usesCommonAgency(eq(870979))).thenReturn(true);
+        doCallRealMethod().when(relationHints).getAgencyPriority(anyInt());
+        doCallRealMethod().when(relationHints).usesCommonSchoolAgency(anyInt());
+        doCallRealMethod().when(relationHints).get(anyInt());
+        when(relationHints.usesCommonAgency(anyInt())).thenReturn(false);
+        when(relationHints.usesCommonAgency(eq(191919))).thenReturn(true);
+        when(relationHints.usesCommonAgency(eq(700300))).thenReturn(true);
+        when(relationHints.usesCommonAgency(eq(870970))).thenReturn(true);
+        when(relationHints.usesCommonAgency(eq(870971))).thenReturn(true);
+        when(relationHints.usesCommonAgency(eq(870974))).thenReturn(true);
+        when(relationHints.usesCommonAgency(eq(870979))).thenReturn(true);
     }
 
     @Test

@@ -54,7 +54,7 @@ public class BibliographicIdResultSet {
             holdings.keySet().removeAll(records.keySet());
 
             this.bibliographicRecordIdList.putAll(holdings);
-        } else if (agencyType == AgencyType.FBS){
+        } else if (agencyType == AgencyType.FBS) {
             if (!params.getRecordType().contains(RecordType.LOCAL.toString())) {
                 records.keySet().removeAll(localBibliographicRecordIds);
             }
@@ -67,7 +67,7 @@ public class BibliographicIdResultSet {
         this.bibliographicRecordIdList.putAll(records);
     }
 
-    public BibliographicIdResultSet(int sliceSize,  Map<String, String> records) {
+    public BibliographicIdResultSet(int sliceSize, Map<String, String> records) {
         this.sliceSize = sliceSize;
         this.bibliographicRecordIdList.putAll(records);
     }

@@ -10,13 +10,14 @@ import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marc.reader.MarcXchangeV1Reader;
 import dk.dbc.marc.writer.MarcXchangeV1Writer;
-import dk.dbc.openagency.client.OpenAgencyServiceFromURL;
 import dk.dbc.rawrepo.QueueJob;
 import dk.dbc.rawrepo.RawRepoDAO;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.RecordId;
-import dk.dbc.rawrepo.RelationHintsOpenAgency;
+import dk.dbc.rawrepo.RelationHintsVipCore;
+import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnector;
+import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
@@ -55,8 +56,8 @@ class AbstractRecordServiceContainerTest {
     private static final GenericContainer rawrepoDbContainer;
     private static final GenericContainer holdingsItemsDbContainer;
 
-    private static final RelationHintsOpenAgency relationHints;
-    private static final OpenAgencyServiceFromURL openAgency;
+    private static final VipCoreLibraryRulesConnector vipCoreLibraryRulesConnector;
+    private static final RelationHintsVipCore relationHints;
 
     private static final String rawrepoDbBaseUrl;
     private static final String holdingsItemsDbUrl;
@@ -64,13 +65,13 @@ class AbstractRecordServiceContainerTest {
     static final HttpClient httpClient;
 
     static {
-        openAgency = OpenAgencyServiceFromURL.builder().build("http://openagency.addi.dk/2.34/");
+        vipCoreLibraryRulesConnector = VipCoreLibraryRulesConnectorFactory.create("http://vipcore.iscrum-vip-extern-test.svc.cloud.dbc.dk");
 
-        relationHints = new RelationHintsOpenAgency(openAgency);
+        relationHints = new RelationHintsVipCore(vipCoreLibraryRulesConnector);
 
         Network network = Network.newNetwork();
 
-        rawrepoDbContainer = new GenericContainer("docker-io.dbc.dk/rawrepo-postgres-1.13-snapshot:DIT-5016")
+        rawrepoDbContainer = new GenericContainer("docker-io.dbc.dk/rawrepo-postgres-1.14-snapshot:master-5124")
                 .withNetwork(network)
                 .withNetworkAliases("rawrepoDb")
                 .withLogConsumer(new Slf4jLogConsumer(LOGGER))
@@ -99,8 +100,8 @@ class AbstractRecordServiceContainerTest {
                 .withLogConsumer(new Slf4jLogConsumer(LOGGER))
                 .withEnv("INSTANCE", "it")
                 .withEnv("LOG_FORMAT", "text")
-                .withEnv("OPENAGENCY_CACHE_AGE", "0")
-                .withEnv("OPENAGENCY_URL", "http://openagency.addi.dk/2.34/")
+                .withEnv("VIPCORE_CACHE_AGE", "0")
+                .withEnv("VIPCORE_ENDPOINT", "http://vipcore.iscrum-vip-extern-test.svc.cloud.dbc.dk")
                 .withEnv("RAWREPO_URL", rawrepoDbBaseUrl)
                 .withEnv("HOLDINGS_URL", holdingsItemsDbUrl)
                 .withEnv("DUMP_THREAD_COUNT", "8")
