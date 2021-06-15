@@ -27,15 +27,15 @@ import java.nio.charset.StandardCharsets;
 import static dk.dbc.marc.writer.MarcXchangeV1Writer.Property.ADD_XML_DECLARATION;
 
 public class RecordByteWriter {
-    final private OutputStream outputStream;
-    final private OutputFormat outputFormat;
-    final private Charset charset;
+    private final OutputStream outputStream;
+    private final OutputFormat outputFormat;
+    private final Charset charset;
 
     private final JSONBContext jsonbContext = new JSONBContext();
     private final DanMarc2LineFormatWriter danMarc2LineFormatWriter = new DanMarc2LineFormatWriter();
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
-    private static final String collectionFooterXML = "</collection>";
-    private static final String collectionHeaderXML = "<collection xmlns='info:lc/xmlns/marcxchange-v1' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='info:lc/xmlns/marcxchange-v1 http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd'>";
+    private static final String COLLECTION_FOOTER_XML = "</collection>";
+    private static final String COLLECTION_HEADER_XML = "<collection xmlns='info:lc/xmlns/marcxchange-v1' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='info:lc/xmlns/marcxchange-v1 http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd'>";
 
     public RecordByteWriter(OutputStream outputStream, Params params) {
         this.outputStream = outputStream;
@@ -52,13 +52,13 @@ public class RecordByteWriter {
             final String xmlHeader = "<?xml version='1.0' encoding='" + charset.name() + "'?>\n";
 
             outputStream.write(xmlHeader.getBytes(charset));
-            outputStream.write(collectionHeaderXML.getBytes(charset));
+            outputStream.write(COLLECTION_HEADER_XML.getBytes(charset));
         }
     }
 
     public void writeFooter() throws IOException {
         if (outputFormat == OutputFormat.XML) {
-            outputStream.write(collectionFooterXML.getBytes(charset));
+            outputStream.write(COLLECTION_FOOTER_XML.getBytes(charset));
         }
     }
 

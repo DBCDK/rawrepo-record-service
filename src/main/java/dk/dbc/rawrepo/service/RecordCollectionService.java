@@ -293,32 +293,11 @@ public class RecordCollectionService {
         final List<RecordDTO> found = new ArrayList<>();
         final List<RecordIdDTO> missing = new ArrayList<>();
         final String res;
-        Record record;
         try {
             final RecordIdCollectionDTO recordIdCollectionDTO = jsonbContext.unmarshall(request, RecordIdCollectionDTO.class);
 
             for (RecordIdDTO recordId : recordIdCollectionDTO.getRecordIds()) {
-                try {
-                    if (mode == RecordService.Mode.EXPANDED) {
-                        record = recordSimpleBean.fetchRecordExpanded(recordId.getBibliographicRecordId(), recordId.getAgencyId(), allowDeleted, useParentAgency);
-                    } else if (mode == RecordService.Mode.MERGED) {
-                        record = recordSimpleBean.fetchRecordMerged(recordId.getBibliographicRecordId(), recordId.getAgencyId(), allowDeleted, useParentAgency);
-                    } else {
-                        record = recordSimpleBean.fetchRecord(recordId.getBibliographicRecordId(), recordId.getAgencyId());
-                    }
-
-                    // fetchRecord will return a new empty record if the requested record is not found in the database.
-                    // One solution would be to check if the record exists but that requires an extra request to the database
-                    // In order to save a round trip we just check if the record has any content.
-                    if (record.getContent() != null && record.getContent().length > 0) {
-                        final RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record, excludeAttributes);
-                        found.add(recordDTO);
-                    } else {
-                        missing.add(recordId);
-                    }
-                } catch (RecordNotFoundException e) {
-                    missing.add(recordId);
-                }
+                fetchRecords(allowDeleted, useParentAgency, mode, excludeAttributes, found, missing, recordId);
             }
 
             dto.setFound(found);
@@ -332,6 +311,31 @@ public class RecordCollectionService {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
             LOGGER.info("v1/records/fetch");
+        }
+    }
+
+    private void fetchRecords(boolean allowDeleted, boolean useParentAgency, RecordService.Mode mode, List<String> excludeAttributes, List<RecordDTO> found, List<RecordIdDTO> missing, RecordIdDTO recordId) throws InternalServerException, MarcReaderException {
+        Record record;
+        try {
+            if (mode == RecordService.Mode.EXPANDED) {
+                record = recordSimpleBean.fetchRecordExpanded(recordId.getBibliographicRecordId(), recordId.getAgencyId(), allowDeleted, useParentAgency);
+            } else if (mode == RecordService.Mode.MERGED) {
+                record = recordSimpleBean.fetchRecordMerged(recordId.getBibliographicRecordId(), recordId.getAgencyId(), allowDeleted, useParentAgency);
+            } else {
+                record = recordSimpleBean.fetchRecord(recordId.getBibliographicRecordId(), recordId.getAgencyId());
+            }
+
+            // fetchRecord will return a new empty record if the requested record is not found in the database.
+            // One solution would be to check if the record exists but that requires an extra request to the database
+            // In order to save a round trip we just check if the record has any content.
+            if (record.getContent() != null && record.getContent().length > 0) {
+                final RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record, excludeAttributes);
+                found.add(recordDTO);
+            } else {
+                missing.add(recordId);
+            }
+        } catch (RecordNotFoundException e) {
+            missing.add(recordId);
         }
     }
 

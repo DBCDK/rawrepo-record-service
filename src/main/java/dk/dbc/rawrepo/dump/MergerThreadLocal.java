@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 public class MergerThreadLocal implements Callable<Boolean> {
@@ -23,11 +23,11 @@ public class MergerThreadLocal implements Callable<Boolean> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MergerThreadLocal.class);
 
     private final RawRepoBean bean;
-    private final HashMap<String, String> recordSet;
+    private final Map<String, String> recordSet;
     private final RecordByteWriter writer;
     private final int agencyId;
 
-    MergerThreadLocal(RawRepoBean bean, HashMap<String, String> recordSet, RecordByteWriter writer, int agencyId) {
+    MergerThreadLocal(RawRepoBean bean, Map<String, String> recordSet, RecordByteWriter writer, int agencyId) {
         this.bean = bean;
         this.recordSet = recordSet;
         this.writer = writer;
@@ -42,7 +42,7 @@ public class MergerThreadLocal implements Callable<Boolean> {
 
             bibliographicRecordIdList = new ArrayList<>(recordSet.keySet());
 
-            if (bibliographicRecordIdList.size() > 0) {
+            if (!bibliographicRecordIdList.isEmpty()) {
                 List<RecordItem> recordItemList = bean.getDecodedContent(bibliographicRecordIdList, null, agencyId);
                 LOGGER.info("Got {} RecordItems", recordItemList.size());
                 for (RecordItem item : recordItemList) {
@@ -53,7 +53,7 @@ public class MergerThreadLocal implements Callable<Boolean> {
                 }
             }
         } catch (IOException | MarcReaderException | MarcWriterException | JSONBException ex) {
-            LOGGER.error("Caught exception while merging record: ", ex);
+            LOGGER.info("Caught exception while merging record: ", ex);
         }
 
         return true;

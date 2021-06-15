@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,7 +46,7 @@ public class RawRepoBean {
     private DataSource dataSource;
 
     @Timed
-    public HashMap<String, String> getBibliographicRecordIdForAgency(int agencyId, RecordStatus recordStatus) throws RawRepoException {
+    public Map<String, String> getBibliographicRecordIdForAgency(int agencyId, RecordStatus recordStatus) throws RawRepoException {
         try {
             HashMap<String, String> ret = new HashMap<>();
 
@@ -78,8 +79,8 @@ public class RawRepoBean {
         }
     }
 
-    public HashMap<String, String> getMimeTypeForRecordId(List<String> bibliographicRecordIds, int agencyId) throws RawRepoException {
-        HashMap<String, String> res = new HashMap<>();
+    public Map<String, String> getMimeTypeForRecordId(List<String> bibliographicRecordIds, int agencyId) throws RawRepoException {
+        Map<String, String> res = new HashMap<>();
 
         final int sliceSize = 500;
         int index = 0;
@@ -129,9 +130,9 @@ public class RawRepoBean {
     }
 
     @Timed
-    public HashMap<String, String> getBibliographicRecordIdForAgencyInterval(int agencyId, RecordStatus recordStatus, String createdBefore, String createdAfter, String modifiedBefore, String modifiedAfter) throws RawRepoException {
+    public Map<String, String> getBibliographicRecordIdForAgencyInterval(int agencyId, RecordStatus recordStatus, String createdBefore, String createdAfter, String modifiedBefore, String modifiedAfter) throws RawRepoException {
         try {
-            HashMap<String, String> ret = new HashMap<>();
+            Map<String, String> ret = new HashMap<>();
 
             String query = QUERY_BIBLIOGRAPHICRECORDID_BY_AGENCY_ALL;
 

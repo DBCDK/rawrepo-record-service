@@ -17,25 +17,31 @@
         <microprofile.version>1.2</microprofile.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>mavenrepo.dbc.dk</id>
+            <url>http://mavenrepo.dbc.dk/content/groups/public</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>dk.dbc</groupId>
             <artifactId>rawrepo-access</artifactId>
-            <version>1.13-SNAPSHOT</version>
+            <version>1.14-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>dk.dbc</groupId>
             <artifactId>dbc-commons-marc</artifactId>
-            <version>1.3-SNAPSHOT</version>
+            <version>1.5-SNAPSHOT</version>
         </dependency>
 
-
+        <!-- While httpclient is only used for testing in this project other dependencies need it -->
         <dependency>
             <groupId>dk.dbc</groupId>
             <artifactId>httpclient</artifactId>
             <version>0.2</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -123,6 +129,8 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <version>1.15.0</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

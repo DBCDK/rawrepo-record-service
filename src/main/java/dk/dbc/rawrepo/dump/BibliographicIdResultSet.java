@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toMap;
 
 public class BibliographicIdResultSet {
-    private final HashMap<String, String> bibliographicRecordIdList = new HashMap<>();
+    private final Map<String, String> bibliographicRecordIdList = new HashMap<>();
     private final int sliceSize;
     private int index;
 
-    public BibliographicIdResultSet(AgencyParams params, AgencyType agencyType, int sliceSize, HashMap<String, String> records, HashMap<String, String> holdings) {
+    public BibliographicIdResultSet(AgencyParams params, AgencyType agencyType, int sliceSize, Map<String, String> records, Map<String, String> holdings) {
         this.sliceSize = sliceSize;
 
         Set<String> localBibliographicRecordIds = records.entrySet().stream()
@@ -54,7 +54,7 @@ public class BibliographicIdResultSet {
             holdings.keySet().removeAll(records.keySet());
 
             this.bibliographicRecordIdList.putAll(holdings);
-        } else if (agencyType == AgencyType.FBS){
+        } else if (agencyType == AgencyType.FBS) {
             if (!params.getRecordType().contains(RecordType.LOCAL.toString())) {
                 records.keySet().removeAll(localBibliographicRecordIds);
             }
@@ -67,7 +67,7 @@ public class BibliographicIdResultSet {
         this.bibliographicRecordIdList.putAll(records);
     }
 
-    public BibliographicIdResultSet(int sliceSize,  HashMap<String, String> records) {
+    public BibliographicIdResultSet(int sliceSize, Map<String, String> records) {
         this.sliceSize = sliceSize;
         this.bibliographicRecordIdList.putAll(records);
     }
@@ -82,7 +82,7 @@ public class BibliographicIdResultSet {
         }
     }
 
-    public HashMap<String, String> next() {
+    public Map<String, String> next() {
         synchronized (this) {
             HashMap<String, String> slice = bibliographicRecordIdList.entrySet().stream()
                     .skip(index)

@@ -11,10 +11,6 @@ public class InternalServerException extends Exception {
         super();
     }
 
-    public InternalServerException(String msg) {
-        super(msg);
-    }
-
     public InternalServerException(String msg, Throwable t) {
         super(msg, t);
     }

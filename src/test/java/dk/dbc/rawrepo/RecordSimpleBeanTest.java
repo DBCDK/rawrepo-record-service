@@ -28,13 +28,13 @@ public class RecordSimpleBeanTest {
     private RawRepoDAO rawRepoDAO;
 
     @Mock
-    private static RelationHintsOpenAgency relationHintsOpenAgency;
+    private static RelationHintsVipCore relationHints;
 
     private class RecordSimpleBeanMock extends RecordSimpleBean {
         RecordSimpleBeanMock(DataSource globalDataSource) {
             super(globalDataSource);
 
-            this.relationHints = relationHintsOpenAgency;
+            this.relationHints = RecordSimpleBeanTest.relationHints;
         }
 
         @Override

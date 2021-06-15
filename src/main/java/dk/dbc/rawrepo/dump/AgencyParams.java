@@ -5,9 +5,9 @@
 
 package dk.dbc.rawrepo.dump;
 
-import dk.dbc.openagency.client.OpenAgencyException;
-import dk.dbc.openagency.client.OpenAgencyServiceFromURL;
 import dk.dbc.rawrepo.dto.ParamsValidationItemDTO;
+import dk.dbc.vipcore.exception.VipCoreException;
+import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnector;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -93,11 +93,11 @@ public class AgencyParams extends Params {
                 '}';
     }
 
-    public List<ParamsValidationItemDTO> validate(OpenAgencyServiceFromURL openAgencyServiceFromURL) {
+    public List<ParamsValidationItemDTO> validate(VipCoreLibraryRulesConnector vipCoreLibraryRulesConnector) {
         List<ParamsValidationItemDTO> result = validateParams();
         boolean hasFBSLibrary = false;
 
-        if (this.agencies == null || this.agencies.size() == 0) {
+        if (this.agencies == null || this.agencies.isEmpty()) {
             result.add(new ParamsValidationItemDTO("agencies", "Field is mandatory and must contain at least one agency id"));
         } else {
             for (Integer agencyId : this.agencies) {
@@ -112,13 +112,13 @@ public class AgencyParams extends Params {
 
             for (int agencyId : this.agencies) {
                 try {
-                    AgencyType agencyType = AgencyType.getAgencyType(openAgencyServiceFromURL, agencyId);
+                    AgencyType agencyType = AgencyType.getAgencyType(vipCoreLibraryRulesConnector, agencyId);
 
                     if (agencyType == AgencyType.FBS) {
                         hasFBSLibrary = true;
                     }
-                } catch (OpenAgencyException e) {
-                    result.add(new ParamsValidationItemDTO("agencies", "Agency " + agencyId + " could not be validated by OpenAgency"));
+                } catch (VipCoreException e) {
+                    result.add(new ParamsValidationItemDTO("agencies", "Agency " + agencyId + " could not be validated by VipCore"));
                 }
             }
         }
@@ -134,14 +134,14 @@ public class AgencyParams extends Params {
         }
 
         if (this.recordType != null) { // Validate values if present
-            if (this.recordType.size() == 0) {
+            if (this.recordType.isEmpty()) {
                 result.add(new ParamsValidationItemDTO("recordType", "If the field is present it must contain at least one value. Allowed values are: " + RecordType.validValues()));
             } else {
-                for (String recordType : this.recordType) {
+                for (String recordTypeString : this.recordType) {
                     try {
-                        RecordType.fromString(recordType);
+                        RecordType.fromString(recordTypeString);
                     } catch (IllegalArgumentException e) {
-                        result.add(new ParamsValidationItemDTO("recordType", "The value " + recordType + " is not a valid value. Allowed values are: " + RecordType.validValues()));
+                        result.add(new ParamsValidationItemDTO("recordType", "The value " + recordTypeString + " is not a valid value. Allowed values are: " + RecordType.validValues()));
                     }
                 }
             }
