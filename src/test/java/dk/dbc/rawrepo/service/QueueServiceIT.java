@@ -71,7 +71,7 @@ public class QueueServiceIT extends AbstractRecordServiceContainerTest {
 
         final QueueRuleCollectionDTO queueRuleCollectionDTO = response.readEntity(QueueRuleCollectionDTO.class);
         assertThat("collection as rules", queueRuleCollectionDTO.getQueueRules(), notNullValue());
-        assertThat("collection as size", queueRuleCollectionDTO.getQueueRules().size(), is(33));
+        assertThat("collection as size", queueRuleCollectionDTO.getQueueRules().size(), is(36));
 
         // Since there are 33 unique combinations and the collection is sorted we will only assert a few of the elements
         QueueRuleDTO queueRuleDTO = queueRuleCollectionDTO.getQueueRules().get(0);
@@ -88,12 +88,12 @@ public class QueueServiceIT extends AbstractRecordServiceContainerTest {
         assertThat("queue rule 10 leaf", queueRuleDTO.getLeaf(), is('Y'));
         assertThat("queue rule 10 description", queueRuleDTO.getDescription(), is("Alle Bind/Enkeltstående poster som er afhængige af den rørte post incl den rørte post"));
 
-        queueRuleDTO = queueRuleCollectionDTO.getQueueRules().get(30);
-        assertThat("queue rule 30 provider", queueRuleDTO.getProvider(), is("solr-sync-bulk"));
-        assertThat("queue rule 30 worker", queueRuleDTO.getWorker(), is("solr-sync-bulk"));
-        assertThat("queue rule 30 changed", queueRuleDTO.getChanged(), is('Y'));
-        assertThat("queue rule 30 leaf", queueRuleDTO.getLeaf(), is('N'));
-        assertThat("queue rule 30 description", queueRuleDTO.getDescription(), is("Den rørte post, hvis det er en Hoved/Sektionsport"));
+        queueRuleDTO = queueRuleCollectionDTO.getQueueRules().get(33);
+        assertThat("queue rule 33 provider", queueRuleDTO.getProvider(), is("solr-sync-bulk"));
+        assertThat("queue rule 33 worker", queueRuleDTO.getWorker(), is("solr-sync-bulk"));
+        assertThat("queue rule 33 changed", queueRuleDTO.getChanged(), is('Y'));
+        assertThat("queue rule 33 leaf", queueRuleDTO.getLeaf(), is('N'));
+        assertThat("queue rule 33 description", queueRuleDTO.getDescription(), is("Den rørte post, hvis det er en Hoved/Sektionsport"));
     }
 
     @Test
@@ -110,6 +110,7 @@ public class QueueServiceIT extends AbstractRecordServiceContainerTest {
                 "ims",
                 "ims-bulk",
                 "opencataloging-update",
+                "public-rr-corepo-update",
                 "solr-sync-bulk",
                 "update-rawrepo-solr");
 
@@ -132,6 +133,7 @@ public class QueueServiceIT extends AbstractRecordServiceContainerTest {
                 "danbib-ph-libv3",
                 "dataio-bulk-sync",
                 "dataio-socl-sync-bulk",
+                "holdings-096",
                 "ims-bulk-sync",
                 "ims-sync",
                 "oai-set-matcher",
