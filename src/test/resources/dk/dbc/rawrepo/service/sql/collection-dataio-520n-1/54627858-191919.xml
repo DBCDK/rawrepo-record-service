@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">54627858</subfield>
+        <subfield code="b">191919</subfield>
+        <subfield code="c">20210609151516</subfield>
+        <subfield code="d">20180820</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">b</subfield>
+    </datafield>
+    <datafield tag="d08" ind1="0" ind2="0">
+        <subfield code="f">dra</subfield>
+        <subfield code="a">Forventet udgivelsesdato 01-09-2018</subfield>
+        <subfield code="o">kga</subfield>
+        <subfield code="k">dra</subfield>
+    </datafield>
+    <datafield tag="d70" ind1="0" ind2="0">
+        <subfield code="b">Publizon</subfield>
+    </datafield>
+    <datafield tag="f21" ind1="0" ind2="0">
+        <subfield code="a">http://dmat.dbc.dk/eVALU/get.php?isbn=9788702264029</subfield>
+        <subfield code="l">Publizon</subfield>
+        <subfield code="f">http://images.pubhub.dk/originals/62a4e21e-8896-46bb-9df4-ae05b43cbf73.jpg</subfield>
+        <subfield code="a">http://samples.pubhub.dk/9788702264029.mp3</subfield>
+        <subfield code="n">9788702264029</subfield>
+    </datafield>
+    <datafield tag="f21" ind1="0" ind2="0">
+        <subfield code="l">eReolen</subfield>
+        <subfield code="n">9788702264029</subfield>
+    </datafield>
+    <datafield tag="n51" ind1="0" ind2="0">
+        <subfield code="a">20180718</subfield>
+    </datafield>
+    <datafield tag="s12" ind1="0" ind2="0">
+        <subfield code="t">TeamBMV201828</subfield>
+    </datafield>
+    <datafield tag="z99" ind1="0" ind2="0">
+        <subfield code="a">kga</subfield>
+    </datafield>
+</record>

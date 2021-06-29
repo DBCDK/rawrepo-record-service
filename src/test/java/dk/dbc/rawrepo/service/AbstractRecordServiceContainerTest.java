@@ -89,7 +89,7 @@ class AbstractRecordServiceContainerTest {
                 .withLogConsumer(new Slf4jLogConsumer(LOGGER))
                 .withEnv("INSTANCE", "it")
                 .withEnv("LOG_FORMAT", "text")
-                .withEnv("VIPCORE_CACHE_AGE", "0")
+                .withEnv("VIPCORE_CACHE_AGE", "1")
                 .withEnv("VIPCORE_ENDPOINT", "http://vipcore.iscrum-vip-extern-test.svc.cloud.dbc.dk")
                 .withEnv("RAWREPO_URL", rawrepoDbContainer.getPayaraDockerJdbcUrl())
                 .withEnv("HOLDINGS_URL", holdingsItemsDbContainer.getPayaraDockerJdbcUrl())
@@ -210,6 +210,13 @@ class AbstractRecordServiceContainerTest {
         final RecordId to = new RecordId(referBibliographicRecordId, referAgencyId);
 
         dao.setRelationsFrom(from, new HashSet<>(Collections.singletonList(to)));
+    }
+
+    static void saveRelations(Connection connection, String bibliographicRecordId, int agencyId, List<RecordId> to) throws Exception {
+        final RawRepoDAO dao = createDAO(connection);
+        final RecordId from = new RecordId(bibliographicRecordId, agencyId);
+
+        dao.setRelationsFrom(from, new HashSet<>(to));
     }
 
     static void resetRawrepoDb(Connection connection) throws Exception {

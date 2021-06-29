@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">48473989</subfield>
+        <subfield code="b">191919</subfield>
+        <subfield code="c">20210624122248</subfield>
+        <subfield code="d">20200624</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">b</subfield>
+    </datafield>
+    <datafield tag="d08" ind1="0" ind2="0">
+        <subfield code="f">dra</subfield>
+        <subfield code="o">dra</subfield>
+        <subfield code="a">Frigørelsen, Det andet køn, Lysthuset og Cabaret</subfield>
+    </datafield>
+    <datafield tag="d70" ind1="0" ind2="0">
+        <subfield code="b">Publizon</subfield>
+    </datafield>
+    <datafield tag="f21" ind1="0" ind2="0">
+        <subfield code="a">http://dmat.dbc.dk/eVALU/get.php?isbn=9788793726963</subfield>
+        <subfield code="l">Publizon</subfield>
+        <subfield code="f">http://images.pubhub.dk/originals/91d67b25-4578-42d9-a668-2cdd61b41e22.jpg</subfield>
+        <subfield code="a">http://samples.pubhub.dk/9788793726963.mp3</subfield>
+        <subfield code="n">9788793726963</subfield>
+    </datafield>
+    <datafield tag="s12" ind1="0" ind2="0">
+        <subfield code="t">TeamBAC202033</subfield>
+    </datafield>
+    <datafield tag="z98" ind1="0" ind2="0">
+        <subfield code="a">Minus korrekturprint</subfield>
+    </datafield>
+    <datafield tag="z99" ind1="0" ind2="0">
+        <subfield code="a">dra</subfield>
+    </datafield>
+    <datafield tag="z99" ind1="0" ind2="0">
+        <subfield code="a">masseret</subfield>
+    </datafield>
+</record>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">54203063</subfield>
+        <subfield code="b">191919</subfield>
+        <subfield code="c">20181205182738</subfield>
+        <subfield code="d">20180604</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">e</subfield>
+    </datafield>
+    <datafield tag="d08" ind1="0" ind2="0">
+        <subfield code="f">lhf</subfield>
+        <subfield code="a">Forventet udgivelsesdato 05-06-2018</subfield>
+        <subfield code="o">cra</subfield>
+    </datafield>
+    <datafield tag="d70" ind1="0" ind2="0">
+        <subfield code="b">Publizon</subfield>
+    </datafield>
+    <datafield tag="f21" ind1="0" ind2="0">
+        <subfield code="a">http://samples.pubhub.dk/9788793618602.epub</subfield>
+        <subfield code="l">Publizon</subfield>
+        <subfield code="f">https://images.pubhub.dk/originals/339514e2-fba4-4097-bba7-ac933657c49d.jpg</subfield>
+        <subfield code="a">http://dmat.dbc.dk/eVALU/get.php?isbn=9788793618602</subfield>
+        <subfield code="n">9788793618602</subfield>
+    </datafield>
+    <datafield tag="s12" ind1="0" ind2="0">
+        <subfield code="t">TeamBMV201825</subfield>
+    </datafield>
+    <datafield tag="z99" ind1="0" ind2="0">
+        <subfield code="a">cra</subfield>
+    </datafield>
+</record>

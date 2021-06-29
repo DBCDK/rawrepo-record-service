@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">54627858</subfield>
+        <subfield code="b">191919</subfield>
+        <subfield code="c">20210609151516</subfield>
+        <subfield code="d">20180820</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">b</subfield>
+    </datafield>
+    <datafield tag="008" ind1="0" ind2="0">
+        <subfield code="t">s</subfield>
+        <subfield code="v">0</subfield>
+    </datafield>
+    <datafield tag="014" ind1="0" ind2="0">
+        <subfield code="a">46185358</subfield>
+    </datafield>
+    <datafield tag="021" ind1="0" ind2="0">
+        <subfield code="e">9788702264029</subfield>
+    </datafield>
+    <datafield tag="032" ind1="0" ind2="0">
+        <subfield code="x">ACC201834</subfield>
+        <subfield code="a">DLF201908</subfield>
+        <subfield code="x">BKM201908</subfield>
+        <subfield code="x">NLY202115</subfield>
+    </datafield>
+    <datafield tag="245" ind1="0" ind2="0">
+        <subfield code="g">Bind 4</subfield>
+        <subfield code="a">Gisles saga</subfield>
+        <subfield code="a">Kormaks saga</subfield>
+        <subfield code="a">Sagaen om Bjørn, helten fra Hiddal</subfield>
+        <subfield code="a">Gunløg Slangetunges saga</subfield>
+        <subfield code="a">Halfreds saga</subfield>
+        <subfield code="f">oversat af Kirsten Wolf</subfield>
+        <subfield code="f">oversat af Finn Hansen</subfield>
+        <subfield code="f">oversat af Kirsten Wolf</subfield>
+        <subfield code="f">oversat af Rolf Stavnem</subfield>
+        <subfield code="f">oversat af Rolf Stavnem</subfield>
+    </datafield>
+    <datafield tag="300" ind1="0" ind2="0">
+        <subfield code="l">8 t., 30 min.</subfield>
+    </datafield>
+    <datafield tag="520" ind1="0" ind2="0">
+        <subfield code="a">Gengivelse af bogen</subfield>
+    </datafield>
+    <datafield tag="520" ind1="0" ind2="0">
+        <subfield code="a">Indlæst efter 1. udgave. 2018</subfield>
+        <subfield code="n">54243677</subfield>
+        <subfield code="r">9788702264005</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Kirsten Wolf</subfield>
+        <subfield code="4">trl</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Finn Hansen</subfield>
+        <subfield code="4">trl</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Rolf Stavnem</subfield>
+        <subfield code="4">trl</subfield>
+    </datafield>
+    <datafield tag="856" ind1="0" ind2="0">
+        <subfield code="z">Adgang til lån hos eReolen.dk</subfield>
+        <subfield code="u">https://ereolen.dk/ting/object/870970-basis:54627858</subfield>
+    </datafield>
+    <datafield tag="990" ind1="0" ind2="0">
+        <subfield code="b">v</subfield>
+        <subfield code="u">nt</subfield>
+    </datafield>
+    <datafield tag="996" ind1="0" ind2="0">
+        <subfield code="a">DBC</subfield>
+    </datafield>
+    <datafield tag="d08" ind1="0" ind2="0">
+        <subfield code="f">dra</subfield>
+        <subfield code="a">Forventet udgivelsesdato 01-09-2018</subfield>
+        <subfield code="o">kga</subfield>
+        <subfield code="k">dra</subfield>
+    </datafield>
+    <datafield tag="d70" ind1="0" ind2="0">
+        <subfield code="b">Publizon</subfield>
+    </datafield>
+    <datafield tag="f21" ind1="0" ind2="0">
+        <subfield code="a">http://dmat.dbc.dk/eVALU/get.php?isbn=9788702264029</subfield>
+        <subfield code="l">Publizon</subfield>
+        <subfield code="f">http://images.pubhub.dk/originals/62a4e21e-8896-46bb-9df4-ae05b43cbf73.jpg</subfield>
+        <subfield code="a">http://samples.pubhub.dk/9788702264029.mp3</subfield>
+        <subfield code="n">9788702264029</subfield>
+    </datafield>
+    <datafield tag="f21" ind1="0" ind2="0">
+        <subfield code="l">eReolen</subfield>
+        <subfield code="n">9788702264029</subfield>
+    </datafield>
+    <datafield tag="n51" ind1="0" ind2="0">
+        <subfield code="a">20180718</subfield>
+    </datafield>
+    <datafield tag="s12" ind1="0" ind2="0">
+        <subfield code="t">TeamBMV201828</subfield>
+    </datafield>
+    <datafield tag="z99" ind1="0" ind2="0">
+        <subfield code="a">kga</subfield>
+    </datafield>
+</record>
