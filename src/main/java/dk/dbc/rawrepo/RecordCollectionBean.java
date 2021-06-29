@@ -5,6 +5,9 @@
 
 package dk.dbc.rawrepo;
 
+import dk.dbc.marc.binding.MarcRecord;
+import dk.dbc.marc.reader.MarcReaderException;
+import dk.dbc.marc.reader.MarcXchangeV1Reader;
 import dk.dbc.marcxmerge.MarcXChangeMimeType;
 import dk.dbc.marcxmerge.MarcXMergerException;
 import dk.dbc.rawrepo.exception.InternalServerException;
@@ -17,9 +20,12 @@ import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.sql.DataSource;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -102,12 +108,13 @@ public class RecordCollectionBean {
 
     public Map<String, Record> getDataIORecordCollection(String bibliographicRecordId,
                                                          int originalAgencyId,
-                                                         boolean expand) throws InternalServerException, RecordNotFoundException {
+                                                         boolean expand,
+                                                         boolean handle520n) throws InternalServerException, RecordNotFoundException {
         final Map<String, Record> collection = new HashMap<>();
         final Map<String, Record> result = new HashMap<>();
         try (Connection conn = dataSource.getConnection()) {
             try {
-                fetchDataIORecordCollection(collection, bibliographicRecordId, originalAgencyId, expand, true, false);
+                fetchDataIORecordCollection(collection, bibliographicRecordId, originalAgencyId, expand, true, false, handle520n);
 
                 for (Map.Entry<String, Record> entry : collection.entrySet()) {
                     final Record rawRecord = entry.getValue();
@@ -128,7 +135,7 @@ public class RecordCollectionBean {
                 conn.rollback();
                 LOGGER.error(e.getMessage(), e);
                 throw new InternalServerException(e.getMessage(), e);
-            } catch (MarcXMergerException e) {
+            } catch (MarcXMergerException | MarcReaderException e) {
                 LOGGER.error(e.getMessage(), e);
                 throw new InternalServerException(e.getMessage(), e);
             }
@@ -193,7 +200,8 @@ public class RecordCollectionBean {
                                              int agencyId,
                                              boolean expand,
                                              boolean isRoot,
-                                             boolean allowDeletedParent) throws RecordNotFoundException, InternalServerException, RawRepoException {
+                                             boolean allowDeletedParent,
+                                             boolean handle520n) throws RecordNotFoundException, InternalServerException, RawRepoException, MarcReaderException {
         if (!collection.containsKey(bibliographicRecordId)) {
             boolean newAllowDeletedParent = allowDeletedParent;
             Record record;
@@ -234,7 +242,17 @@ public class RecordCollectionBean {
                 if (870979 == parent.agencyId) {
                     continue;
                 }
-                fetchDataIORecordCollection(collection, parent.getBibliographicRecordId(), agencyId, expand, false, newAllowDeletedParent);
+                fetchDataIORecordCollection(collection, parent.getBibliographicRecordId(), agencyId, expand, false, newAllowDeletedParent, handle520n);
+            }
+
+            if (handle520n) {
+                final MarcXchangeV1Reader reader = new MarcXchangeV1Reader(new ByteArrayInputStream(record.getContent()), StandardCharsets.UTF_8);
+                final MarcRecord marcRecord = reader.read();
+                final List<String> values520n = marcRecord.getSubFieldValues("520", 'n');
+
+                for (String value : values520n) {
+                    fetchDataIORecordCollection(collection, value, agencyId, expand, false, newAllowDeletedParent, handle520n);
+                }
             }
         }
     }
