@@ -474,7 +474,73 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         assertThat("collection contains control", actual.containsKey(control), is(true));
         assertThat("collection content control", getMarcRecordFromString(actual.get(control).getContent()),
                 is(getMarcRecordFromFile(String.format("%s/%s-expanded.xml", path, control))));
+    }
 
+    @Test
+    void handle520n_Scenario_2_deletedControlRecord() throws Exception {
+        /*
+            Simple test with single record and single control record where the control record is marked as deleted.
+            Verify that the single record is returned only and no exception is thrown
+         */
+        final Connection rawrepoConnection = connectToRawrepoDb();
+        final String path = "sql/collection-dataio-520n-2";
+        final String authority = "68594693";
+        final String single = "38519387";
+        final String control = "28947216";
+
+        resetRawrepoDb(rawrepoConnection);
+
+        // Authority
+        saveAuthority(rawrepoConnection, path, authority);
+
+        // Single
+        saveMarcXChange(rawrepoConnection, path, single);
+        saveRelations(rawrepoConnection, single, COMMON_AGENCY, authority, AUTHORITY_AGENCY);
+
+        // Control
+        saveRecord(rawrepoConnection, String.format("%s/%s-%s-deleted.xml", path, control, COMMON_ENRICHMENT), MIMETYPE_ENRICHMENT);
+        saveRecord(rawrepoConnection, String.format("%s/%s-%s-deleted.xml", path, control, COMMON_AGENCY), MIMETYPE_MARCXCHANGE);
+
+        final Response response = callRecordService(single, COMMON_ENRICHMENT, true);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+        assertThat("actual size", actual.size(), is(1));
+
+        assertThat("collection contains single", actual.containsKey(single), is(true));
+        assertThat("collection content single", getMarcRecordFromString(actual.get(single).getContent()),
+                is(getMarcRecordFromFile(String.format("%s/%s-expanded.xml", path, single))));
+    }
+
+    @Test
+    void handle520n_Scenario_2_missingControlRecord() throws Exception {
+        /*
+            Simple test with single record and single control record where the control record is missing. Verify that
+            the single record is returned only and no exception is thrown
+         */
+        final Connection rawrepoConnection = connectToRawrepoDb();
+        final String path = "sql/collection-dataio-520n-2";
+        final String authority = "68594693";
+        final String single = "38519387";
+
+        resetRawrepoDb(rawrepoConnection);
+
+        // Authority
+        saveAuthority(rawrepoConnection, path, authority);
+
+        // Single
+        saveMarcXChange(rawrepoConnection, path, single);
+        saveRelations(rawrepoConnection, single, COMMON_AGENCY, authority, AUTHORITY_AGENCY);
+
+        final Response response = callRecordService(single, COMMON_ENRICHMENT, true);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+        assertThat("actual size", actual.size(), is(1));
+
+        assertThat("collection contains single", actual.containsKey(single), is(true));
+        assertThat("collection content single", getMarcRecordFromString(actual.get(single).getContent()),
+                is(getMarcRecordFromFile(String.format("%s/%s-expanded.xml", path, single))));
     }
 
     @Test
