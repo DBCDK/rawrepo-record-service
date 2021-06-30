@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">69598323</subfield>
+        <subfield code="b">870979</subfield>
+        <subfield code="c">20181108204655</subfield>
+        <subfield code="d">20150411</subfield>
+        <subfield code="f">a</subfield>
+        <subfield code="t">faust</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">e</subfield>
+        <subfield code="x">n</subfield>
+    </datafield>
+    <datafield tag="008" ind1="0" ind2="0">
+        <subfield code="t">h</subfield>
+        <subfield code="v">9</subfield>
+    </datafield>
+    <datafield tag="025" ind1="0" ind2="0">
+        <subfield code="a">62610338</subfield>
+        <subfield code="2">viaf</subfield>
+        <subfield code="&amp;">VIAF</subfield>
+    </datafield>
+    <datafield tag="025" ind1="0" ind2="0">
+        <subfield code="a">0000000114460145</subfield>
+        <subfield code="2">isni</subfield>
+        <subfield code="&amp;">VIAF</subfield>
+    </datafield>
+    <datafield tag="025" ind1="0" ind2="0">
+        <subfield code="a">Q353501</subfield>
+        <subfield code="2">wikidata</subfield>
+        <subfield code="&amp;">VIAF</subfield>
+    </datafield>
+    <datafield tag="040" ind1="0" ind2="0">
+        <subfield code="a">DBC</subfield>
+        <subfield code="b">dan</subfield>
+    </datafield>
+    <datafield tag="043" ind1="0" ind2="0">
+        <subfield code="c">us</subfield>
+        <subfield code="&amp;">VIAF</subfield>
+    </datafield>
+    <datafield tag="046" ind1="0" ind2="0">
+        <subfield code="f">1960</subfield>
+        <subfield code="&amp;">VIAF</subfield>
+    </datafield>
+    <datafield tag="100" ind1="0" ind2="0">
+        <subfield code="a">Marshall</subfield>
+        <subfield code="h">Rob</subfield>
+    </datafield>
+    <datafield tag="375" ind1="0" ind2="0">
+        <subfield code="a">1</subfield>
+        <subfield code="2">iso5218</subfield>
+        <subfield code="&amp;">VIAF</subfield>
+    </datafield>
+</record>

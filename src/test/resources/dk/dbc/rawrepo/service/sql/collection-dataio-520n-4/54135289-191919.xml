@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">54135289</subfield>
+        <subfield code="b">191919</subfield>
+        <subfield code="c">20200305091850</subfield>
+        <subfield code="d">20180503</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">e</subfield>
+    </datafield>
+    <datafield tag="d08" ind1="0" ind2="0">
+        <subfield code="f">crp</subfield>
+        <subfield code="a">Forventet udgivelsesdato 05-05-2018</subfield>
+        <subfield code="o">jaw</subfield>
+        <subfield code="a">I kolofonen: Dansk versionering: Daniel Lundsgꜳrd (ignoreret, tolkes som teknisk funktion)</subfield>
+        <subfield code="r">lj</subfield>
+        <subfield code="a">745 tilf.</subfield>
+    </datafield>
+    <datafield tag="d70" ind1="0" ind2="0">
+        <subfield code="b">Publizon</subfield>
+    </datafield>
+    <datafield tag="f21" ind1="0" ind2="0">
+        <subfield code="a">http://samples.pubhub.dk/9788793618589.epub</subfield>
+        <subfield code="l">Publizon</subfield>
+        <subfield code="f">https://images.pubhub.dk/originals/aaf989f3-60b8-4ffd-b701-ae9f6ec61c01.jpg</subfield>
+        <subfield code="a">http://dmat.dbc.dk/eVALU/get.php?isbn=9788793618589</subfield>
+        <subfield code="n">9788793618589</subfield>
+    </datafield>
+    <datafield tag="s12" ind1="0" ind2="0">
+        <subfield code="t">TeamBAM201820</subfield>
+    </datafield>
+    <datafield tag="z99" ind1="0" ind2="0">
+        <subfield code="a">lj</subfield>
+    </datafield>
+</record>

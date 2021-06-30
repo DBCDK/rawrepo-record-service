@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">48473989</subfield>
+        <subfield code="b">870970</subfield>
+        <subfield code="c">20210624122248</subfield>
+        <subfield code="d">20200624</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">b</subfield>
+    </datafield>
+    <datafield tag="008" ind1="0" ind2="0">
+        <subfield code="t">s</subfield>
+        <subfield code="u">f</subfield>
+        <subfield code="a">2019</subfield>
+        <subfield code="v">0</subfield>
+    </datafield>
+    <datafield tag="014" ind1="0" ind2="0">
+        <subfield code="a">48678955</subfield>
+    </datafield>
+    <datafield tag="021" ind1="0" ind2="0">
+        <subfield code="e">9788793726963</subfield>
+    </datafield>
+    <datafield tag="032" ind1="0" ind2="0">
+        <subfield code="x">ACC202026</subfield>
+        <subfield code="a">DLF202036</subfield>
+    </datafield>
+    <datafield tag="245" ind1="0" ind2="0">
+        <subfield code="G">1</subfield>
+        <subfield code="g">Samlebind 1</subfield>
+        <subfield code="a">4 noveller</subfield>
+    </datafield>
+    <datafield tag="260" ind1="0" ind2="0">
+        <subfield code="c">[2019]</subfield>
+    </datafield>
+    <datafield tag="300" ind1="0" ind2="0">
+        <subfield code="l">3 t., 25 min.</subfield>
+    </datafield>
+    <datafield tag="512" ind1="0" ind2="0">
+        <subfield code="0">pro</subfield>
+        <subfield code="a">Oversætteren fremgår ikke af materialet</subfield>
+    </datafield>
+    <datafield tag="512" ind1="0" ind2="0">
+        <subfield code="0">pro</subfield>
+        <subfield code="a">Titlen hentet fra indgangssiden</subfield>
+    </datafield>
+    <datafield tag="512" ind1="0" ind2="0">
+        <subfield code="0">pro</subfield>
+        <subfield code="a">Ikke alle ophav fremgår af materialet</subfield>
+    </datafield>
+    <datafield tag="520" ind1="0" ind2="0">
+        <subfield code="a">Gengivelse af bøgerne</subfield>
+    </datafield>
+    <datafield tag="520" ind1="0" ind2="0">
+        <subfield code="a">Indlæst efter 1. e-bogsudgave. 2017, 2018</subfield>
+        <subfield code="n">54068239</subfield>
+        <subfield code="n">54135289</subfield>
+        <subfield code="n">54203063</subfield>
+        <subfield code="n">54329938</subfield>
+        <subfield code="r">9788793618985</subfield>
+        <subfield code="r">9788793618589</subfield>
+        <subfield code="r">9788793618602</subfield>
+        <subfield code="r">9788793726031</subfield>
+    </datafield>
+    <datafield tag="700" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">19374610</subfield>
+        <subfield code="4">dkind</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Marie Louise Dyrby</subfield>
+        <subfield code="4">trl</subfield>
+    </datafield>
+    <datafield tag="996" ind1="0" ind2="0">
+        <subfield code="a">DBC</subfield>
+    </datafield>
+</record>

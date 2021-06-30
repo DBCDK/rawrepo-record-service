@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">19374610</subfield>
+        <subfield code="b">870979</subfield>
+        <subfield code="c">20181109135447</subfield>
+        <subfield code="d">20180424</subfield>
+        <subfield code="f">a</subfield>
+        <subfield code="t">FAUST</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">e</subfield>
+        <subfield code="x">n</subfield>
+    </datafield>
+    <datafield tag="008" ind1="0" ind2="0">
+        <subfield code="t">h</subfield>
+        <subfield code="v">0</subfield>
+    </datafield>
+    <datafield tag="025" ind1="0" ind2="0">
+        <subfield code="a">10152561532015442151</subfield>
+        <subfield code="2">viaf</subfield>
+        <subfield code="&amp;">VIAF</subfield>
+    </datafield>
+    <datafield tag="040" ind1="0" ind2="0">
+        <subfield code="a">DBC</subfield>
+        <subfield code="b">dan</subfield>
+    </datafield>
+    <datafield tag="100" ind1="0" ind2="0">
+        <subfield code="a">Storm Hansen</subfield>
+        <subfield code="h">Trine</subfield>
+    </datafield>
+    <datafield tag="400" ind1="0" ind2="0">
+        <subfield code="a">Hansen</subfield>
+        <subfield code="h">Trine Storm</subfield>
+    </datafield>
+    <datafield tag="996" ind1="0" ind2="0">
+        <subfield code="a">DBCAUT</subfield>
+    </datafield>
+</record>

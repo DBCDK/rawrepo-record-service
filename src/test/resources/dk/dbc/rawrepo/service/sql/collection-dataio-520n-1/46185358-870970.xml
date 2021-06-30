@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">46185358</subfield>
+        <subfield code="b">870970</subfield>
+        <subfield code="c">20201211162359</subfield>
+        <subfield code="d">20190205</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">h</subfield>
+    </datafield>
+    <datafield tag="005" ind1="0" ind2="0">
+        <subfield code="z">p</subfield>
+    </datafield>
+    <datafield tag="008" ind1="0" ind2="0">
+        <subfield code="a">2018</subfield>
+        <subfield code="b">dk</subfield>
+        <subfield code="d">x</subfield>
+        <subfield code="j">j</subfield>
+        <subfield code="l">dan</subfield>
+        <subfield code="v">0</subfield>
+    </datafield>
+    <datafield tag="009" ind1="0" ind2="0">
+        <subfield code="a">r</subfield>
+        <subfield code="g">xe</subfield>
+    </datafield>
+    <datafield tag="041" ind1="0" ind2="0">
+        <subfield code="a">dan</subfield>
+        <subfield code="c">non</subfield>
+    </datafield>
+    <datafield tag="245" ind1="0" ind2="0">
+        <subfield code="a">Islændingesagaerne</subfield>
+        <subfield code="ø">Et udvalg i ny oversættelse</subfield>
+    </datafield>
+    <datafield tag="260" ind1="0" ind2="0">
+        <subfield code="b">Gyldendal</subfield>
+        <subfield code="g">[sælges på internettet]</subfield>
+        <subfield code="c">2018</subfield>
+    </datafield>
+    <datafield tag="300" ind1="0" ind2="0">
+        <subfield code="a">5 dele</subfield>
+    </datafield>
+    <datafield tag="502" ind1="0" ind2="0">
+        <subfield code="a">Oversat fra oldislandsk</subfield>
+    </datafield>
+    <datafield tag="504" ind1="0" ind2="0">
+        <subfield code="&amp;">1</subfield>
+        <subfield code="a">Sagaerne kredser om hårdkogte, ærekære, men også følsomme helte, og deres blodige fejder om ære, kærlighed og magt</subfield>
+    </datafield>
+    <datafield tag="512" ind1="0" ind2="0">
+        <subfield code="a">Downloades i MP3-format</subfield>
+    </datafield>
+    <datafield tag="652" ind1="0" ind2="0">
+        <subfield code="n">85.2</subfield>
+        <subfield code="z">24</subfield>
+    </datafield>
+    <datafield tag="652" ind1="0" ind2="0">
+        <subfield code="o">85.21</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="o">sagaer</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="s">vikingetiden</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="s">middelalderen</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="q">Island</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="i">900-999</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="i">1000-1099</subfield>
+    </datafield>
+    <datafield tag="700" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">68612888</subfield>
+        <subfield code="4">edt</subfield>
+    </datafield>
+    <datafield tag="700" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">68823498</subfield>
+        <subfield code="4">dkind</subfield>
+    </datafield>
+    <datafield tag="996" ind1="0" ind2="0">
+        <subfield code="a">DBC</subfield>
+    </datafield>
+</record>

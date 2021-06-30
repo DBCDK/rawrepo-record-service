@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">38814222</subfield>
+        <subfield code="b">870970</subfield>
+        <subfield code="c">20210302123035</subfield>
+        <subfield code="d">20210226</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">e</subfield>
+    </datafield>
+    <datafield tag="006" ind1="0" ind2="0">
+        <subfield code="d">11</subfield>
+        <subfield code="2">b</subfield>
+    </datafield>
+    <datafield tag="008" ind1="0" ind2="0">
+        <subfield code="t">m</subfield>
+        <subfield code="u">u</subfield>
+        <subfield code="a">2021</subfield>
+        <subfield code="b">dk</subfield>
+        <subfield code="l">mul</subfield>
+        <subfield code="v">0</subfield>
+    </datafield>
+    <datafield tag="009" ind1="0" ind2="0">
+        <subfield code="a">m</subfield>
+        <subfield code="g">th</subfield>
+    </datafield>
+    <datafield tag="017" ind1="0" ind2="0">
+        <subfield code="a">53735851</subfield>
+    </datafield>
+    <datafield tag="021" ind1="0" ind2="0">
+        <subfield code="b">Brugsretskategori: C+</subfield>
+    </datafield>
+    <datafield tag="021" ind1="0" ind2="0">
+        <subfield code="b">Indgår i boks opsplittet i flere udlånsenheder</subfield>
+    </datafield>
+    <datafield tag="023" ind1="0" ind2="0">
+        <subfield code="b">8717418580575</subfield>
+        <subfield code="c">serien udgivet samlet</subfield>
+    </datafield>
+    <datafield tag="032" ind1="0" ind2="0">
+        <subfield code="x">ACC202108</subfield>
+        <subfield code="a">DBI202111</subfield>
+        <subfield code="x">BKM202111</subfield>
+    </datafield>
+    <datafield tag="041" ind1="0" ind2="0">
+        <subfield code="a">eng</subfield>
+        <subfield code="s">fre</subfield>
+        <subfield code="s">spa</subfield>
+        <subfield code="q">eng</subfield>
+        <subfield code="t">eng</subfield>
+        <subfield code="u">fre</subfield>
+        <subfield code="u">spa</subfield>
+        <subfield code="u">por</subfield>
+        <subfield code="u">dut</subfield>
+        <subfield code="u">dan</subfield>
+        <subfield code="u">fin</subfield>
+        <subfield code="u">nor</subfield>
+        <subfield code="u">swe</subfield>
+    </datafield>
+    <datafield tag="245" ind1="0" ind2="0">
+        <subfield code="a">Pirates of the Caribbean - Salazar's revenge</subfield>
+    </datafield>
+    <datafield tag="260" ind1="0" ind2="0">
+        <subfield code="a">Oslo</subfield>
+        <subfield code="b">Walt Disney Studios Home Entertainment</subfield>
+        <subfield code="c">[2021]</subfield>
+    </datafield>
+    <datafield tag="300" ind1="0" ind2="0">
+        <subfield code="n">1 blu-ray disc</subfield>
+        <subfield code="e">blu-ray</subfield>
+        <subfield code="l">2 t., 5 min.</subfield>
+    </datafield>
+    <datafield tag="440" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="a">Pirates of the Caribbean 5 movie collection</subfield>
+    </datafield>
+    <datafield tag="440" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="a">Disney blu-ray</subfield>
+    </datafield>
+    <datafield tag="504" ind1="0" ind2="0">
+        <subfield code="&amp;">1</subfield>
+        <subfield code="a">Will Turners søn, Henry Turner, forsøger at hæve den forbandelse, der er kastet over hans far. Det sætter ham i forbindelse med selveste Jack Sparrow og snart går jagten ind på Poseidons trefork. En trefork, der kan hæve forbandelser</subfield>
+    </datafield>
+    <datafield tag="508" ind1="0" ind2="0">
+        <subfield code="a">Engelsk tale. Synkronisering på fransk og spansk</subfield>
+    </datafield>
+    <datafield tag="508" ind1="0" ind2="0">
+        <subfield code="a">Undertekster på fransk, spansk, portugisisk, hollandsk, dansk, finsk, norsk og svensk</subfield>
+    </datafield>
+    <datafield tag="508" ind1="0" ind2="0">
+        <subfield code="a">Tekstet for hørehæmmede på engelsk</subfield>
+    </datafield>
+    <datafield tag="508" ind1="0" ind2="0">
+        <subfield code="a">Fortalt for synshandicappede på engelsk</subfield>
+    </datafield>
+    <datafield tag="512" ind1="0" ind2="0">
+        <subfield code="a">Produktion: Disney (USA), Jerry Bruckheimer Films (USA), 2017</subfield>
+    </datafield>
+    <datafield tag="517" ind1="0" ind2="0">
+        <subfield code="&amp;">1</subfield>
+        <subfield code="a">Mærkning: Tilladt for børn over 11 år</subfield>
+    </datafield>
+    <datafield tag="520" ind1="0" ind2="0">
+        <subfield code="i">Udgivet samlet i boks: Pirates of the Caribbean - den sorte forbandelse</subfield>
+        <subfield code="n">38779877</subfield>
+        <subfield code="b">. Pirates of the Caribbean - død mands kiste</subfield>
+        <subfield code="n">38814168</subfield>
+        <subfield code="b">. Pirates of the Caribbean - ved verdens ende</subfield>
+        <subfield code="n">38814192</subfield>
+        <subfield code="b">. Pirates of the Caribbean - i ukendt farvand</subfield>
+        <subfield code="n">38814206</subfield>
+        <subfield code="b">. Pirates of the Caribbean - Salazar's revenge</subfield>
+        <subfield code="n">38814222</subfield>
+    </datafield>
+    <datafield tag="526" ind1="0" ind2="0">
+        <subfield code="i">Baseret på filmen</subfield>
+        <subfield code="t">Pirates of the Caribbean</subfield>
+    </datafield>
+    <datafield tag="534" ind1="0" ind2="0">
+        <subfield code="&amp;">1</subfield>
+        <subfield code="a">Af indholdet: Bonus features</subfield>
+    </datafield>
+    <datafield tag="538" ind1="0" ind2="0">
+        <subfield code="a">BXH 6061399</subfield>
+    </datafield>
+    <datafield tag="652" ind1="0" ind2="0">
+        <subfield code="m">77.7</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="s">pirater</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="o">adventurefilm</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="o">spillefilm</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="o">amerikanske film</subfield>
+    </datafield>
+    <datafield tag="700" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">69670601</subfield>
+        <subfield code="4">drt</subfield>
+    </datafield>
+    <datafield tag="700" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">69679064</subfield>
+        <subfield code="4">drt</subfield>
+    </datafield>
+    <datafield tag="700" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">69621317</subfield>
+        <subfield code="4">aus</subfield>
+    </datafield>
+    <datafield tag="700" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">68886910</subfield>
+        <subfield code="4">aus</subfield>
+    </datafield>
+    <datafield tag="700" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">68254329</subfield>
+        <subfield code="4">ant</subfield>
+    </datafield>
+    <datafield tag="700" ind1="0" ind2="1">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">68280788</subfield>
+        <subfield code="4">dkfig</subfield>
+        <subfield code="g">1</subfield>
+    </datafield>
+    <datafield tag="700" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">69412610</subfield>
+        <subfield code="4">cng</subfield>
+    </datafield>
+    <datafield tag="710" ind1="0" ind2="0">
+        <subfield code="a">Walt Disney</subfield>
+        <subfield code="e">firma</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Johnny Depp</subfield>
+        <subfield code="4">act</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Javier Bardem</subfield>
+        <subfield code="4">act</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Brenton Thwaites</subfield>
+        <subfield code="4">act</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Kaya Scodelario</subfield>
+        <subfield code="4">act</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Kevin R. McNally</subfield>
+        <subfield code="4">act</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Golshifteh Farahani</subfield>
+        <subfield code="4">act</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">David Wenham</subfield>
+        <subfield code="4">act</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Stephen Graham</subfield>
+        <subfield code="4">act</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Geoffrey Rush</subfield>
+        <subfield code="4">act</subfield>
+    </datafield>
+    <datafield tag="910" ind1="0" ind2="0">
+        <subfield code="a">Disney</subfield>
+        <subfield code="h">Walt</subfield>
+        <subfield code="e">firma</subfield>
+        <subfield code="z">710</subfield>
+    </datafield>
+    <datafield tag="910" ind1="0" ind2="0">
+        <subfield code="a">Disney</subfield>
+        <subfield code="e">firma</subfield>
+        <subfield code="z">710</subfield>
+    </datafield>
+    <datafield tag="990" ind1="0" ind2="0">
+        <subfield code="b">v</subfield>
+        <subfield code="b">b</subfield>
+        <subfield code="u">nu</subfield>
+    </datafield>
+    <datafield tag="991" ind1="0" ind2="0">
+        <subfield code="o">Udgivet samlet i boks: Pirates of the Caribbean - den sorte forbandelse (38779877), Pirates of the Caribbean - død mands kiste (38814168), Pirates of the Caribbean - ved verdens ende (38814192), Pirates of the Caribbean - i ukendt farvand (38814206), Pirates of the Caribbean - Salazar's revenge  (38814222)</subfield>
+    </datafield>
+    <datafield tag="996" ind1="0" ind2="0">
+        <subfield code="a">DBC</subfield>
+    </datafield>
+</record>

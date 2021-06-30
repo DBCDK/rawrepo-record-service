@@ -5,6 +5,7 @@
 
 package dk.dbc.rawrepo.service;
 
+import dk.dbc.commons.testcontainers.postgres.DBCPostgreSQLContainer;
 import dk.dbc.httpclient.HttpClient;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
@@ -53,14 +54,12 @@ class AbstractRecordServiceContainerTest {
     static final String MIMETYPE_MATVURD = "text/matvurd+marcxchange";
 
     private static final GenericContainer recordServiceContainer;
-    private static final GenericContainer rawrepoDbContainer;
-    private static final GenericContainer holdingsItemsDbContainer;
+    private static final DBCPostgreSQLContainer rawrepoDbContainer;
+    private static final DBCPostgreSQLContainer holdingsItemsDbContainer;
 
     private static final VipCoreLibraryRulesConnector vipCoreLibraryRulesConnector;
     private static final RelationHintsVipCore relationHints;
 
-    private static final String rawrepoDbBaseUrl;
-    private static final String holdingsItemsDbUrl;
     static final String recordServiceBaseUrl;
     static final HttpClient httpClient;
 
@@ -71,39 +70,29 @@ class AbstractRecordServiceContainerTest {
 
         Network network = Network.newNetwork();
 
-        rawrepoDbContainer = new GenericContainer("docker-io.dbc.dk/rawrepo-postgres-1.14-snapshot:master-5124")
-                .withNetwork(network)
-                .withNetworkAliases("rawrepoDb")
-                .withLogConsumer(new Slf4jLogConsumer(LOGGER))
-                .withEnv("POSTGRES_DB", "rawrepo")
-                .withEnv("POSTGRES_USER", "rawrepo")
-                .withEnv("POSTGRES_PASSWORD", "rawrepo")
-                .withExposedPorts(5432)
-                .withStartupTimeout(Duration.ofMinutes(1));
+        rawrepoDbContainer = new DBCPostgreSQLContainer("docker-io.dbc.dk/rawrepo-postgres-1.14-snapshot:master-5140")
+                .withDatabaseName("rawrepo")
+                .withUsername("rawrepo")
+                .withPassword("rawrepo");
         rawrepoDbContainer.start();
-        rawrepoDbBaseUrl = "rawrepo:rawrepo@rawrepoDb:5432/rawrepo";
+        rawrepoDbContainer.exposeHostPort();
 
-        holdingsItemsDbContainer = new GenericContainer("docker-os.dbc.dk/holdings-items-postgres-1.1.4:latest")
-                .withNetwork(network)
-                .withNetworkAliases("holdingsItemsDb")
-                .withLogConsumer(new Slf4jLogConsumer(LOGGER))
-                .withEnv("POSTGRES_DB", "holdings")
-                .withEnv("POSTGRES_USER", "holdings")
-                .withEnv("POSTGRES_PASSWORD", "holdings")
-                .withExposedPorts(5432)
-                .withStartupTimeout(Duration.ofMinutes(1));
+        holdingsItemsDbContainer = new DBCPostgreSQLContainer("docker-os.dbc.dk/holdings-items-postgres-1.1.4:latest")
+                .withDatabaseName("holdings")
+                .withUsername("holdings")
+                .withPassword("holdings");
         holdingsItemsDbContainer.start();
-        holdingsItemsDbUrl = "holdings:holdings@holdingsItemsDb:5432/holdings";
+        holdingsItemsDbContainer.exposeHostPort();
 
         recordServiceContainer = new GenericContainer("docker-io.dbc.dk/rawrepo-record-service:devel")
                 .withNetwork(network)
                 .withLogConsumer(new Slf4jLogConsumer(LOGGER))
                 .withEnv("INSTANCE", "it")
                 .withEnv("LOG_FORMAT", "text")
-                .withEnv("VIPCORE_CACHE_AGE", "0")
+                .withEnv("VIPCORE_CACHE_AGE", "1")
                 .withEnv("VIPCORE_ENDPOINT", "http://vipcore.iscrum-vip-extern-test.svc.cloud.dbc.dk")
-                .withEnv("RAWREPO_URL", rawrepoDbBaseUrl)
-                .withEnv("HOLDINGS_URL", holdingsItemsDbUrl)
+                .withEnv("RAWREPO_URL", rawrepoDbContainer.getPayaraDockerJdbcUrl())
+                .withEnv("HOLDINGS_URL", holdingsItemsDbContainer.getPayaraDockerJdbcUrl())
                 .withEnv("DUMP_THREAD_COUNT", "8")
                 .withEnv("DUMP_SLIZE_SIZE", "1000")
                 .withEnv("JAVA_MAX_HEAP_SIZE", "2G")
@@ -221,6 +210,13 @@ class AbstractRecordServiceContainerTest {
         final RecordId to = new RecordId(referBibliographicRecordId, referAgencyId);
 
         dao.setRelationsFrom(from, new HashSet<>(Collections.singletonList(to)));
+    }
+
+    static void saveRelations(Connection connection, String bibliographicRecordId, int agencyId, List<RecordId> to) throws Exception {
+        final RawRepoDAO dao = createDAO(connection);
+        final RecordId from = new RecordId(bibliographicRecordId, agencyId);
+
+        dao.setRelationsFrom(from, new HashSet<>(to));
     }
 
     static void resetRawrepoDb(Connection connection) throws Exception {

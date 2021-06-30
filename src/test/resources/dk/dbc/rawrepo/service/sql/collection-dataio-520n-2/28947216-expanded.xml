@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">28947216</subfield>
+        <subfield code="b">191919</subfield>
+        <subfield code="c">20200421093915</subfield>
+        <subfield code="d">20110913</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">e</subfield>
+    </datafield>
+    <datafield tag="008" ind1="0" ind2="0">
+        <subfield code="t">m</subfield>
+        <subfield code="v">0</subfield>
+        <subfield code="&amp;">f</subfield>
+        <subfield code="u">r</subfield>
+        <subfield code="a">2011</subfield>
+        <subfield code="z">2016</subfield>
+        <subfield code="b">dk</subfield>
+        <subfield code="d">y</subfield>
+        <subfield code="l">dan</subfield>
+        <subfield code="x">06</subfield>
+    </datafield>
+    <datafield tag="009" ind1="0" ind2="0">
+        <subfield code="a">a</subfield>
+        <subfield code="g">xx</subfield>
+    </datafield>
+    <datafield tag="021" ind1="0" ind2="0">
+        <subfield code="e">9788771084504</subfield>
+        <subfield code="c">ib.</subfield>
+    </datafield>
+    <datafield tag="032" ind1="0" ind2="0">
+        <subfield code="x">ACC201137</subfield>
+        <subfield code="a">DBF201646</subfield>
+        <subfield code="x">BKM201646</subfield>
+    </datafield>
+    <datafield tag="100" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">68594693</subfield>
+        <subfield code="a">Kuskner</subfield>
+        <subfield code="h">Per</subfield>
+        <subfield code="4">aut</subfield>
+    </datafield>
+    <datafield tag="245" ind1="0" ind2="0">
+        <subfield code="a">Matador</subfield>
+        <subfield code="c">mennesker, myter &amp; minder</subfield>
+    </datafield>
+    <datafield tag="250" ind1="0" ind2="0">
+        <subfield code="a">1. udgave</subfield>
+        <subfield code="b">÷</subfield>
+    </datafield>
+    <datafield tag="260" ind1="0" ind2="0">
+        <subfield code="&amp;">1</subfield>
+        <subfield code="a">Kbh.</subfield>
+        <subfield code="b">People's Press</subfield>
+        <subfield code="c">2011</subfield>
+    </datafield>
+    <datafield tag="300" ind1="0" ind2="0">
+        <subfield code="a">317 sider</subfield>
+        <subfield code="b">ill. i farver</subfield>
+    </datafield>
+    <datafield tag="504" ind1="0" ind2="0">
+        <subfield code="&amp;">1</subfield>
+        <subfield code="a">Historien om tv-serien Matador og interviews med skuespillere og andre folk foran og bag kameraet, der også beretter om liv og karriere efter Matador</subfield>
+    </datafield>
+    <datafield tag="521" ind1="0" ind2="0">
+        <subfield code="&amp;">REX</subfield>
+        <subfield code="a">1. oplag</subfield>
+        <subfield code="c">2011</subfield>
+        <subfield code="k">Specialtrykkeriet Viborg</subfield>
+    </datafield>
+    <datafield tag="521" ind1="0" ind2="0">
+        <subfield code="a">2. oplag</subfield>
+        <subfield code="c">2011</subfield>
+    </datafield>
+    <datafield tag="521" ind1="0" ind2="0">
+        <subfield code="b">4. oplag</subfield>
+        <subfield code="c">2016</subfield>
+    </datafield>
+    <datafield tag="652" ind1="0" ind2="0">
+        <subfield code="m">77.91</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="f">tv-serier</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="t">Matador (tv-serie)</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="e">Danmark</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="i">1900-1999</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="i">2000-2009</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="o">biografier</subfield>
+    </datafield>
+    <datafield tag="666" ind1="0" ind2="0">
+        <subfield code="0"/>
+        <subfield code="o">erindringer</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Pernille Wass</subfield>
+        <subfield code="4">edt</subfield>
+    </datafield>
+    <datafield tag="900" ind1="0" ind2="0">
+        <subfield code="a">Kuskner</subfield>
+        <subfield code="x">se</subfield>
+        <subfield code="w">Kuskner, Per</subfield>
+        <subfield code="z">100</subfield>
+    </datafield>
+    <datafield tag="990" ind1="0" ind2="0">
+        <subfield code="o">201646</subfield>
+        <subfield code="b">v</subfield>
+        <subfield code="b">l</subfield>
+        <subfield code="u">op</subfield>
+    </datafield>
+    <datafield tag="996" ind1="0" ind2="0">
+        <subfield code="a">DBC</subfield>
+    </datafield>
+    <datafield tag="d08" ind1="0" ind2="0">
+        <subfield code="a">LU-afmærkning tilføjet i 990b/hes20200226</subfield>
+    </datafield>
+    <datafield tag="d08" ind1="0" ind2="0">
+        <subfield code="o">jdy</subfield>
+        <subfield code="o">psc</subfield>
+        <subfield code="k">dra</subfield>
+        <subfield code="o">dra</subfield>
+    </datafield>
+    <datafield tag="d09" ind1="0" ind2="0">
+        <subfield code="z">REX201141</subfield>
+    </datafield>
+    <datafield tag="d31" ind1="0" ind2="0">
+        <subfield code="b">154</subfield>
+        <subfield code="h">233</subfield>
+        <subfield code="t">29</subfield>
+    </datafield>
+    <datafield tag="d32" ind1="0" ind2="0">
+        <subfield code="b">151</subfield>
+        <subfield code="h">229</subfield>
+    </datafield>
+    <datafield tag="d35" ind1="0" ind2="0">
+        <subfield code="a">P</subfield>
+        <subfield code="i">02</subfield>
+        <subfield code="n">05</subfield>
+        <subfield code="p">01</subfield>
+        <subfield code="q">05</subfield>
+    </datafield>
+    <datafield tag="d90" ind1="0" ind2="0">
+        <subfield code="o">201210</subfield>
+        <subfield code="b">v</subfield>
+        <subfield code="u">op</subfield>
+    </datafield>
+    <datafield tag="d90" ind1="0" ind2="0">
+        <subfield code="o">201139</subfield>
+        <subfield code="b">l</subfield>
+        <subfield code="b">v</subfield>
+        <subfield code="u">nt</subfield>
+    </datafield>
+    <datafield tag="d90" ind1="0" ind2="0">
+        <subfield code="x">201138</subfield>
+        <subfield code="b">l</subfield>
+        <subfield code="b">v</subfield>
+        <subfield code="u">nt</subfield>
+    </datafield>
+    <datafield tag="d91" ind1="0" ind2="0">
+        <subfield code="o">Ekspres 201138</subfield>
+    </datafield>
+    <datafield tag="f06" ind1="0" ind2="0">
+        <subfield code="b">v</subfield>
+    </datafield>
+    <datafield tag="n51" ind1="0" ind2="0">
+        <subfield code="a">20161109</subfield>
+    </datafield>
+    <datafield tag="s12" ind1="0" ind2="0">
+        <subfield code="t">TeamBLY201644</subfield>
+    </datafield>
+    <datafield tag="z99" ind1="0" ind2="0">
+        <subfield code="a">masseret</subfield>
+    </datafield>
+</record>

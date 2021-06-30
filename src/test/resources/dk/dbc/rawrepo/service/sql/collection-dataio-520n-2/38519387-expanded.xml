@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">38519387</subfield>
+        <subfield code="b">191919</subfield>
+        <subfield code="c">20210408145803</subfield>
+        <subfield code="d">20201211</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">e</subfield>
+    </datafield>
+    <datafield tag="008" ind1="0" ind2="0">
+        <subfield code="t">m</subfield>
+        <subfield code="u">u</subfield>
+        <subfield code="a">2020</subfield>
+        <subfield code="b">dk</subfield>
+        <subfield code="d">y</subfield>
+        <subfield code="l">dan</subfield>
+        <subfield code="x">06</subfield>
+        <subfield code="v">0</subfield>
+    </datafield>
+    <datafield tag="009" ind1="0" ind2="0">
+        <subfield code="a">a</subfield>
+        <subfield code="g">xx</subfield>
+    </datafield>
+    <datafield tag="017" ind1="0" ind2="0">
+        <subfield code="a">28947216</subfield>
+    </datafield>
+    <datafield tag="021" ind1="0" ind2="0">
+        <subfield code="e">9788772380094</subfield>
+        <subfield code="c">hf.</subfield>
+    </datafield>
+    <datafield tag="032" ind1="0" ind2="0">
+        <subfield code="x">ACC202050</subfield>
+        <subfield code="a">DBF202104</subfield>
+    </datafield>
+    <datafield tag="100" ind1="0" ind2="0">
+        <subfield code="5">870979</subfield>
+        <subfield code="6">68594693</subfield>
+        <subfield code="a">Kuskner</subfield>
+        <subfield code="h">Per</subfield>
+        <subfield code="4">aut</subfield>
+    </datafield>
+    <datafield tag="245" ind1="0" ind2="0">
+        <subfield code="a">Matador</subfield>
+        <subfield code="c">mennesker, myter &amp; minder</subfield>
+    </datafield>
+    <datafield tag="250" ind1="0" ind2="0">
+        <subfield code="a">2. udgave [Særudgave]</subfield>
+        <subfield code="b">2. udgave</subfield>
+    </datafield>
+    <datafield tag="260" ind1="0" ind2="0">
+        <subfield code="&amp;">1</subfield>
+        <subfield code="a">Kbh.</subfield>
+        <subfield code="b">People's Press</subfield>
+        <subfield code="c">2020</subfield>
+    </datafield>
+    <datafield tag="300" ind1="0" ind2="0">
+        <subfield code="a">421 sider</subfield>
+        <subfield code="b">ill.</subfield>
+    </datafield>
+    <datafield tag="520" ind1="0" ind2="0">
+        <subfield code="a">Tidligere: 1. udgave: 2011</subfield>
+        <subfield code="n">28947216</subfield>
+        <subfield code="r">9788771084504</subfield>
+    </datafield>
+    <datafield tag="521" ind1="0" ind2="0">
+        <subfield code="b">1. oplag</subfield>
+        <subfield code="c">2020</subfield>
+    </datafield>
+    <datafield tag="652" ind1="0" ind2="0">
+        <subfield code="m">77.91</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Pernille Wass</subfield>
+        <subfield code="4">edt</subfield>
+    </datafield>
+    <datafield tag="900" ind1="0" ind2="0">
+        <subfield code="a">Kuskner</subfield>
+        <subfield code="x">se</subfield>
+        <subfield code="w">Kuskner, Per</subfield>
+        <subfield code="z">100</subfield>
+    </datafield>
+    <datafield tag="996" ind1="0" ind2="0">
+        <subfield code="a">DBC</subfield>
+    </datafield>
+    <datafield tag="d08" ind1="0" ind2="0">
+        <subfield code="f">wnn</subfield>
+        <subfield code="o">kga</subfield>
+        <subfield code="r">kga</subfield>
+        <subfield code="a">300 retter fra 317 sider og ill. i farver</subfield>
+    </datafield>
+    <datafield tag="d08" ind1="0" ind2="0">
+        <subfield code="o">kga</subfield>
+    </datafield>
+    <datafield tag="d70" ind1="0" ind2="0">
+        <subfield code="b">Rex</subfield>
+    </datafield>
+    <datafield tag="s12" ind1="0" ind2="0">
+        <subfield code="t">TeamBAC202102</subfield>
+    </datafield>
+    <datafield tag="z98" ind1="0" ind2="0">
+        <subfield code="a">Minus korrekturprint</subfield>
+    </datafield>
+    <datafield tag="z99" ind1="0" ind2="0">
+        <subfield code="a">kga</subfield>
+    </datafield>
+</record>

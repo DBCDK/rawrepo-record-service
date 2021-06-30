@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">38814222</subfield>
+        <subfield code="b">191919</subfield>
+        <subfield code="c">20210302123038</subfield>
+        <subfield code="d">20210226</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">e</subfield>
+    </datafield>
+    <datafield tag="d08" ind1="0" ind2="0">
+        <subfield code="o">cra</subfield>
+        <subfield code="a">300: spilletid fra tidl. udgave</subfield>
+        <subfield code="k">ahf</subfield>
+    </datafield>
+    <datafield tag="f70" ind1="0" ind2="0">
+        <subfield code="b">38779877</subfield>
+    </datafield>
+    <datafield tag="s12" ind1="0" ind2="0">
+        <subfield code="t">TeamBMV202108</subfield>
+    </datafield>
+    <datafield tag="z98" ind1="0" ind2="0">
+        <subfield code="a">Minus korrekturprint</subfield>
+    </datafield>
+    <datafield tag="z99" ind1="0" ind2="0">
+        <subfield code="a">ahf</subfield>
+    </datafield>
+</record>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">48473989</subfield>
+        <subfield code="b">191919</subfield>
+        <subfield code="c">20210624122248</subfield>
+        <subfield code="d">20200624</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">b</subfield>
+    </datafield>
+    <datafield tag="008" ind1="0" ind2="0">
+        <subfield code="t">s</subfield>
+        <subfield code="u">f</subfield>
+        <subfield code="a">2019</subfield>
+        <subfield code="v">0</subfield>
+    </datafield>
+    <datafield tag="014" ind1="0" ind2="0">
+        <subfield code="a">48678955</subfield>
+    </datafield>
+    <datafield tag="021" ind1="0" ind2="0">
+        <subfield code="e">9788793726963</subfield>
+    </datafield>
+    <datafield tag="032" ind1="0" ind2="0">
+        <subfield code="x">ACC202026</subfield>
+        <subfield code="a">DLF202036</subfield>
+    </datafield>
+    <datafield tag="245" ind1="0" ind2="0">
+        <subfield code="G">1</subfield>
+        <subfield code="g">Samlebind 1</subfield>
+        <subfield code="a">4 noveller</subfield>
+    </datafield>
+    <datafield tag="260" ind1="0" ind2="0">
+        <subfield code="c">[2019]</subfield>
+    </datafield>
+    <datafield tag="300" ind1="0" ind2="0">
+        <subfield code="l">3 t., 25 min.</subfield>
+    </datafield>
+    <datafield tag="512" ind1="0" ind2="0">
+        <subfield code="0">pro</subfield>
+        <subfield code="a">Oversætteren fremgår ikke af materialet</subfield>
+    </datafield>
+    <datafield tag="512" ind1="0" ind2="0">
+        <subfield code="0">pro</subfield>
+        <subfield code="a">Titlen hentet fra indgangssiden</subfield>
+    </datafield>
+    <datafield tag="512" ind1="0" ind2="0">
+        <subfield code="0">pro</subfield>
+        <subfield code="a">Ikke alle ophav fremgår af materialet</subfield>
+    </datafield>
+    <datafield tag="520" ind1="0" ind2="0">
+        <subfield code="a">Gengivelse af bøgerne</subfield>
+    </datafield>
+    <datafield tag="520" ind1="0" ind2="0">
+        <subfield code="a">Indlæst efter 1. e-bogsudgave. 2017, 2018</subfield>
+        <subfield code="n">54068239</subfield>
+        <subfield code="n">54135289</subfield>
+        <subfield code="n">54203063</subfield>
+        <subfield code="n">54329938</subfield>
+        <subfield code="r">9788793618985</subfield>
+        <subfield code="r">9788793618589</subfield>
+        <subfield code="r">9788793618602</subfield>
+        <subfield code="r">9788793726031</subfield>
+    </datafield>
+    <datafield tag="700" ind1="0" ind2="0">
+        <subfield code="å">1001</subfield>
+        <subfield code="5">870979</subfield>
+        <subfield code="6">19374610</subfield>
+        <subfield code="a">Storm Hansen</subfield>
+        <subfield code="h">Trine</subfield>
+        <subfield code="4">dkind</subfield>
+    </datafield>
+    <datafield tag="720" ind1="0" ind2="0">
+        <subfield code="o">Marie Louise Dyrby</subfield>
+        <subfield code="4">trl</subfield>
+    </datafield>
+    <datafield tag="900" ind1="0" ind2="0">
+        <subfield code="a">Hansen</subfield>
+        <subfield code="h">Trine Storm</subfield>
+        <subfield code="x">se</subfield>
+        <subfield code="w">Storm Hansen, Trine</subfield>
+        <subfield code="z">700/1001</subfield>
+    </datafield>
+    <datafield tag="996" ind1="0" ind2="0">
+        <subfield code="a">DBC</subfield>
+    </datafield>
+    <datafield tag="d08" ind1="0" ind2="0">
+        <subfield code="f">dra</subfield>
+        <subfield code="o">dra</subfield>
+        <subfield code="a">Frigørelsen, Det andet køn, Lysthuset og Cabaret</subfield>
+    </datafield>
+    <datafield tag="d70" ind1="0" ind2="0">
+        <subfield code="b">Publizon</subfield>
+    </datafield>
+    <datafield tag="f21" ind1="0" ind2="0">
+        <subfield code="a">http://dmat.dbc.dk/eVALU/get.php?isbn=9788793726963</subfield>
+        <subfield code="l">Publizon</subfield>
+        <subfield code="f">http://images.pubhub.dk/originals/91d67b25-4578-42d9-a668-2cdd61b41e22.jpg</subfield>
+        <subfield code="a">http://samples.pubhub.dk/9788793726963.mp3</subfield>
+        <subfield code="n">9788793726963</subfield>
+    </datafield>
+    <datafield tag="s12" ind1="0" ind2="0">
+        <subfield code="t">TeamBAC202033</subfield>
+    </datafield>
+    <datafield tag="z98" ind1="0" ind2="0">
+        <subfield code="a">Minus korrekturprint</subfield>
+    </datafield>
+    <datafield tag="z99" ind1="0" ind2="0">
+        <subfield code="a">dra</subfield>
+    </datafield>
+    <datafield tag="z99" ind1="0" ind2="0">
+        <subfield code="a">masseret</subfield>
+    </datafield>
+</record>

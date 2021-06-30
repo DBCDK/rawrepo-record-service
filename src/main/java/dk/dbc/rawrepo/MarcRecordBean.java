@@ -89,10 +89,12 @@ public class MarcRecordBean {
     @Timed
     public Map<String, Record> getDataIOMarcRecordCollection(String bibliographicRecordId,
                                                              int agencyId,
-                                                             boolean expand) throws InternalServerException, RecordNotFoundException {
+                                                             boolean expand,
+                                                             boolean handle520n) throws InternalServerException, RecordNotFoundException {
         return recordCollectionBean.getDataIORecordCollection(bibliographicRecordId,
                 agencyId,
-                expand);
+                expand,
+                handle520n);
     }
 
     @NotNull
