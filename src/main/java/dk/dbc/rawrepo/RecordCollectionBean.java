@@ -44,6 +44,9 @@ public class RecordCollectionBean {
     @EJB
     RecordRelationsBean recordRelationsBean;
 
+    @EJB
+    RecordSimpleBean recordSimpleBean;
+
     // Constructor used for mocking
     RecordCollectionBean(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -251,7 +254,9 @@ public class RecordCollectionBean {
                 final List<String> values520n = marcRecord.getSubFieldValues("520", 'n');
 
                 for (String value : values520n) {
-                    fetchDataIORecordCollection(collection, value, agencyId, expand, false, newAllowDeletedParent, handle520n);
+                    if (recordSimpleBean.recordExists(value, agencyId, false)) {
+                        fetchDataIORecordCollection(collection, value, agencyId, expand, false, newAllowDeletedParent, handle520n);
+                    }
                 }
             }
         }
