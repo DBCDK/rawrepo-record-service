@@ -170,7 +170,7 @@ public class RecordCollectionService {
         } catch (RecordNotFoundException ex) {
             return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
-            LOGGER.info("v1/records/{}/{}/dataio?expand={}", agencyId, bibliographicRecordId, expand);
+            LOGGER.info("v1/records/{}/{}/dataio?expand={}&handle-520n={}", agencyId, bibliographicRecordId, expand, handle520n);
         }
     }
 
