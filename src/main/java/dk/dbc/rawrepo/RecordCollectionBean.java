@@ -111,13 +111,14 @@ public class RecordCollectionBean {
 
     public Map<String, Record> getDataIORecordCollection(String bibliographicRecordId,
                                                          int originalAgencyId,
+                                                         boolean useParentAgency,
                                                          boolean expand,
                                                          boolean handle520n) throws InternalServerException, RecordNotFoundException {
         final Map<String, Record> collection = new HashMap<>();
         final Map<String, Record> result = new HashMap<>();
         try (Connection conn = dataSource.getConnection()) {
             try {
-                fetchDataIORecordCollection(collection, bibliographicRecordId, originalAgencyId, expand, true, false, handle520n);
+                fetchDataIORecordCollection(collection, bibliographicRecordId, originalAgencyId, useParentAgency, expand, true, false, handle520n);
 
                 for (Map.Entry<String, Record> entry : collection.entrySet()) {
                     final Record rawRecord = entry.getValue();
@@ -201,6 +202,7 @@ public class RecordCollectionBean {
     private void fetchDataIORecordCollection(Map<String, Record> collection,
                                              String bibliographicRecordId,
                                              int agencyId,
+                                             boolean useParentAgency,
                                              boolean expand,
                                              boolean isRoot,
                                              boolean allowDeletedParent,
@@ -213,9 +215,9 @@ public class RecordCollectionBean {
                 // section or head enrichment for the FBS agency and a deleted volume record the collection should instead
                 // include the active common volume and the active head/section enrichment
                 if (recordRelationsBean.parentIsActive(bibliographicRecordId, agencyId)) {
-                    record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, expand, isLocalRecord(bibliographicRecordId));
+                    record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, useParentAgency, expand, isLocalRecord(bibliographicRecordId));
                 } else {
-                    record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, expand, true);
+                    record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, useParentAgency, expand, true);
                 }
 
                 // Root record is of the correct agencyId
@@ -223,11 +225,11 @@ public class RecordCollectionBean {
             } else {
                 try {
                     // Assume the record an enrichment
-                    record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, expand, allowDeletedParent);
+                    record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, useParentAgency, expand, allowDeletedParent);
                 } catch (RecordNotFoundException e) {
                     // If no active record is found try to find deleted record
                     if (!allowDeletedParent) {
-                        record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, expand, true);
+                        record = recordBean.getDataIORawRepoRecord(bibliographicRecordId, agencyId, useParentAgency, expand, true);
                     } else {
                         // If the first attempt was made with allow deleted then we have no hope of finding the record
                         // so just throw the exception
@@ -245,7 +247,7 @@ public class RecordCollectionBean {
                 if (870979 == parent.agencyId) {
                     continue;
                 }
-                fetchDataIORecordCollection(collection, parent.getBibliographicRecordId(), agencyId, expand, false, newAllowDeletedParent, handle520n);
+                fetchDataIORecordCollection(collection, parent.getBibliographicRecordId(), agencyId, useParentAgency, expand, false, newAllowDeletedParent, handle520n);
             }
 
             if (handle520n) {
@@ -255,7 +257,7 @@ public class RecordCollectionBean {
 
                 for (String value : values520n) {
                     if (recordSimpleBean.recordExists(value, agencyId, false)) {
-                        fetchDataIORecordCollection(collection, value, agencyId, expand, false, newAllowDeletedParent, handle520n);
+                        fetchDataIORecordCollection(collection, value, agencyId, useParentAgency, expand, false, newAllowDeletedParent, handle520n);
                     }
                 }
             }
