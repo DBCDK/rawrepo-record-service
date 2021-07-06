@@ -193,10 +193,11 @@ public class RecordBean {
 
     public Record getDataIORawRepoRecord(String bibliographicRecordId,
                                          int originalAgencyId,
+                                         boolean useParentAgency,
                                          boolean expand,
                                          boolean isVolume) throws InternalServerException, RecordNotFoundException {
         try {
-            final ObjectPool<MarcXMerger> mergePool = getMergerPool(false);
+            final ObjectPool<MarcXMerger> mergePool = getMergerPool(useParentAgency);
             final MarcXMerger merger = mergePool.checkOut();
             // isVolume determines whether or not deleted records should be found
             // I.e. if it is a volume record then allow a deleted volume record

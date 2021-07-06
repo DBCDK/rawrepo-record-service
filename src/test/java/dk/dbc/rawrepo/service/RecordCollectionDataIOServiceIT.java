@@ -39,13 +39,14 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
     }
 
     private static Response callRecordService(String bibliographicRecordId, int agencyId) {
-        return callRecordService(bibliographicRecordId, agencyId, false);
+        return callRecordService(bibliographicRecordId, agencyId, false, false);
     }
 
-    private static Response callRecordService(String bibliographicRecordId, int agencyId, boolean handle520n) {
+    private static Response callRecordService(String bibliographicRecordId, int agencyId, boolean handle520n, boolean useParentAgency) {
         final HashMap<String, Object> params = new HashMap<>();
         params.put("expand", true);
-        params.put("handle-520n", String.valueOf(handle520n));
+        params.put("handle-520n", handle520n);
+        params.put("use-parent-agency", useParentAgency);
 
         final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/dataio")
                 .bind("agencyid", agencyId)
@@ -414,7 +415,7 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveMarcXChange(rawrepoConnection, path, controlVolume);
         saveRelations(rawrepoConnection, controlVolume, COMMON_AGENCY, controlHead, COMMON_AGENCY);
 
-        final Response response = callRecordService(volume, COMMON_ENRICHMENT, true);
+        final Response response = callRecordService(volume, COMMON_ENRICHMENT, true, false);
         assertThat("Response code", response.getStatus(), is(200));
 
         final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
@@ -461,7 +462,7 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveMarcXChange(rawrepoConnection, path, control);
         saveRelations(rawrepoConnection, control, COMMON_AGENCY, authority, AUTHORITY_AGENCY);
 
-        final Response response = callRecordService(single, COMMON_ENRICHMENT, true);
+        final Response response = callRecordService(single, COMMON_ENRICHMENT, true, false);
         assertThat("Response code", response.getStatus(), is(200));
 
         final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
@@ -474,6 +475,45 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         assertThat("collection contains control", actual.containsKey(control), is(true));
         assertThat("collection content control", getMarcRecordFromString(actual.get(control).getContent()),
                 is(getMarcRecordFromFile(String.format("%s/%s-expanded.xml", path, control))));
+    }
+
+    @Test
+    void handle520n_Scenario_2_useParentAgency() throws Exception {
+        /*
+            Simple test with single record and single control record
+         */
+        final Connection rawrepoConnection = connectToRawrepoDb();
+        final String path = "sql/collection-dataio-520n-2";
+        final String authority = "68594693";
+        final String single = "38519387";
+        final String control = "28947216";
+
+        resetRawrepoDb(rawrepoConnection);
+
+        // Authority
+        saveAuthority(rawrepoConnection, path, authority);
+
+        // Single
+        saveMarcXChange(rawrepoConnection, path, single);
+        saveRelations(rawrepoConnection, single, COMMON_AGENCY, authority, AUTHORITY_AGENCY);
+
+        // Control
+        saveMarcXChange(rawrepoConnection, path, control);
+        saveRelations(rawrepoConnection, control, COMMON_AGENCY, authority, AUTHORITY_AGENCY);
+
+        final Response response = callRecordService(single, COMMON_ENRICHMENT, true, true);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+        assertThat("actual size", actual.size(), is(2));
+
+        assertThat("collection contains single", actual.containsKey(single), is(true));
+        assertThat("collection content single", getMarcRecordFromString(actual.get(single).getContent()),
+                is(getMarcRecordFromFile(String.format("%s/%s-870970-expanded.xml", path, single))));
+
+        assertThat("collection contains control", actual.containsKey(control), is(true));
+        assertThat("collection content control", getMarcRecordFromString(actual.get(control).getContent()),
+                is(getMarcRecordFromFile(String.format("%s/%s-870970-expanded.xml", path, control))));
     }
 
     @Test
@@ -501,7 +541,7 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, String.format("%s/%s-%s-deleted.xml", path, control, COMMON_ENRICHMENT), MIMETYPE_ENRICHMENT);
         saveRecord(rawrepoConnection, String.format("%s/%s-%s-deleted.xml", path, control, COMMON_AGENCY), MIMETYPE_MARCXCHANGE);
 
-        final Response response = callRecordService(single, COMMON_ENRICHMENT, true);
+        final Response response = callRecordService(single, COMMON_ENRICHMENT, true, false);
         assertThat("Response code", response.getStatus(), is(200));
 
         final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
@@ -532,7 +572,7 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveMarcXChange(rawrepoConnection, path, single);
         saveRelations(rawrepoConnection, single, COMMON_AGENCY, authority, AUTHORITY_AGENCY);
 
-        final Response response = callRecordService(single, COMMON_ENRICHMENT, true);
+        final Response response = callRecordService(single, COMMON_ENRICHMENT, true, false);
         assertThat("Response code", response.getStatus(), is(200));
 
         final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
@@ -597,7 +637,7 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRelations(rawrepoConnection, onStrangerTides, COMMON_AGENCY, authorityList);
         saveRelations(rawrepoConnection, salazarsRevenge, COMMON_AGENCY, authorityList);
 
-        final Response response = callRecordService(onStrangerTides, COMMON_ENRICHMENT, true);
+        final Response response = callRecordService(onStrangerTides, COMMON_ENRICHMENT, true, false);
         assertThat("Response code", response.getStatus(), is(200));
 
         final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
@@ -620,7 +660,7 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
                 is(getMarcRecordFromFile(String.format("%s/%s-expanded.xml", path, salazarsRevenge))));
 
         // For fun lets make the same call again but with handle-520n = false
-        final Response responseWithout520n = callRecordService(onStrangerTides, COMMON_ENRICHMENT, false);
+        final Response responseWithout520n = callRecordService(onStrangerTides, COMMON_ENRICHMENT, false, false);
         assertThat("Response code Without520n", responseWithout520n.getStatus(), is(200));
 
         final Map<String, RecordDTO> actualWithout520n = responseWithout520n.readEntity(RecordDTOCollection.class).toMap();
@@ -675,7 +715,7 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveMarcXChange(rawrepoConnection, path, control4);
         saveRelations(rawrepoConnection, control4, COMMON_AGENCY, authority1, AUTHORITY_AGENCY);
 
-        final Response response = callRecordService(volume, COMMON_ENRICHMENT, true);
+        final Response response = callRecordService(volume, COMMON_ENRICHMENT, true, false);
         assertThat("Response code", response.getStatus(), is(200));
 
         final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();

@@ -157,11 +157,12 @@ public class RecordCollectionService {
     @Timed
     public Response getRecordContentCollectionDataIO(@PathParam("agencyid") int agencyId,
                                                      @PathParam("bibliographicrecordid") String bibliographicRecordId,
+                                                     @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                                      @DefaultValue("false") @QueryParam("expand") boolean expand,
                                                      @QueryParam("exclude-attribute") List<String> excludeAttributes,
                                                      @DefaultValue("false") @QueryParam("handle-520n") boolean handle520n) {
         try {
-            final Map<String, Record> collection = marcRecordBean.getDataIOMarcRecordCollection(bibliographicRecordId, agencyId, expand, handle520n);
+            final Map<String, Record> collection = marcRecordBean.getDataIOMarcRecordCollection(bibliographicRecordId, agencyId, useParentAgency, expand, handle520n);
 
             return recordCollectionToResponse(excludeAttributes, collection);
         } catch (MarcReaderException | InternalServerException | JSONBException ex) {
