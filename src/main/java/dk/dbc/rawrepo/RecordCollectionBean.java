@@ -261,11 +261,11 @@ public class RecordCollectionBean {
             if (handleControlRecords) {
                 final MarcXchangeV1Reader reader = new MarcXchangeV1Reader(new ByteArrayInputStream(record.getContent()), StandardCharsets.UTF_8);
                 final MarcRecord marcRecord = reader.read();
-                final List<String> values520n = new ArrayList<>();
-                values520n.addAll(marcRecord.getSubFieldValues("520", 'n'));
-                values520n.addAll(marcRecord.getSubFieldValues("526", 'n'));
+                final List<String> controlRecordIds = new ArrayList<>();
+                controlRecordIds.addAll(marcRecord.getSubFieldValues("520", 'n'));
+                controlRecordIds.addAll(marcRecord.getSubFieldValues("526", 'n'));
 
-                for (String value : values520n) {
+                for (String value : controlRecordIds) {
                     if (recordSimpleBean.recordExists(value, agencyId, false)) {
                         fetchDataIORecordCollection(collection, value, agencyId, useParentAgency, expand, false, newAllowDeletedParent, handleControlRecords);
                     }
