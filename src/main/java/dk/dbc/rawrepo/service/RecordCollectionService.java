@@ -160,9 +160,9 @@ public class RecordCollectionService {
                                                      @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                                      @DefaultValue("false") @QueryParam("expand") boolean expand,
                                                      @QueryParam("exclude-attribute") List<String> excludeAttributes,
-                                                     @DefaultValue("false") @QueryParam("handle-520n") boolean handle520n) {
+                                                     @DefaultValue("false") @QueryParam("handle-control-records") boolean handleControlRecords) {
         try {
-            final Map<String, Record> collection = marcRecordBean.getDataIOMarcRecordCollection(bibliographicRecordId, agencyId, useParentAgency, expand, handle520n);
+            final Map<String, Record> collection = marcRecordBean.getDataIOMarcRecordCollection(bibliographicRecordId, agencyId, useParentAgency, expand, handleControlRecords);
 
             return recordCollectionToResponse(excludeAttributes, collection);
         } catch (MarcReaderException | InternalServerException | JSONBException ex) {
@@ -171,7 +171,7 @@ public class RecordCollectionService {
         } catch (RecordNotFoundException ex) {
             return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
-            LOGGER.info("v1/records/{}/{}/dataio?expand={}&handle-520n={}", agencyId, bibliographicRecordId, expand, handle520n);
+            LOGGER.info("v1/records/{}/{}/dataio?expand={}&handle-control-records={}", agencyId, bibliographicRecordId, expand, handleControlRecords);
         }
     }
 

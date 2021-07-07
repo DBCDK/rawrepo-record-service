@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,12 +114,12 @@ public class RecordCollectionBean {
                                                          int originalAgencyId,
                                                          boolean useParentAgency,
                                                          boolean expand,
-                                                         boolean handle520n) throws InternalServerException, RecordNotFoundException {
+                                                         boolean handleControlRecords) throws InternalServerException, RecordNotFoundException {
         final Map<String, Record> collection = new HashMap<>();
         final Map<String, Record> result = new HashMap<>();
         try (Connection conn = dataSource.getConnection()) {
             try {
-                fetchDataIORecordCollection(collection, bibliographicRecordId, originalAgencyId, useParentAgency, expand, true, false, handle520n);
+                fetchDataIORecordCollection(collection, bibliographicRecordId, originalAgencyId, useParentAgency, expand, true, false, handleControlRecords);
 
                 for (Map.Entry<String, Record> entry : collection.entrySet()) {
                     final Record rawRecord = entry.getValue();
@@ -206,7 +207,7 @@ public class RecordCollectionBean {
                                              boolean expand,
                                              boolean isRoot,
                                              boolean allowDeletedParent,
-                                             boolean handle520n) throws RecordNotFoundException, InternalServerException, RawRepoException, MarcReaderException {
+                                             boolean handleControlRecords) throws RecordNotFoundException, InternalServerException, RawRepoException, MarcReaderException {
         if (!collection.containsKey(bibliographicRecordId)) {
             boolean newAllowDeletedParent = allowDeletedParent;
             Record record;
@@ -247,17 +248,26 @@ public class RecordCollectionBean {
                 if (870979 == parent.agencyId) {
                     continue;
                 }
-                fetchDataIORecordCollection(collection, parent.getBibliographicRecordId(), agencyId, useParentAgency, expand, false, newAllowDeletedParent, handle520n);
+                fetchDataIORecordCollection(collection, parent.getBibliographicRecordId(), agencyId, useParentAgency, expand, false, newAllowDeletedParent, handleControlRecords);
             }
 
-            if (handle520n) {
+
+            /*
+                For certain dataio jobs (at the time of coding daily proof printing) it is necessary to include
+                referenced control records. The control records are referenced in subfields 520 *n and 526 *n.
+                Because there are no "real" relations to these records we have to look in the record content to find
+                them. We must include the full hierarchy for the control records if it is a volume record.
+             */
+            if (handleControlRecords) {
                 final MarcXchangeV1Reader reader = new MarcXchangeV1Reader(new ByteArrayInputStream(record.getContent()), StandardCharsets.UTF_8);
                 final MarcRecord marcRecord = reader.read();
-                final List<String> values520n = marcRecord.getSubFieldValues("520", 'n');
+                final List<String> values520n = new ArrayList<>();
+                values520n.addAll(marcRecord.getSubFieldValues("520", 'n'));
+                values520n.addAll(marcRecord.getSubFieldValues("526", 'n'));
 
                 for (String value : values520n) {
                     if (recordSimpleBean.recordExists(value, agencyId, false)) {
-                        fetchDataIORecordCollection(collection, value, agencyId, useParentAgency, expand, false, newAllowDeletedParent, handle520n);
+                        fetchDataIORecordCollection(collection, value, agencyId, useParentAgency, expand, false, newAllowDeletedParent, handleControlRecords);
                     }
                 }
             }
