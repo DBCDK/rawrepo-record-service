@@ -91,12 +91,12 @@ public class MarcRecordBean {
                                                              int agencyId,
                                                              boolean useParentAgency,
                                                              boolean expand,
-                                                             boolean handle520n) throws InternalServerException, RecordNotFoundException {
+                                                             boolean handleControlRecords) throws InternalServerException, RecordNotFoundException {
         return recordCollectionBean.getDataIORecordCollection(bibliographicRecordId,
                 agencyId,
                 useParentAgency,
                 expand,
-                handle520n);
+                handleControlRecords);
     }
 
     @NotNull

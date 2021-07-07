@@ -42,10 +42,10 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         return callRecordService(bibliographicRecordId, agencyId, false, false);
     }
 
-    private static Response callRecordService(String bibliographicRecordId, int agencyId, boolean handle520n, boolean useParentAgency) {
+    private static Response callRecordService(String bibliographicRecordId, int agencyId, boolean handleControlRecords, boolean useParentAgency) {
         final HashMap<String, Object> params = new HashMap<>();
         params.put("expand", true);
-        params.put("handle-520n", handle520n);
+        params.put("handle-control-records", handleControlRecords);
         params.put("use-parent-agency", useParentAgency);
 
         final PathBuilder path = new PathBuilder("/api/v1/records/{agencyid}/{bibliographicrecordid}/dataio")
@@ -379,7 +379,7 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
     }
 
     @Test
-    void handle520n_Scenario_1() throws Exception {
+    void handleControlRecords_Scenario_1() throws Exception {
         /*
             Head + volume records where the volume points to a control volume record. Verify that the control hierarchy
             is returned.
@@ -439,7 +439,7 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
     }
 
     @Test
-    void handle520n_Scenario_2() throws Exception {
+    void handleControlRecords_Scenario_2() throws Exception {
         /*
             Simple test with single record and single control record
          */
@@ -478,7 +478,7 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
     }
 
     @Test
-    void handle520n_Scenario_2_useParentAgency() throws Exception {
+    void handleControlRecords_Scenario_2_useParentAgency() throws Exception {
         /*
             Simple test with single record and single control record
          */
@@ -517,7 +517,7 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
     }
 
     @Test
-    void handle520n_Scenario_2_deletedControlRecord() throws Exception {
+    void handleControlRecords_Scenario_2_deletedControlRecord() throws Exception {
         /*
             Simple test with single record and single control record where the control record is marked as deleted.
             Verify that the single record is returned only and no exception is thrown
@@ -553,7 +553,7 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
     }
 
     @Test
-    void handle520n_Scenario_2_missingControlRecord() throws Exception {
+    void handleControlRecords_Scenario_2_missingControlRecord() throws Exception {
         /*
             Simple test with single record and single control record where the control record is missing. Verify that
             the single record is returned only and no exception is thrown
@@ -584,7 +584,7 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
     }
 
     @Test
-    void handle520n_Scenario_3() throws Exception {
+    void handleControlRecords_Scenario_3() throws Exception {
         /*
             This tests a scenario where multiple records points to each other in 520 *n. Every record should be in the
             returned collection but only once.
@@ -671,7 +671,7 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
     }
 
     @Test
-    void handle520n_Scenario_4() throws Exception {
+    void handleControlRecords_Scenario_4() throws Exception {
         /*
         Simple head + volume record where the volume record has multiple 520 *n references
          */
