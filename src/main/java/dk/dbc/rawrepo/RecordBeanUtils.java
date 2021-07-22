@@ -16,7 +16,7 @@ import java.util.List;
 public class RecordBeanUtils {
 
     public static final int DBC_ENRICHMENT_AGENCY = 191919;
-    public static final List<Integer> DBC_AGENCIES = Collections.unmodifiableList(Arrays.asList(870970, 870971, 870974, 870975, 870976, 870979, 190002, 190004, 190007));
+    public static final List<Integer> DBC_AGENCIES = Collections.unmodifiableList(Arrays.asList(870970, 870971, 870974, 870975, 870976, 870978, 870979, 190002, 190004, 190007, 190008));
 
     public static MarcRecord removePrivateFields(MarcRecord marcRecord) {
         final List<DataField> fields = new ArrayList<>();
