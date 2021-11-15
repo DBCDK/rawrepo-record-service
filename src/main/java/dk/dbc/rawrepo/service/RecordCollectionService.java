@@ -169,6 +169,7 @@ public class RecordCollectionService {
             LOGGER.error("Exception during getRecordContentCollectionDataIO", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException ex) {
+            LOGGER.error("Caught RecordNotFoundException: {}", ex.getMessage());
             return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/records/{}/{}/dataio?expand={}&handle-control-records={}", agencyId, bibliographicRecordId, expand, handleControlRecords);
