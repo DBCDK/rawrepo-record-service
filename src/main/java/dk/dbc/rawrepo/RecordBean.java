@@ -204,7 +204,7 @@ public class RecordBean {
             // But for section or head deleted record is not allowed
             final int correctedAgencyId = findMostRelevantAgencyId(bibliographicRecordId, originalAgencyId, isVolume);
 
-            final Record rawRecord = fetchRecord(bibliographicRecordId, originalAgencyId, correctedAgencyId, merger, expand, true);
+            final Record rawRecord = fetchRecord(bibliographicRecordId, originalAgencyId, correctedAgencyId, merger, expand, false);
 
             mergePool.checkIn(merger);
 

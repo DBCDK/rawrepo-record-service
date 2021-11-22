@@ -143,36 +143,26 @@
         <subfield code="o">amerikanske film</subfield>
     </datafield>
     <datafield tag="700" ind1="0" ind2="0">
-        <subfield code="5">870979</subfield>
-        <subfield code="6">69736807</subfield>
         <subfield code="a">Verbinski</subfield>
         <subfield code="h">Gore</subfield>
         <subfield code="4">drt</subfield>
     </datafield>
     <datafield tag="700" ind1="0" ind2="0">
-        <subfield code="5">870979</subfield>
-        <subfield code="6">68280788</subfield>
         <subfield code="a">Elliott</subfield>
         <subfield code="h">Ted</subfield>
         <subfield code="4">aus</subfield>
     </datafield>
     <datafield tag="700" ind1="0" ind2="0">
-        <subfield code="5">870979</subfield>
-        <subfield code="6">68886910</subfield>
         <subfield code="a">Rossio</subfield>
         <subfield code="h">Terry</subfield>
         <subfield code="4">aus</subfield>
     </datafield>
     <datafield tag="700" ind1="0" ind2="0">
-        <subfield code="5">870979</subfield>
-        <subfield code="6">68254329</subfield>
         <subfield code="a">Disney</subfield>
         <subfield code="h">Walt</subfield>
         <subfield code="4">ant</subfield>
     </datafield>
     <datafield tag="700" ind1="0" ind2="0">
-        <subfield code="5">870979</subfield>
-        <subfield code="6">68280788</subfield>
         <subfield code="a">Elliott</subfield>
         <subfield code="h">Ted</subfield>
         <subfield code="4">dkfig</subfield>
@@ -180,8 +170,6 @@
     </datafield>
     <datafield tag="700" ind1="0" ind2="0">
         <subfield code="å">1001</subfield>
-        <subfield code="5">870979</subfield>
-        <subfield code="6">69755631</subfield>
         <subfield code="a">Wolski</subfield>
         <subfield code="h">Dariusz</subfield>
         <subfield code="4">cng</subfield>
