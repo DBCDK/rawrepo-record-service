@@ -20,7 +20,7 @@
     <repositories>
         <repository>
             <id>mavenrepo.dbc.dk</id>
-            <url>http://mavenrepo.dbc.dk/content/groups/public</url>
+            <url>https://mavenrepo.dbc.dk/content/groups/public</url>
         </repository>
     </repositories>
 
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>dk.dbc</groupId>
             <artifactId>rawrepo-access</artifactId>
-            <version>1.14-SNAPSHOT</version>
+            <version>1.15-SNAPSHOT</version>
         </dependency>
 
         <dependency>
