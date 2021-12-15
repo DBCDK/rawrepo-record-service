@@ -10,6 +10,7 @@ public class RecordDTOCollection {
 
     RecordDTO[] records;
 
+    // This function is required even if IntelliJ claims it is unused
     public RecordDTO[] getRecords() {
         return records;
     }

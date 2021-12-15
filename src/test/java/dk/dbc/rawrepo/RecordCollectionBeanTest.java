@@ -60,7 +60,7 @@ public class RecordCollectionBeanTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         doCallRealMethod().when(relationHints).getAgencyPriority(anyInt());
         doCallRealMethod().when(relationHints).usesCommonSchoolAgency(anyInt());

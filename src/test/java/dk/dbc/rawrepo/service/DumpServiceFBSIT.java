@@ -17,7 +17,7 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class DumpServiceFBSIT extends AbstractRecordServiceContainerTest {
+class DumpServiceFBSIT extends AbstractRecordServiceContainerTest {
 
     @BeforeAll
     static void initDB() {
@@ -41,7 +41,7 @@ public class DumpServiceFBSIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
-    public void dumpAgency761500Expanded() throws Exception {
+    void dumpAgency761500Expanded() throws Exception {
         AgencyParams params = new AgencyParams();
         params.setAgencies(Collections.singletonList(761500));
         params.setMode("expanded");
@@ -63,7 +63,7 @@ public class DumpServiceFBSIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
-    public void dumpRecords761500Expanded() throws Exception {
+    void dumpRecords761500Expanded() throws Exception {
         final HashMap<String, Object> params = new HashMap<>();
         params.put("mode", "expanded");
         params.put("output-format", "XML");

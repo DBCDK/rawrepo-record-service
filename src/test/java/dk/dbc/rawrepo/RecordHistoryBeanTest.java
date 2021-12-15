@@ -16,7 +16,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
-public class RecordHistoryBeanTest {
+class RecordHistoryBeanTest {
 
     @Mock
     private DataSource globalDataSource;
@@ -39,11 +39,11 @@ public class RecordHistoryBeanTest {
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    public void testGetRecordHistory() throws Exception {
+    void testGetRecordHistory() throws Exception {
         final RecordHistoryBean recordHistoryBean = new RecordHistoryBeanMock(globalDataSource);
 
         final String bibliographicRecordId = "12345678";

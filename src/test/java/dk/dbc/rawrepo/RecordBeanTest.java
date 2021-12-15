@@ -51,7 +51,7 @@ public class RecordBeanTest {
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
 
     private class RecordBeanMock extends RecordBean {

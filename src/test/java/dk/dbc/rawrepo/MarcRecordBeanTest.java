@@ -16,7 +16,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
-public class MarcRecordBeanTest {
+class MarcRecordBeanTest {
 
     @Mock
     private RecordBean recordBean;
@@ -26,7 +26,7 @@ public class MarcRecordBeanTest {
 
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
 
-    private class MarcRecordBeanMock extends MarcRecordBean {
+    private static class MarcRecordBeanMock extends MarcRecordBean {
         MarcRecordBeanMock(RecordBean recordBean, RecordCollectionBean recordCollectionBean) {
             super();
 
@@ -41,11 +41,11 @@ public class MarcRecordBeanTest {
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    public void testGetMergedRecordOk() throws Exception {
+    void testGetMergedRecordOk() throws Exception {
         MarcRecordBean bean = initMarcRecordBeanMock();
 
         String bibliographicRecordId = "90004158";
@@ -62,7 +62,7 @@ public class MarcRecordBeanTest {
     }
 
     @Test
-    public void testGetExpandedRecordOk() throws Exception {
+    void testGetExpandedRecordOk() throws Exception {
         MarcRecordBean bean = initMarcRecordBeanMock();
 
         String bibliographicRecordId = "90004158";

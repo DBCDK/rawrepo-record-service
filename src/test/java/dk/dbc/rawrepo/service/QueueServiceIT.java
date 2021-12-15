@@ -28,7 +28,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNull.notNullValue;
 
-public class QueueServiceIT extends AbstractRecordServiceContainerTest {
+class QueueServiceIT extends AbstractRecordServiceContainerTest {
 
     @BeforeAll
     static void initDB() {
