@@ -1,8 +1,3 @@
-/*
- * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
- *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
- */
-
 package dk.dbc.rawrepo.service;
 
 import dk.dbc.jsonb.JSONBContext;
@@ -166,10 +161,10 @@ public class RecordCollectionService {
 
             return recordCollectionToResponse(excludeAttributes, collection);
         } catch (MarcReaderException | InternalServerException | JSONBException ex) {
-            LOGGER.error("Exception during getRecordContentCollectionDataIO", ex);
+            LOGGER.error("Exception during getRecordContentCollectionDataIO: {}", ex.getMessage(), ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException ex) {
-            LOGGER.error("Caught RecordNotFoundException: {}", ex.getMessage());
+            LOGGER.error("Caught RecordNotFoundException: {}", ex.getMessage(), ex);
             return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/records/{}/{}/dataio?expand={}&handle-control-records={}", agencyId, bibliographicRecordId, expand, handleControlRecords);

@@ -1,8 +1,3 @@
-/*
- * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
- *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
- */
-
 package dk.dbc.rawrepo.service;
 
 import dk.dbc.httpclient.HttpGet;
@@ -365,6 +360,116 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
     }
 
     // There is no testcase testing combination of active local volume and deleted local head as that scenario is illegal
+
+    @Test
+    void activeFFUVolumeHead() throws Exception {
+        final Connection rawrepoConnection = connectToRawrepoDb();
+        final String bibliographicRecordIdVolume = "25196287";
+        final String bibliographicRecordIdHead = "24050866";
+        final int agencyId = 830600;
+
+        reset(rawrepoConnection);
+        saveRecord(rawrepoConnection, BASE_DIR + "ffu-volume-active.xml", MIMETYPE_MARCXCHANGE);
+        saveRecord(rawrepoConnection, BASE_DIR + "ffu-head-active.xml", MIMETYPE_MARCXCHANGE);
+        saveRelations(rawrepoConnection, bibliographicRecordIdVolume, agencyId, bibliographicRecordIdHead, agencyId);
+
+        final Response response = callRecordService(bibliographicRecordIdVolume, agencyId);
+
+        assertThat("Response code", response.getStatus(), is(200));
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+        assertThat("collection size", actual.size(), is(2));
+        assertThat("collection contains volume", actual.containsKey(bibliographicRecordIdVolume), is(true));
+        assertThat("collection content volume", getMarcRecordFromString(actual.get(bibliographicRecordIdVolume).getContent()), is(getMarcRecordFromFile(BASE_DIR + "ffu-volume-active.xml")));
+        assertThat("collection contains head", actual.containsKey(bibliographicRecordIdHead), is(true));
+        assertThat("collection content head", getMarcRecordFromString(actual.get(bibliographicRecordIdHead).getContent()), is(getMarcRecordFromFile(BASE_DIR + "ffu-head-active.xml")));
+    }
+
+    @Test
+    void deletedFFUVolumeActiveHead() throws Exception {
+        final Connection rawrepoConnection = connectToRawrepoDb();
+        final String bibliographicRecordIdVolume = "25196287";
+        final String bibliographicRecordIdHead = "24050866";
+        final int agencyId = 830600;
+
+        reset(rawrepoConnection);
+        saveRecord(rawrepoConnection, BASE_DIR + "ffu-volume-deleted.xml", MIMETYPE_MARCXCHANGE);
+        saveRecord(rawrepoConnection, BASE_DIR + "ffu-head-active.xml", MIMETYPE_MARCXCHANGE);
+
+        final Response response = callRecordService(bibliographicRecordIdVolume, agencyId);
+
+        assertThat("Response code", response.getStatus(), is(200));
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+        assertThat("collection size", actual.size(), is(2));
+        assertThat("collection contains volume", actual.containsKey(bibliographicRecordIdVolume), is(true));
+        assertThat("collection content volume", getMarcRecordFromString(actual.get(bibliographicRecordIdVolume).getContent()), is(getMarcRecordFromFile(BASE_DIR + "ffu-volume-deleted.xml")));
+        assertThat("collection contains head", actual.containsKey(bibliographicRecordIdHead), is(true));
+        assertThat("collection content head", getMarcRecordFromString(actual.get(bibliographicRecordIdHead).getContent()), is(getMarcRecordFromFile(BASE_DIR + "ffu-head-active.xml")));
+    }
+
+    @Test
+    void deletedFFUVolumeDeletedHead() throws Exception {
+        final Connection rawrepoConnection = connectToRawrepoDb();
+        final String bibliographicRecordIdVolume = "25196287";
+        final String bibliographicRecordIdHead = "24050866";
+        final int agencyId = 830600;
+
+
+        reset(rawrepoConnection);
+        saveRecord(rawrepoConnection, BASE_DIR + "ffu-volume-deleted.xml", MIMETYPE_MARCXCHANGE);
+        saveRecord(rawrepoConnection, BASE_DIR + "ffu-head-deleted.xml", MIMETYPE_MARCXCHANGE);
+
+        final Response response = callRecordService(bibliographicRecordIdVolume, agencyId);
+
+        assertThat("Response code", response.getStatus(), is(200));
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+        assertThat("collection size", actual.size(), is(2));
+        assertThat("collection contains volume", actual.containsKey(bibliographicRecordIdVolume), is(true));
+        assertThat("collection content volume", getMarcRecordFromString(actual.get(bibliographicRecordIdVolume).getContent()), is(getMarcRecordFromFile(BASE_DIR + "ffu-volume-deleted.xml")));
+        assertThat("collection contains head", actual.containsKey(bibliographicRecordIdHead), is(true));
+        assertThat("collection content head", getMarcRecordFromString(actual.get(bibliographicRecordIdHead).getContent()), is(getMarcRecordFromFile(BASE_DIR + "ffu-head-deleted.xml")));
+    }
+
+    @Test
+    void activeFFURecordWithAuthority() throws Exception {
+        // It is allowed for FFU records to have subfields *5 and *6 pointing at authority records, but the relations are not created.
+        // When the record is active the relations are used to find parents, which there are none of
+        final Connection rawrepoConnection = connectToRawrepoDb();
+        final String bibliographicRecordId = "39387956";
+        final int agencyId = 850020;
+
+        reset(rawrepoConnection);
+        saveRecord(rawrepoConnection, BASE_DIR + "ffu-single-active.xml", MIMETYPE_MARCXCHANGE);
+
+        final Response response = callRecordService(bibliographicRecordId, agencyId);
+
+        assertThat("Response code", response.getStatus(), is(200));
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+        assertThat("collection size", actual.size(), is(1));
+        assertThat("collection contains record", actual.containsKey(bibliographicRecordId), is(true));
+        assertThat("collection content record", getMarcRecordFromString(actual.get(bibliographicRecordId).getContent()), is(getMarcRecordFromFile(BASE_DIR + "ffu-single-active.xml")));
+    }
+
+    @Test
+    void deletedFFURecordWithAuthority() throws Exception {
+        // It is allowed for FFU records to have subfields *5 and *6 pointing at authority records, but the relations are not created.
+        // When the record is deleted the record content is read to find parent relations, which means we have to skip fields
+        // with authority links otherwise bad things will happen as the record <authority bibliographicrecordid>:<ffu-agencyid>
+        // doesn't exist
+        final Connection rawrepoConnection = connectToRawrepoDb();
+        final String bibliographicRecordId = "39387956";
+        final int agencyId = 850020;
+
+        reset(rawrepoConnection);
+        saveRecord(rawrepoConnection, BASE_DIR + "ffu-single-deleted.xml", MIMETYPE_MARCXCHANGE);
+
+        final Response response = callRecordService(bibliographicRecordId, agencyId);
+
+        assertThat("Response code", response.getStatus(), is(200));
+        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+        assertThat("collection size", actual.size(), is(1));
+        assertThat("collection contains record", actual.containsKey(bibliographicRecordId), is(true));
+        assertThat("collection content record", getMarcRecordFromString(actual.get(bibliographicRecordId).getContent()), is(getMarcRecordFromFile(BASE_DIR + "ffu-single-deleted.xml")));
+    }
 
     private void saveAuthority(Connection rawrepoConnection, String path, String id) throws Exception {
         saveRecord(rawrepoConnection, String.format("%s/%s-%s.xml", path, id, COMMON_ENRICHMENT), MIMETYPE_ENRICHMENT);

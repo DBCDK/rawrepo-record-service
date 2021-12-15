@@ -1,8 +1,3 @@
-/*
- * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
- *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
- */
-
 package dk.dbc.rawrepo;
 
 import dk.dbc.marc.binding.DataField;
@@ -13,6 +8,7 @@ import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.rawrepo.exception.RecordServiceRuntimeException;
 import dk.dbc.rawrepo.service.RecordObjectMapper;
+import dk.dbc.vipcore.exception.VipCoreException;
 import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnector;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -42,7 +38,7 @@ public class RecordRelationsBean {
     private DataSource dataSource;
 
     @Inject
-    private VipCoreLibraryRulesConnector vipCoreLibraryRulesConnector;
+    VipCoreLibraryRulesConnector vipCoreLibraryRulesConnector;
 
     @EJB
     RecordSimpleBean recordSimpleBean;
@@ -112,6 +108,7 @@ public class RecordRelationsBean {
                 if (agencyId != RecordBeanUtils.DBC_ENRICHMENT_AGENCY) {
                     final Record record = recordSimpleBean.fetchRecord(bibliographicRecordId, agencyId);
                     final MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(record.getContent());
+                    final boolean usesEnrichments = vipCoreLibraryRulesConnector.hasFeature(agencyId, VipCoreLibraryRulesConnector.Rule.USE_ENRICHMENTS);
 
                     for (DataField dataField : marcRecord.getFields(DataField.class)) {
 
@@ -160,7 +157,9 @@ public class RecordRelationsBean {
                         }
 
                         // Handle authority fields
-                        if (AUTHORITY_FIELDS.contains(dataField.getTag())) {
+                        // If there are authority references in the record but the agencies isn't using
+                        // enrichments and thereby not using authority records just skip the authority fields
+                        if (usesEnrichments && AUTHORITY_FIELDS.contains(dataField.getTag())) {
                             String value5 = null;
                             String value6 = null;
 
@@ -180,7 +179,7 @@ public class RecordRelationsBean {
                 }
                 return result;
             }
-        } catch (SQLException | RawRepoException | MarcReaderException ex) {
+        } catch (SQLException | RawRepoException | MarcReaderException | VipCoreException ex) {
             LOGGER.error(ex.getMessage(), ex);
             throw new InternalServerException(ex.getMessage(), ex);
         }

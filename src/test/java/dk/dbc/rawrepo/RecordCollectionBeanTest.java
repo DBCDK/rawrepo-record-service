@@ -1,8 +1,3 @@
-/*
- * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
- *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
- */
-
 package dk.dbc.rawrepo;
 
 import dk.dbc.marc.binding.MarcRecord;
@@ -65,7 +60,7 @@ public class RecordCollectionBeanTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         doCallRealMethod().when(relationHints).getAgencyPriority(anyInt());
         doCallRealMethod().when(relationHints).usesCommonSchoolAgency(anyInt());

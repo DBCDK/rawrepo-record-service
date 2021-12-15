@@ -1,8 +1,3 @@
-/*
- * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
- *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
- */
-
 package dk.dbc.rawrepo.service;
 
 import dk.dbc.httpclient.HttpPost;
@@ -24,7 +19,7 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class DumpServiceIT extends AbstractRecordServiceContainerTest {
+ class DumpServiceIT extends AbstractRecordServiceContainerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(DumpServiceIT.class);
 
     @BeforeAll
@@ -51,7 +46,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
-    public void dumpAgencyDBCRaw() throws Exception {
+     void dumpAgencyDBCRaw() throws Exception {
         AgencyParams params = new AgencyParams();
         params.setAgencies(Collections.singletonList(870970));
         params.setMode("raw");
@@ -72,7 +67,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
-    public void dumpAgencyDBCMerged() throws Exception {
+     void dumpAgencyDBCMerged() throws Exception {
         AgencyParams params = new AgencyParams();
         params.setAgencies(Collections.singletonList(870970));
         // Use default value for mode
@@ -93,7 +88,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
-    public void dumpAgencyDBCExpanded() throws Exception {
+     void dumpAgencyDBCExpanded() throws Exception {
         AgencyParams params = new AgencyParams();
         params.setAgencies(Collections.singletonList(870970));
         params.setMode("expanded");
@@ -114,7 +109,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     //@Test TODO Figure out how to put expected ISO data in file
-    public void dumpAgencyDBCExpanded_ISO_DANMARC2() throws Exception {
+     void dumpAgencyDBCExpanded_ISO_DANMARC2() throws Exception {
         AgencyParams params = new AgencyParams();
         params.setAgencies(Collections.singletonList(870970));
         params.setMode("expanded");
@@ -136,7 +131,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
-    public void dumpRecordsDBCRaw() throws Exception {
+     void dumpRecordsDBCRaw() throws Exception {
         final HashMap<String, Object> params = new HashMap<>();
         params.put("mode", "raw");
         params.put("output-format", "XML");
@@ -161,7 +156,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
-    public void dumpRecordsDBCMerged() throws Exception {
+     void dumpRecordsDBCMerged() throws Exception {
         final HashMap<String, Object> params = new HashMap<>();
         // Using default value for mode
         params.put("output-format", "XML");
@@ -186,7 +181,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
-    public void dumpRecordsDBCExpanded() throws Exception {
+     void dumpRecordsDBCExpanded() throws Exception {
         final HashMap<String, Object> params = new HashMap<>();
         params.put("mode", "expanded");
         params.put("output-format", "XML");
@@ -211,7 +206,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
-    public void dumpRecordsFBSRaw() throws Exception {
+     void dumpRecordsFBSRaw() throws Exception {
         final HashMap<String, Object> params = new HashMap<>();
         params.put("mode", "raw");
         params.put("output-format", "XML");
@@ -236,7 +231,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
-    public void dumpRecordsFBSMerged() throws Exception {
+     void dumpRecordsFBSMerged() throws Exception {
         final HashMap<String, Object> params = new HashMap<>();
         params.put("output-format", "XML");
 
@@ -260,7 +255,7 @@ public class DumpServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
-    public void dumpRecordsFBSExpanded() throws Exception {
+     void dumpRecordsFBSExpanded() throws Exception {
         final HashMap<String, Object> params = new HashMap<>();
         params.put("mode", "expanded");
         params.put("output-format", "XML");

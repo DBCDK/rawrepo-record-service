@@ -1,13 +1,9 @@
-/*
- * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
- *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
- */
-
 package dk.dbc.rawrepo;
 
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.writer.MarcXchangeV1Writer;
 import dk.dbc.marcxmerge.MarcXChangeMimeType;
+import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -46,6 +42,9 @@ public class RecordRelationsBeanTest {
     RecordSimpleBean recordSimpleBean;
 
     @Mock
+    private static VipCoreLibraryRulesConnector vipCoreLibraryRulesConnector;
+
+    @Mock
     private static RelationHintsVipCore relationHints;
 
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
@@ -60,6 +59,7 @@ public class RecordRelationsBeanTest {
 
             this.relationHints = RecordRelationsBeanTest.relationHints;
             this.recordSimpleBean = recordSimpleBean;
+            this.vipCoreLibraryRulesConnector = RecordRelationsBeanTest.vipCoreLibraryRulesConnector;
         }
 
         @Override
@@ -72,7 +72,7 @@ public class RecordRelationsBeanTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         doCallRealMethod().when(relationHints).getAgencyPriority(anyInt());
         doCallRealMethod().when(relationHints).usesCommonSchoolAgency(anyInt());
@@ -194,6 +194,7 @@ public class RecordRelationsBeanTest {
 
         when(recordSimpleBean.fetchRecord(bibliographicRecordId, 820010)).thenReturn(record);
         when(rawRepoDAO.fetchRecord(bibliographicRecordId, 820010)).thenReturn(record);
+        when(vipCoreLibraryRulesConnector.hasFeature(820010, VipCoreLibraryRulesConnector.Rule.USE_ENRICHMENTS)).thenReturn(true);
 
         Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 820010);
 
@@ -233,6 +234,7 @@ public class RecordRelationsBeanTest {
                 marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
 
         when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870970)).thenReturn(record);
+        when(vipCoreLibraryRulesConnector.hasFeature(870970, VipCoreLibraryRulesConnector.Rule.USE_ENRICHMENTS)).thenReturn(true);
         when(recordSimpleBean.recordIsActive(bibliographicRecordId, 870970)).thenReturn(false);
         when(recordSimpleBean.fetchRecord(bibliographicRecordId, 870970)).thenReturn(record);
 
@@ -256,6 +258,7 @@ public class RecordRelationsBeanTest {
 
         when(recordSimpleBean.fetchRecord(bibliographicRecordId, 870970)).thenReturn(record);
         when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870970)).thenReturn(record);
+        when(vipCoreLibraryRulesConnector.hasFeature(870970, VipCoreLibraryRulesConnector.Rule.USE_ENRICHMENTS)).thenReturn(true);
 
         Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870970);
 
@@ -281,6 +284,7 @@ public class RecordRelationsBeanTest {
 
         when(recordSimpleBean.fetchRecord(bibliographicRecordId, 870971)).thenReturn(record);
         when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870971)).thenReturn(record);
+        when(vipCoreLibraryRulesConnector.hasFeature(870971, VipCoreLibraryRulesConnector.Rule.USE_ENRICHMENTS)).thenReturn(true);
 
         Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870971);
 
@@ -303,6 +307,7 @@ public class RecordRelationsBeanTest {
 
         when(recordSimpleBean.fetchRecord(bibliographicRecordId, 870970)).thenReturn(record);
         when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870970)).thenReturn(record);
+        when(vipCoreLibraryRulesConnector.hasFeature(870970, VipCoreLibraryRulesConnector.Rule.USE_ENRICHMENTS)).thenReturn(true);
 
         Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870970);
 
@@ -325,6 +330,7 @@ public class RecordRelationsBeanTest {
 
         when(recordSimpleBean.fetchRecord(bibliographicRecordId, 870974)).thenReturn(record);
         when(rawRepoDAO.fetchRecord(bibliographicRecordId, 870974)).thenReturn(record);
+        when(vipCoreLibraryRulesConnector.hasFeature(870974, VipCoreLibraryRulesConnector.Rule.USE_ENRICHMENTS)).thenReturn(true);
 
         Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870974);
 
@@ -334,6 +340,26 @@ public class RecordRelationsBeanTest {
         assertThat(iterator.next(), is(new RecordId("68754011", 870979)));
         assertThat(iterator.next(), is(new RecordId("68234190", 870979)));
         assertThat(iterator.next(), is(new RecordId("46912683", 870970)));
+    }
+
+    @Test
+    void testGetRelationsParentsDeletedFFURecordWithAuthority() throws Exception {
+        final RecordRelationsBean bean = new RecordRelationsBeanMock(globalDataSource, recordSimpleBean);
+        final String bibliographicRecordId = "39387956";
+        final int agencyId = 850020;
+
+        final MarcRecord marcRecord = loadMarcRecord("getRelationsParents/ffu-single-deleted.xml");
+
+        final Record record = createRecordMock(bibliographicRecordId, agencyId, MarcXChangeMimeType.MARCXCHANGE,
+                marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
+
+        when(recordSimpleBean.fetchRecord(bibliographicRecordId, agencyId)).thenReturn(record);
+        when(rawRepoDAO.fetchRecord(bibliographicRecordId, agencyId)).thenReturn(record);
+        when(vipCoreLibraryRulesConnector.hasFeature(agencyId, VipCoreLibraryRulesConnector.Rule.USE_ENRICHMENTS)).thenReturn(false);
+
+        final Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, agencyId);
+
+        assertThat(actual.size(), is(0));
     }
 
     @Test
