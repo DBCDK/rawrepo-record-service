@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record xmlns="info:lc/xmlns/marcxchange-v1" xsi:schemaLocation="http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000   4500</leader>
+    <datafield tag="001" ind1="0" ind2="0">
+        <subfield code="a">25196287</subfield>
+        <subfield code="b">830600</subfield>
+        <subfield code="c">20040608231629</subfield>
+        <subfield code="d">20040423</subfield>
+        <subfield code="f">a</subfield>
+    </datafield>
+    <datafield tag="004" ind1="0" ind2="0">
+        <subfield code="r">n</subfield>
+        <subfield code="a">b</subfield>
+    </datafield>
+    <datafield tag="008" ind1="0" ind2="0">
+        <subfield code="t">m</subfield>
+        <subfield code="u">f</subfield>
+        <subfield code="a">2004</subfield>
+        <subfield code="d">å</subfield>
+        <subfield code="v">0</subfield>
+    </datafield>
+    <datafield tag="014" ind1="0" ind2="0">
+        <subfield code="a">24050866</subfield>
+    </datafield>
+    <datafield tag="021" ind1="0" ind2="0">
+        <subfield code="a">87-02-01141-7</subfield>
+        <subfield code="c">hf.</subfield>
+        <subfield code="d">kr. 10,00</subfield>
+    </datafield>
+    <datafield tag="096" ind1="0" ind2="0">
+        <subfield code="a">51 Ko</subfield>
+        <subfield code="z">830600</subfield>
+    </datafield>
+    <datafield tag="245" ind1="0" ind2="0">
+        <subfield code="a">Fod på figurerne 3</subfield>
+    </datafield>
+    <datafield tag="250" ind1="0" ind2="0">
+        <subfield code="a">1. udgave</subfield>
+        <subfield code="b">÷</subfield>
+        <subfield code="x">1. oplag</subfield>
+    </datafield>
+    <datafield tag="260" ind1="0" ind2="0">
+        <subfield code="c">2004</subfield>
+        <subfield code="k">Narayana Press</subfield>
+    </datafield>
+    <datafield tag="300" ind1="0" ind2="0">
+        <subfield code="a">16 sider</subfield>
+    </datafield>
+</record>
