@@ -65,7 +65,7 @@ class AbstractRecordServiceContainerTest {
 
         Network network = Network.newNetwork();
 
-        rawrepoDbContainer = new DBCPostgreSQLContainer("docker-io.dbc.dk/rawrepo-postgres-1.14-snapshot:master-5140")
+        rawrepoDbContainer = new DBCPostgreSQLContainer("docker-io.dbc.dk/rawrepo-postgres-1.15-snapshot:master-5156")
                 .withDatabaseName("rawrepo")
                 .withUsername("rawrepo")
                 .withPassword("rawrepo");
@@ -215,7 +215,7 @@ class AbstractRecordServiceContainerTest {
     }
 
     static void resetRawrepoDb(Connection connection) throws Exception {
-        final List<String> tables = Arrays.asList("relations", "records", "records_cache", "records_archive", "queue", "jobdiag");
+        final List<String> tables = Arrays.asList("relations", "records", "records_archive", "queue", "jobdiag");
 
         PreparedStatement stmt;
 

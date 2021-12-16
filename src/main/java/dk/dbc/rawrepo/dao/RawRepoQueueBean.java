@@ -39,8 +39,6 @@ public class RawRepoQueueBean {
     private static final String ENQUEUE_AGENCY = "INSERT INTO queue SELECT bibliographicrecordid, ?, ?, now(), ? FROM records WHERE agencyid=?";
     private static final String CALL_ENQUEUE = "SELECT * FROM enqueue(?, ?, ?, ?, ?, ?)";
 
-    private static final String DELETE_RECORD_CACHE = "DELETE FROM records_cache WHERE bibliographicrecordid=? AND agencyid=?";
-
     private static final String LOG_DATABASE_ERROR = "Error accessing database";
 
     @Resource(lookup = "jdbc/rawrepo")
@@ -188,14 +186,6 @@ public class RawRepoQueueBean {
         } catch (SQLException ex) {
             LOGGER.error(LOG_DATABASE_ERROR, ex);
             throw new QueueException("Error queueing job", ex);
-        }
-        try (Connection connection = dataSource.getConnection(); PreparedStatement stmt = connection.prepareStatement(DELETE_RECORD_CACHE)) {
-            stmt.setString(1, bibliographicRecordId);
-            stmt.setInt(2, agencyId);
-            stmt.execute();
-        } catch (SQLException ex) {
-            LOGGER.error(LOG_DATABASE_ERROR, ex);
-            throw new QueueException("Error deleting cache", ex);
         }
 
         return res;
