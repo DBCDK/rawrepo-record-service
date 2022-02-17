@@ -117,6 +117,50 @@ class RecordServiceIT extends AbstractRecordServiceContainerTest {
     }
 
     @Test
+    void getMarcRecordContent_OutputFormatJSON() throws Exception {
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withQueryParameter("use-parent-agency", "true")
+                .withQueryParameter("mode", "merged")
+                .withQueryParameter("output-format", "json")
+                .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}/content")
+                        .bind("bibliographicRecordId", "50129691")
+                        .bind("agencyId", 191919)
+                        .build());
+
+        Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        final String content = response.readEntity(String.class);
+        // Because we have told IntelliJ to always add an empty line to files, the expected json file will have an empty line
+        // which is near impossible to get rid of. The simplest solution replace "\n" with nothing.
+        String expected = new String(getContentFromFile("sql/50129691-191919-merged-parent-agency.json"));
+        expected = expected.replace("\n", "");
+
+        assertThat("content", content, is(expected));
+    }
+
+    @Test
+    void getMarcRecordContent_OutputFormatLINE() throws Exception {
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withQueryParameter("use-parent-agency", "true")
+                .withQueryParameter("mode", "merged")
+                .withQueryParameter("output-format", "line")
+                .withPathElements(new PathBuilder("/api/v1/record/{agencyId}/{bibliographicRecordId}/content")
+                        .bind("bibliographicRecordId", "50129691")
+                        .bind("agencyId", 191919)
+                        .build());
+
+        Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(200));
+        //response.getHeaders();
+
+        final String content = response.readEntity(String.class);
+        assertThat("content", content, is(new String(getContentFromFile("sql/50129691-191919-merged-parent-agency.txt"))));
+    }
+
+    @Test
     void getMarcRecord_NotFound() {
         final HttpGet httpGet = new HttpGet(httpClient)
                 .withBaseUrl(recordServiceBaseUrl)
