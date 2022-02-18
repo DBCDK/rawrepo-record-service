@@ -2,7 +2,12 @@ package dk.dbc.rawrepo.service;
 
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
+import dk.dbc.marc.Iso2709Packer;
+import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
+import dk.dbc.marc.writer.DanMarc2LineFormatWriter;
+import dk.dbc.marc.writer.MarcWriterException;
+import dk.dbc.marc.writer.MarcXchangeV1Writer;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.RecordBean;
@@ -12,15 +17,19 @@ import dk.dbc.rawrepo.RecordMetaDataHistory;
 import dk.dbc.rawrepo.RecordRelationsBean;
 import dk.dbc.rawrepo.RecordSimpleBean;
 import dk.dbc.rawrepo.dto.AgencyCollectionDTO;
+import dk.dbc.rawrepo.dto.ContentDTO;
 import dk.dbc.rawrepo.dto.RecordDTO;
 import dk.dbc.rawrepo.dto.RecordDTOMapper;
 import dk.dbc.rawrepo.dto.RecordExistsDTO;
+import dk.dbc.rawrepo.dump.JaxpUtil;
+import dk.dbc.rawrepo.dump.OutputFormat;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
+import org.xml.sax.SAXException;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -33,6 +42,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +54,8 @@ import java.util.Set;
 public class RecordService {
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(RecordService.class);
     private final JSONBContext jsonbContext = new JSONBContext();
+    private final DanMarc2LineFormatWriter danMarc2LineFormatWriter = new DanMarc2LineFormatWriter();
+    private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
 
     @EJB
     private RecordBean recordBean;
@@ -130,7 +143,6 @@ public class RecordService {
 
     @GET
     @Path("v1/record/{agencyid}/{bibliographicrecordid}/content")
-    @Produces({MediaType.APPLICATION_XML})
     @Timed
     public Response getContent(@PathParam("agencyid") int agencyId,
                                @PathParam("bibliographicrecordid") String bibliographicRecordId,
@@ -138,9 +150,8 @@ public class RecordService {
                                @DefaultValue("false") @QueryParam("allow-deleted") boolean allowDeleted,
                                @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
-                               @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields) {
-        String res;
-
+                               @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields,
+                               @DefaultValue("XML") @QueryParam("output-format") OutputFormat format) {
         try {
             final Record record = getRawRepoRecord(agencyId, bibliographicRecordId, mode, allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
 
@@ -148,11 +159,32 @@ public class RecordService {
                 return Response.status(Response.Status.NO_CONTENT).build();
             }
 
-            res = new String(record.getContent());
-
-            return Response.ok(res, MediaType.APPLICATION_XML).build();
+            final MarcRecord marcRecord;
+            final String res;
+            switch(format) {
+                case JSON:
+                    marcRecord = RecordObjectMapper.contentToMarcRecord(record.getContent());
+                    final ContentDTO contentDTO = RecordDTOMapper.contentToDTO(marcRecord);
+                    res = new String(jsonbContext.marshall(contentDTO).getBytes(StandardCharsets.UTF_8));
+                    return Response.ok(res, MediaType.APPLICATION_JSON).build();
+                case LINE:
+                    marcRecord = RecordObjectMapper.contentToMarcRecord(record.getContent());
+                    res = new String(danMarc2LineFormatWriter.write(marcRecord, StandardCharsets.UTF_8));
+                    return Response.ok(res, MediaType.TEXT_PLAIN).build();
+                case ISO:
+                    marcRecord = RecordObjectMapper.contentToMarcRecord(record.getContent());
+                    res = new String(Iso2709Packer.create2709FromMarcXChangeRecord(
+                            JaxpUtil.toDocument(marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8)), StandardCharsets.UTF_8));
+                    return Response.ok(res, MediaType.APPLICATION_OCTET_STREAM).build();
+                default: // XML and LINE_XML
+                    res = new String(record.getContent());
+                    return Response.ok(res, MediaType.APPLICATION_XML).build();
+            }
         } catch (InternalServerException ex) {
             LOGGER.error("Exception during GetContent", ex);
+            return Response.serverError().build();
+        } catch (MarcReaderException | JSONBException | MarcWriterException | IOException | SAXException ex) {
+            LOGGER.error("Something went wrong while writing output format", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException e) {
             return Response.status(Response.Status.NO_CONTENT).build();

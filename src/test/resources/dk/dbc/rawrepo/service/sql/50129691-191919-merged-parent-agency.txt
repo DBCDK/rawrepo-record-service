@@ -1,0 +1,5 @@
+001 00 *a50129691*b870970*c19920212*d19790614*fa*oc
+004 00 *rn*ah
+996 00 *aDBC
+z98 00 *aMinus korrekturprint
+$
