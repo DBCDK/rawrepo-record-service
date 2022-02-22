@@ -9,6 +9,8 @@ import dk.dbc.rawrepo.MarcRecordBean;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.RecordBean;
 import dk.dbc.rawrepo.RecordCollectionBean;
+import dk.dbc.rawrepo.RecordId;
+import dk.dbc.rawrepo.RecordRelationsBean;
 import dk.dbc.rawrepo.RecordSimpleBean;
 import dk.dbc.rawrepo.dto.RecordCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordCollectionDTOv2;
@@ -16,6 +18,7 @@ import dk.dbc.rawrepo.dto.RecordDTO;
 import dk.dbc.rawrepo.dto.RecordDTOMapper;
 import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
+import dk.dbc.rawrepo.dto.RecordRelationChildrenCollectionDTO;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.rawrepo.exception.WebApplicationInvalidInputException;
@@ -28,7 +31,6 @@ import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import javax.annotation.Resource;
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.inject.Inject;
@@ -50,8 +52,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
+import static dk.dbc.rawrepo.dto.RecordObjectMapper.recordIdCollectionDTOToObject;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Interceptors({StopwatchInterceptor.class})
@@ -61,17 +65,20 @@ public class RecordCollectionService {
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(RecordCollectionService.class);
     private final JSONBContext jsonbContext = new JSONBContext();
 
-    @EJB
+    @Inject
     private MarcRecordBean marcRecordBean;
 
-    @EJB
+    @Inject
     private RecordCollectionBean recordCollectionBean;
 
-    @EJB
+    @Inject
     private RecordBean recordBean;
 
-    @EJB
+    @Inject
     private RecordSimpleBean recordSimpleBean;
+
+    @Inject
+    private RecordRelationsBean recordRelationsBean;
 
     @Inject
     @ConfigProperty(name = "DUMP_THREAD_COUNT", defaultValue = "8")
@@ -309,6 +316,30 @@ public class RecordCollectionService {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
             LOGGER.info("v1/records/fetch");
+        }
+    }
+
+    @POST
+    @Path("v1/records/children")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    @Timed
+    public Response getRelationsChildren(RecordIdCollectionDTO recordIdCollectionDTO) {
+        final String res;
+        try {
+            final Set<RecordId> recordIds = recordIdCollectionDTOToObject(recordIdCollectionDTO);
+            final Map<RecordId, Set<RecordId>> relationsChildren = recordRelationsBean.getRelationsChildren(recordIds);
+
+            final RecordRelationChildrenCollectionDTO dto = RecordDTOMapper.recordRelationChildrenCollectionToDTO(relationsChildren);
+
+            res = jsonbContext.marshall(dto);
+
+            return Response.ok(res, MediaType.APPLICATION_JSON).build();
+        } catch (JSONBException | InternalServerException e) {
+            LOGGER.error("Exception during getRelationsChildren", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            LOGGER.info("v1/records/children");
         }
     }
 

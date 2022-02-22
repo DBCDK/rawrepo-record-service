@@ -4,6 +4,7 @@ import dk.dbc.marc.binding.DataField;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.binding.SubField;
 import dk.dbc.marc.reader.MarcReaderException;
+import dk.dbc.rawrepo.dao.RawRepoBean;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.rawrepo.exception.RecordServiceRuntimeException;
@@ -15,16 +16,18 @@ import org.slf4j.ext.XLoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Stateless
 public class RecordRelationsBean {
@@ -40,8 +43,11 @@ public class RecordRelationsBean {
     @Inject
     VipCoreLibraryRulesConnector vipCoreLibraryRulesConnector;
 
-    @EJB
+    @Inject
     RecordSimpleBean recordSimpleBean;
+
+    @Inject
+    RawRepoBean rawRepoBean;
 
     protected RawRepoDAO createDAO(Connection conn) throws RawRepoException {
         final RawRepoDAO.Builder rawRepoBuilder = RawRepoDAO.builder(conn);
@@ -241,6 +247,33 @@ public class RecordRelationsBean {
         } catch (SQLException ex) {
             LOGGER.error(ex.getMessage(), ex);
             throw new InternalServerException(ex.getMessage(), ex);
+        }
+    }
+
+    public Map<RecordId, Set<RecordId>> getRelationsChildren(Set<RecordId> recordIds) throws InternalServerException {
+        final Map<RecordId, Set<RecordId>> result = new HashMap<>();
+        try {
+            // There is a limit on how many values there can be in a query which means we have to slice up the input
+            // The exact limit is not known but 1000 entries seems to be a reasonable amount
+            int index = 0;
+            final int sliceSize = 1000;
+            while (index < recordIds.size()) {
+                LOGGER.info("Index: {}", index);
+                final Set<RecordId> sliceSet = recordIds.stream()
+                        .skip(index)
+                        .limit(sliceSize)
+                        .collect(Collectors.toSet());
+
+                index += sliceSize;
+
+                final Map<RecordId, Set<RecordId>> slice = rawRepoBean.getRelationsChildren(sliceSet);
+
+                result.putAll(slice);
+            }
+
+            return result;
+        } catch (RawRepoException e) {
+            throw new InternalServerException(e.getMessage(), e);
         }
     }
 
