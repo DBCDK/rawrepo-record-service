@@ -360,6 +360,55 @@ public class RawRepoBean {
         }
     }
 
+    public Map<RecordId, Set<RecordId>> getRelationsChildren(Set<RecordId> recordIds) throws RawRepoException {
+        final Map<RecordId, Set<RecordId>> result = new HashMap<>();
+
+        if (recordIds.isEmpty()) {
+            return result;
+        }
+
+        final List<String> placeHolders = new ArrayList<>();
+        for (int i = 0; i < recordIds.size(); i++) {
+            placeHolders.add("(?, ?)");
+        }
+
+        final String query = "SELECT bibliographicrecordid, agencyid, refer_bibliographicrecordid, refer_agencyid " +
+                "FROM relations " +
+                "WHERE (refer_bibliographicrecordid, refer_agencyid) IN (" + String.join(",", placeHolders) + ")" +
+                "AND bibliographicrecordid != refer_bibliographicrecordid";
+
+        int pos = 0;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            for (RecordId id : recordIds) {
+                preparedStatement.setString(++pos, id.getBibliographicRecordId());
+                preparedStatement.setInt(++pos, id.getAgencyId());
+            }
+
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                final String bibliographicRecordId = resultSet.getString(1);
+                final int agencyId = resultSet.getInt(2);
+                final String referBibliographicRecordId = resultSet.getString(3);
+                final int referAgencyId = resultSet.getInt(4);
+
+                final RecordId parent = new RecordId(referBibliographicRecordId, referAgencyId);
+                if (!result.containsKey(parent)) {
+                    result.put(parent, new HashSet<>());
+                }
+
+                result.get(parent).add(new RecordId(bibliographicRecordId, agencyId));
+            }
+
+            return result;
+        } catch (SQLException ex) {
+            LOGGER.info("Caught exception: {}", ex.getMessage());
+            throw new RawRepoException("Error during getRelationsChildren", ex);
+        }
+    }
+
     private boolean hasValue(String s) {
         return !(s == null || s.isEmpty());
     }

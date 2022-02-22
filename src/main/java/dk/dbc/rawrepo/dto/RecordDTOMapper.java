@@ -205,4 +205,24 @@ public class RecordDTOMapper {
 //        }
 //    }
 
+    public static RecordRelationChildrenCollectionDTO recordRelationChildrenCollectionToDTO(Map<RecordId, Set<RecordId>> object) {
+        final RecordRelationChildrenCollectionDTO dtoCollection = new RecordRelationChildrenCollectionDTO();
+        dtoCollection.setRecordRelationChildrenList(new ArrayList<>());
+
+        for (Map.Entry<RecordId, Set<RecordId>> entry : object.entrySet()) {
+            final RecordRelationChildrenDTO dto = new RecordRelationChildrenDTO();
+            dto.setRecordIdDTO(recordIdToDTO(entry.getKey()));
+            dto.setChildren(new ArrayList<>());
+
+            final Set<RecordId> children = entry.getValue();
+            for (RecordId recordId : children) {
+                dto.getChildren().add(recordIdToDTO(recordId));
+            }
+
+            dtoCollection.getRecordRelationChildrenList().add(dto);
+        }
+
+        return dtoCollection;
+    }
+
 }
