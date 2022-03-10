@@ -6,6 +6,7 @@ import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marc.writer.DanMarc2LineFormatWriter;
 import dk.dbc.marc.writer.Iso2709MarcRecordWriter;
+import dk.dbc.marc.writer.JsonWriter;
 import dk.dbc.marc.writer.MarcWriterException;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.Record;
@@ -52,6 +53,7 @@ public class RecordService {
     private final JSONBContext jsonbContext = new JSONBContext();
     private final DanMarc2LineFormatWriter danMarc2LineFormatWriter = new DanMarc2LineFormatWriter();
     private final Iso2709MarcRecordWriter iso2709Writer = new Iso2709MarcRecordWriter();
+    private final JsonWriter jsonWriter = new JsonWriter();
 
     @EJB
     private RecordBean recordBean;
@@ -159,9 +161,14 @@ public class RecordService {
             final String res;
             switch(format) {
                 case JSON:
+                    // TODO: 10/03/2022 should the JSON format be made to produce the same output as MARC_JSON at some point?
                     marcRecord = RecordObjectMapper.contentToMarcRecord(record.getContent());
                     final ContentDTO contentDTO = RecordDTOMapper.contentToDTO(marcRecord);
                     res = new String(jsonbContext.marshall(contentDTO).getBytes(StandardCharsets.UTF_8));
+                    return Response.ok(res, MediaType.APPLICATION_JSON).build();
+                case MARC_JSON:
+                    marcRecord = RecordObjectMapper.contentToMarcRecord(record.getContent());
+                    res = new String(jsonWriter.write(marcRecord, StandardCharsets.UTF_8), StandardCharsets.UTF_8);
                     return Response.ok(res, MediaType.APPLICATION_JSON).build();
                 case LINE:
                     marcRecord = RecordObjectMapper.contentToMarcRecord(record.getContent());
