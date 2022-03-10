@@ -2,12 +2,11 @@ package dk.dbc.rawrepo.service;
 
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
-import dk.dbc.marc.Iso2709Packer;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marc.writer.DanMarc2LineFormatWriter;
+import dk.dbc.marc.writer.Iso2709MarcRecordWriter;
 import dk.dbc.marc.writer.MarcWriterException;
-import dk.dbc.marc.writer.MarcXchangeV1Writer;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.RecordBean;
@@ -21,7 +20,6 @@ import dk.dbc.rawrepo.dto.ContentDTO;
 import dk.dbc.rawrepo.dto.RecordDTO;
 import dk.dbc.rawrepo.dto.RecordDTOMapper;
 import dk.dbc.rawrepo.dto.RecordExistsDTO;
-import dk.dbc.rawrepo.dump.JaxpUtil;
 import dk.dbc.rawrepo.dump.OutputFormat;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
@@ -29,7 +27,6 @@ import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
-import org.xml.sax.SAXException;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -42,7 +39,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +51,7 @@ public class RecordService {
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(RecordService.class);
     private final JSONBContext jsonbContext = new JSONBContext();
     private final DanMarc2LineFormatWriter danMarc2LineFormatWriter = new DanMarc2LineFormatWriter();
-    private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
+    private final Iso2709MarcRecordWriter iso2709Writer = new Iso2709MarcRecordWriter();
 
     @EJB
     private RecordBean recordBean;
@@ -173,8 +169,7 @@ public class RecordService {
                     return Response.ok(res, MediaType.TEXT_PLAIN).build();
                 case ISO:
                     marcRecord = RecordObjectMapper.contentToMarcRecord(record.getContent());
-                    res = new String(Iso2709Packer.create2709FromMarcXChangeRecord(
-                            JaxpUtil.toDocument(marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8)), StandardCharsets.UTF_8));
+                    res = new String(iso2709Writer.write(marcRecord, StandardCharsets.UTF_8), StandardCharsets.UTF_8);
                     return Response.ok(res, MediaType.APPLICATION_OCTET_STREAM).build();
                 default: // XML and LINE_XML
                     res = new String(record.getContent());
@@ -183,7 +178,7 @@ public class RecordService {
         } catch (InternalServerException ex) {
             LOGGER.error("Exception during GetContent", ex);
             return Response.serverError().build();
-        } catch (MarcReaderException | JSONBException | MarcWriterException | IOException | SAXException ex) {
+        } catch (MarcReaderException | JSONBException | MarcWriterException ex) {
             LOGGER.error("Something went wrong while writing output format", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException e) {
