@@ -3,10 +3,11 @@ package dk.dbc.rawrepo.dump;
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.marc.DanMarc2Charset;
-import dk.dbc.marc.Iso2709Packer;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marc.writer.DanMarc2LineFormatWriter;
+import dk.dbc.marc.writer.Iso2709MarcRecordWriter;
+import dk.dbc.marc.writer.JsonWriter;
 import dk.dbc.marc.writer.MarcWriterException;
 import dk.dbc.marc.writer.MarcXchangeV1Writer;
 import dk.dbc.rawrepo.dto.ContentDTO;
@@ -17,7 +18,6 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import static dk.dbc.marc.writer.MarcXchangeV1Writer.Property.ADD_XML_DECLARATION;
 
@@ -28,6 +28,8 @@ public class RecordByteWriter {
 
     private final JSONBContext jsonbContext = new JSONBContext();
     private final DanMarc2LineFormatWriter danMarc2LineFormatWriter = new DanMarc2LineFormatWriter();
+    private final Iso2709MarcRecordWriter iso2709Writer = new Iso2709MarcRecordWriter();
+    private final JsonWriter jsonWriter = new JsonWriter();
     private final MarcXchangeV1Writer marcXchangeV1Writer = new MarcXchangeV1Writer();
     private static final String COLLECTION_FOOTER_XML = "</collection>";
     private static final String COLLECTION_HEADER_XML = "<collection xmlns='info:lc/xmlns/marcxchange-v1' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='info:lc/xmlns/marcxchange-v1 http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd'>";
@@ -63,9 +65,18 @@ public class RecordByteWriter {
 
         switch (outputFormat) {
             case JSON:
+                // TODO: 10/03/2022 should the JSON format be made to produce the same output as MARC_JSON at some point?
                 final MarcRecord recordJSON = RecordObjectMapper.contentToMarcRecord(data);
                 final ContentDTO contentDTO = RecordDTOMapper.contentToDTO(recordJSON);
                 recordBytes = jsonbContext.marshall(contentDTO).getBytes(charset);
+                synchronized (this) {
+                    outputStream.write(recordBytes);
+                    outputStream.write("\n".getBytes(charset));
+                }
+                break;
+            case MARC_JSON:
+                marcRecord = RecordObjectMapper.contentToMarcRecord(data);
+                recordBytes = jsonWriter.write(marcRecord, charset);
                 synchronized (this) {
                     outputStream.write(recordBytes);
                     outputStream.write("\n".getBytes(charset));
@@ -93,9 +104,9 @@ public class RecordByteWriter {
                 break;
             case ISO:
                 marcRecord = RecordObjectMapper.contentToMarcRecord(data);
+                recordBytes = iso2709Writer.write(marcRecord, charset);
                 synchronized (this) {
-                    outputStream.write(Iso2709Packer.create2709FromMarcXChangeRecord(
-                            JaxpUtil.toDocument(marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8)), charset));
+                    outputStream.write(recordBytes);
                 }
                 break;
         }

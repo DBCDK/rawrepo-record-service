@@ -11,8 +11,13 @@ public class OutputStreamWriterUtil {
             return new OutputStreamLineRecordWriter(stream, encoding);
         }
 
+        // TODO: 10/03/2022 should the JSON format be made to produce the same output as MARC_JSON at some point?
         if (type.equalsIgnoreCase("JSON")) {
             return new OutputStreamJsonRecordWriter(stream, encoding);
+        }
+
+        if (type.equalsIgnoreCase("MARC_JSON")) {
+            return new OutputStreamMarcJsonRecordWriter(stream, encoding);
         }
 
         if (type.equalsIgnoreCase("MARCXCHANGE")) {

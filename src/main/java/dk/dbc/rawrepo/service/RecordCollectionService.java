@@ -4,6 +4,8 @@ import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
+import dk.dbc.marc.writer.JsonWriter;
+import dk.dbc.marc.writer.MarcWriterException;
 import dk.dbc.marcxmerge.MarcXMergerException;
 import dk.dbc.rawrepo.MarcRecordBean;
 import dk.dbc.rawrepo.Record;
@@ -19,6 +21,7 @@ import dk.dbc.rawrepo.dto.RecordDTOMapper;
 import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
 import dk.dbc.rawrepo.dto.RecordRelationChildrenCollectionDTO;
+import dk.dbc.rawrepo.dump.OutputFormat;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.rawrepo.exception.WebApplicationInvalidInputException;
@@ -64,6 +67,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class RecordCollectionService {
     private static final XLogger LOGGER = XLoggerFactory.getXLogger(RecordCollectionService.class);
     private final JSONBContext jsonbContext = new JSONBContext();
+    private final JsonWriter jsonWriter = new JsonWriter();
 
     @Inject
     private MarcRecordBean marcRecordBean;
@@ -117,7 +121,6 @@ public class RecordCollectionService {
 
     @GET
     @Path("v1/records/{agencyid}/{bibliographicrecordid}/content/")
-    @Produces({MediaType.APPLICATION_XML})
     @Timed
     public Response getRecordContentCollection(@PathParam("agencyid") int agencyId,
                                                @PathParam("bibliographicrecordid") String bibliographicRecordId,
@@ -126,7 +129,8 @@ public class RecordCollectionService {
                                                @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                                @DefaultValue("false") @QueryParam("expand") boolean expand,
                                                @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields,
-                                               @DefaultValue("false") @QueryParam("exclude-aut-records") boolean excludeAutRecords) {
+                                               @DefaultValue("false") @QueryParam("exclude-aut-records") boolean excludeAutRecords,
+                                               @DefaultValue("XML") @QueryParam("output-format") OutputFormat format) {
         String res;
 
         try {
@@ -139,10 +143,15 @@ public class RecordCollectionService {
                     keepAutFields,
                     excludeAutRecords);
 
+            if (format == OutputFormat.MARC_JSON) {
+                res = new String(jsonWriter.writeCollection(marcRecords, UTF_8), UTF_8);
+                return Response.ok(res, MediaType.APPLICATION_JSON).build();
+            }
+            // XML
             res = new String(RecordObjectMapper.marcRecordCollectionToContent(marcRecords), UTF_8);
-
             return Response.ok(res, MediaType.APPLICATION_XML).build();
-        } catch (MarcReaderException | InternalServerException | MarcXMergerException ex) {
+
+        } catch (MarcReaderException | InternalServerException | MarcXMergerException | MarcWriterException ex) {
             LOGGER.error("Exception during getRecordContentCollection", ex);
             return Response.serverError().build();
         } catch (RecordNotFoundException ex) {
