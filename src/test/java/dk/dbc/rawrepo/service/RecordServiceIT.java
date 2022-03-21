@@ -3,6 +3,7 @@ package dk.dbc.rawrepo.service;
 import dk.dbc.httpclient.HttpGet;
 import dk.dbc.httpclient.PathBuilder;
 import dk.dbc.rawrepo.dto.RecordDTO;
+import dk.dbc.rawrepo.dto.RecordEntryDTO;
 import dk.dbc.rawrepo.dto.RecordExistsDTO;
 import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,6 +29,40 @@ class RecordServiceIT extends AbstractRecordServiceContainerTest {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @Test
+    void getRecordEntry_Ok() {
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(new PathBuilder("/api/v1/record-entries/{agencyId}/{bibliographicRecordId}/raw")
+                        .bind("bibliographicRecordId", "50129691")
+                        .bind("agencyId", 191919)
+                        .build());
+
+        Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        RecordEntryDTO recordEntryDTO = response.readEntity(RecordEntryDTO.class);
+        assertThat("get agencyId", recordEntryDTO.getRecordId().getAgencyId(), is(191919));
+        assertThat("get bibliographicRecordid", recordEntryDTO.getRecordId().getBibliographicRecordId(), is("50129691"));
+        assertThat("content is MarcJson", recordEntryDTO.getContent().has("leader"), is(true));
+    }
+
+    @Test
+    void getRecordEntry_NotFound() {
+        final HttpGet httpGet = new HttpGet(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(new PathBuilder("/api/v1/record-entries/{agencyId}/{bibliographicRecordId}/raw")
+                        .bind("bibliographicRecordId", "NOTFOUND")
+                        .bind("agencyId", 191919)
+                        .build());
+
+        Response response = httpClient.execute(httpGet);
+        assertThat("Response code", response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
+
+        String entity = response.readEntity(String.class);
+        assertThat("content", entity, is(""));
     }
 
     @Test

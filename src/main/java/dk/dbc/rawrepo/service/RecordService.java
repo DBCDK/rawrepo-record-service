@@ -20,6 +20,7 @@ import dk.dbc.rawrepo.dto.AgencyCollectionDTO;
 import dk.dbc.rawrepo.dto.ContentDTO;
 import dk.dbc.rawrepo.dto.RecordDTO;
 import dk.dbc.rawrepo.dto.RecordDTOMapper;
+import dk.dbc.rawrepo.dto.RecordEntryDTO;
 import dk.dbc.rawrepo.dto.RecordExistsDTO;
 import dk.dbc.rawrepo.dump.OutputFormat;
 import dk.dbc.rawrepo.exception.InternalServerException;
@@ -40,6 +41,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,6 +102,31 @@ public class RecordService {
             return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/record/{}/{}", agencyId, bibliographicRecordId);
+        }
+    }
+
+    @GET
+    @Path("v1/record-entries/{agencyid}/{bibliographicrecordid}/raw")
+    @Produces({MediaType.APPLICATION_JSON})
+    @Timed
+    public Response getRecordEntry(@PathParam("agencyid") int agencyId,
+                                   @PathParam("bibliographicrecordid") String bibliographicRecordId) {
+        try {
+            final Record record = getRawRepoRecord(agencyId, bibliographicRecordId, Mode.RAW, true,
+                    false, false, false);
+            if (record == null) {
+                return Response.status(Response.Status.NO_CONTENT).build();
+            }
+
+            final RecordEntryDTO recordEntryDTO = RecordDTOMapper.toRecordEntryDTO(record);
+            return Response.ok(jsonbContext.marshall(recordEntryDTO), MediaType.APPLICATION_JSON).build();
+        } catch (JSONBException | MarcReaderException | MarcWriterException | InternalServerException | IOException e) {
+            LOGGER.error("Exception during getRecordEntry", e);
+            return Response.serverError().build();
+        } catch (RecordNotFoundException ex) {
+            return Response.status(Response.Status.NO_CONTENT).build();
+        } finally {
+            LOGGER.info("v1/record-entries/{}/{}/raw", agencyId, bibliographicRecordId);
         }
     }
 
