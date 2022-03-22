@@ -33,6 +33,13 @@ Parameters:
     exclude-dbc-fields
     use-parent-agency
     keep-aut-fields
+
+### Record entry
+    GET /api/v1/record-entries/{agencyid}/{bibliographicrecordid}/raw
+
+This endpoint returns a JSON document with all data from the corresponding record row entry in its raw form. 
+
+Content is presented as MarcJson.
     
 ### Record exists
     GET /api/v1/record/{agencyid}/{bibliographicrecordid}/exists

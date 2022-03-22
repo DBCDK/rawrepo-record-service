@@ -1,21 +1,48 @@
 package dk.dbc.rawrepo.dto;
 
+import dk.dbc.commons.jsonb.JSONBContext;
 import dk.dbc.marc.binding.DataField;
 import dk.dbc.marc.binding.Field;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.binding.SubField;
 import dk.dbc.marc.reader.MarcReaderException;
+import dk.dbc.marc.writer.MarcWriterException;
 import dk.dbc.rawrepo.Record;
 import dk.dbc.rawrepo.RecordId;
 import dk.dbc.rawrepo.RecordMetaDataHistory;
+import dk.dbc.rawrepo.output.OutputStreamMarcJsonRecordWriter;
 import dk.dbc.rawrepo.service.RecordObjectMapper;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class RecordDTOMapper {
+    private static final JSONBContext jsonBContext = new JSONBContext();
+
+    public static RecordEntryDTO toRecordEntryDTO(Record record) throws MarcReaderException, MarcWriterException, IOException {
+        final RecordEntryDTO dto = new RecordEntryDTO();
+        dto.setRecordId(recordIdToDTO(record.getId()));
+        dto.setDeleted(record.isDeleted());
+        dto.setCreated(record.getCreated().toString());
+        dto.setModified(record.getModified().toString());
+        dto.setMimetype(record.getMimeType());
+        dto.setTrackingId(record.getTrackingId());
+        dto.setEnrichmentTrail(record.getEnrichmentTrail());
+
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final OutputStreamMarcJsonRecordWriter contentWriter =
+                new OutputStreamMarcJsonRecordWriter(baos, StandardCharsets.UTF_8.name());
+        contentWriter.write(RecordObjectMapper.contentToMarcRecord(record.getContent()));
+
+        dto.setContent(jsonBContext.getObjectMapper().reader().readTree(baos.toByteArray()));
+
+        return dto;
+    }
 
     public static RecordMetaDataDTO recordMetaDataToDTO(Record record) {
         RecordMetaDataDTO dto = new RecordMetaDataDTO();
