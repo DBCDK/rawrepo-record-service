@@ -65,7 +65,7 @@ class AbstractRecordServiceContainerTest {
 
         Network network = Network.newNetwork();
 
-        rawrepoDbContainer = new DBCPostgreSQLContainer("docker-io.dbc.dk/rawrepo-postgres-1.15-snapshot:master-5156")
+        rawrepoDbContainer = new DBCPostgreSQLContainer("docker-metascrum.artifacts.dbccloud.dk/rawrepo-postgres-1.15-snapshot:master-5164")
                 .withDatabaseName("rawrepo")
                 .withUsername("rawrepo")
                 .withPassword("rawrepo");
@@ -79,7 +79,7 @@ class AbstractRecordServiceContainerTest {
         holdingsItemsDbContainer.start();
         holdingsItemsDbContainer.exposeHostPort();
 
-        recordServiceContainer = new GenericContainer("docker-io.dbc.dk/rawrepo-record-service:devel")
+        recordServiceContainer = new GenericContainer("docker-metascrum.artifacts.dbccloud.dk/rawrepo-record-service:devel")
                 .withNetwork(network)
                 .withLogConsumer(new Slf4jLogConsumer(LOGGER))
                 .withEnv("INSTANCE", "it")

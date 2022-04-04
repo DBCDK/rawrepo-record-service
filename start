@@ -13,7 +13,7 @@ docker run --rm --name rawrepo-record-service -d -p ${record_service_port}:8080 
     -e DUMP_THREAD_COUNT="8" \
     -e DUMP_SLICE_SIZE="1000" \
     -e JAVA_MAX_HEAP_SIZE=2G \
-    docker-io.dbc.dk/rawrepo-record-service:devel
+    docker-metascrum.artifacts.dbccloud.dk/rawrepo-record-service:devel
 attempts=0
 max_attempts=60
 until $(curl --output /dev/null --silent --head --fail http://localhost:${record_service_port}/api/status); do

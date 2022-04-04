@@ -3,9 +3,9 @@
 case "$1" in
     docker)
         echo "### building rawrepo-record-service docker ###"
-        docker build . -t docker-io.dbc.dk/rawrepo-record-service:devel || exit 1
+        docker build . -t docker-metascrum.artifacts.dbccloud.dk/rawrepo-record-service:devel || exit 1
         if [[ ! -z "$BUILD_NUMBER" ]]; then
-            docker tag docker-io.dbc.dk/rawrepo-record-service:devel docker-io.dbc.dk/rawrepo-record-service:${BRANCH_NAME}-${BUILD_NUMBER}
+            docker tag docker-metascrum.artifacts.dbccloud.dk/rawrepo-record-service:devel docker-metascrum.artifacts.dbccloud.dk/rawrepo-record-service:${BRANCH_NAME}-${BUILD_NUMBER}
         fi
         ;;
 
