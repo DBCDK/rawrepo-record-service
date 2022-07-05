@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record xmlns="info:lc/xmlns/marcxchange-v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <leader>00000n    2200000  4500 </leader>
+  <datafield ind1="0" ind2="0" tag="001">
+    <subfield code="a">133990054</subfield>
+    <subfield code="b">870979</subfield>
+    <subfield code="c">20181108192834</subfield>
+    <subfield code="d">20140124</subfield>
+    <subfield code="f">a</subfield>
+    <subfield code="t">FAUST</subfield>
+  </datafield>
+  <datafield ind1="0" ind2="0" tag="004">
+    <subfield code="r">n</subfield>
+    <subfield code="x">e</subfield>
+  </datafield>
+  <datafield ind1="0" ind2="0" tag="008">
+    <subfield code="v">a</subfield>
+  </datafield>
+  <datafield ind1="0" ind2="0" tag="040">
+    <subfield code="b">dan</subfield>
+    <subfield code="e">local</subfield>
+  </datafield>
+  <datafield ind1="0" ind2="0" tag="075">
+    <subfield code="b">s</subfield>
+  </datafield>
+  <datafield ind1="0" ind2="0" tag="133">
+    <subfield code="a">Ringenes herre</subfield>
+    <subfield code="8">dan</subfield>
+  </datafield>
+  <datafield ind1="0" ind2="0" tag="233">
+    <subfield code="w">er oversættelse af</subfield>
+    <subfield code="5">870979</subfield>
+    <subfield code="6">&lt;ID-nummer for The ¤lord of the rings&gt;</subfield>
+  </datafield>
+  <datafield ind1="0" ind2="0" tag="234">
+    <subfield code="w">del af univers</subfield>
+    <subfield code="5">870979</subfield>
+    <subfield code="6">&lt;ID-nummer for Middle-earth&gt;</subfield>
+  </datafield>
+  <datafield ind1="0" ind2="0" tag="680">
+    <subfield code="a">Hobbitten Frodo forsøger at bringe en magisk ring, der giver uindskrænket magt, frem til Dommedagsbjerget, hvor den skal ødelægges. I eventyrets og mytens form skildres kampen mellem det gode og det onde</subfield>
+    <subfield code="8">dan</subfield>
+  </datafield>
+  <datafield ind1="0" ind2="0" tag="996">
+    <subfield code="a">DBCAUT</subfield>
+  </datafield>
+</record>
+

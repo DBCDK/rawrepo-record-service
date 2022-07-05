@@ -4,6 +4,7 @@ import dk.dbc.marc.binding.DataField;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.binding.SubField;
 import dk.dbc.marc.reader.MarcReaderException;
+import dk.dbc.marcrecord.ExpandCommonMarcRecord;
 import dk.dbc.rawrepo.dao.RawRepoBean;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
@@ -21,7 +22,6 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +35,7 @@ public class RecordRelationsBean {
 
     RelationHintsVipCore relationHints;
 
-    private static final List<String> AUTHORITY_FIELDS = Arrays.asList("100", "600", "700", "770", "780");
+    private static final List<String> AUTHORITY_FIELDS = ExpandCommonMarcRecord.AUTHORITY_FIELD_LIST;
 
     @Resource(lookup = "jdbc/rawrepo")
     private DataSource dataSource;
@@ -110,7 +110,7 @@ public class RecordRelationsBean {
             } else {
                 final Set<RecordId> result = new HashSet<>();
 
-                // There is never a parent relations for DBC enrichments so we might as well just skip those
+                // There is never a parent relation for DBC enrichments, so we might as well just skip those
                 if (agencyId != RecordBeanUtils.DBC_ENRICHMENT_AGENCY) {
                     final Record record = recordSimpleBean.fetchRecord(bibliographicRecordId, agencyId);
                     final MarcRecord marcRecord = RecordObjectMapper.contentToMarcRecord(record.getContent());
@@ -198,8 +198,8 @@ public class RecordRelationsBean {
      * In short this function is used to determine if a deleted volume for an agency should be included in the DataIO
      * collection or not
      *
-     * @param bibliographicRecordId Id of the record to find the records for
-     * @param agencyId              The original agency
+     * @param bibliographicRecordId    ID of the record to find the records for
+     * @param agencyId                 The original agency
      * @return True if there is an active parent for the given agency, otherwise false
      * @throws RecordNotFoundException If the record isn't found
      * @throws InternalServerException If there is an unhandled exception
@@ -208,7 +208,7 @@ public class RecordRelationsBean {
     @SuppressWarnings("PMD")
     public boolean parentIsActive(String bibliographicRecordId,
                                   int agencyId) throws RecordNotFoundException, InternalServerException, RawRepoException {
-        // There are no relations on richments other than to the common records. So in order to find the parent section
+        // There are no relations on enrichments other than to the common records. So in order to find the parent section
         // or head record we have to look at the common volume's parents
         final int mostCommonAgency = findParentRelationAgency(bibliographicRecordId, agencyId);
         final Set<RecordId> parents = getRelationsParents(bibliographicRecordId, mostCommonAgency);

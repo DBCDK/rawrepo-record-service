@@ -185,7 +185,7 @@ public class RecordBeanTest {
 
         final MarcRecord deletedEnrichment = loadMarcRecord("deleted-191919.xml");
         final MarcRecord deletedCommon = loadMarcRecord("deleted-870970.xml");
-        final MarcRecord deletedMerged = loadMarcRecord("deleted-merged.xml");
+        final MarcRecord deletedMerged = loadMarcRecord("deleted-merged-stripped.xml");
         final Set<Integer> agenciesFound = new HashSet<>(Arrays.asList(191919, 870970));
         final String bibliographicRecordId = "00199087";
 
@@ -236,7 +236,7 @@ public class RecordBeanTest {
         final MarcXchangeV1Reader reader = new MarcXchangeV1Reader(bufferedInputStream, StandardCharsets.UTF_8);
         final MarcRecord mergedMarcRecord = reader.read();
         final byte[] mergedContent = marcXchangeV1Writer.write(mergedMarcRecord, StandardCharsets.UTF_8);
-        assertThat(mergedContent, is(expected.getContent()));
+        assertThat(new String(mergedContent), is(new String(expected.getContent())));
     }
 
 
@@ -249,6 +249,8 @@ public class RecordBeanTest {
         final MarcRecord expectedMergedMarcRecord = loadMarcRecord("merged-deleted/expected-merged.xml");
         final MarcRecord expectedExpandedMarcRecord = loadMarcRecord("merged-deleted/expected-expanded.xml");
         final MarcRecord authorityMarcRecord = loadMarcRecord("merged-deleted/aut-dbc.xml");
+        final MarcRecord authoritySeriesMarcRecord = loadMarcRecord("merged-deleted/aut-ringenes-herre.xml");
+        final MarcRecord authorityUniverseMarcRecord = loadMarcRecord("merged-deleted/aut-middle-earth.xml");
         final Set<Integer> agenciesFound = new HashSet<>(Arrays.asList(191919, 700300, 870970));
         final String bibliographicRecordId = "50938409";
 
@@ -282,17 +284,39 @@ public class RecordBeanTest {
         authorityRecord.setCreated(getInstant("2018-09-11"));
         authorityRecord.setModified(getInstant("2019-09-11"));
 
+        final Record authoritySeriesRecord = createRecordMock("133990054", 870979, MarcXChangeMimeType.AUTHORITY,
+                marcXchangeV1Writer.write(authoritySeriesMarcRecord, StandardCharsets.UTF_8));
+        authoritySeriesRecord.setDeleted(false);
+        authoritySeriesRecord.setCreated(getInstant("2018-09-11"));
+        authoritySeriesRecord.setModified(getInstant("2019-09-11"));
+
+        final Record authorityUniverseRecord = createRecordMock("133990119", 870979, MarcXChangeMimeType.AUTHORITY,
+                marcXchangeV1Writer.write(authorityUniverseMarcRecord, StandardCharsets.UTF_8));
+        authorityUniverseRecord.setDeleted(false);
+        authorityUniverseRecord.setCreated(getInstant("2018-09-11"));
+        authorityUniverseRecord.setModified(getInstant("2019-09-11"));
+
         when(recordSimpleBean.recordIsActive(bibliographicRecordId, 191919)).thenReturn(false);
         when(recordSimpleBean.recordIsActive(bibliographicRecordId, 870970)).thenReturn(false);
         when(recordRelationsBean.getRelationsSiblingsFromMe(bibliographicRecordId, 191919)).thenReturn(Collections.singleton(new RecordId(bibliographicRecordId, 870970)));
         when(recordRelationsBean.getRelationsSiblingsFromMe("69208045", 191919)).thenReturn(Collections.singleton(new RecordId("69208045", 870979)));
-        when(recordRelationsBean.getRelationsParents(bibliographicRecordId, 870970)).thenReturn(Collections.singleton(new RecordId("69208045", 870979)));
+        when(recordRelationsBean.getRelationsSiblingsFromMe("133990054", 191919)).thenReturn(Collections.singleton(new RecordId("133990054", 870979)));
+        when(recordRelationsBean.getRelationsSiblingsFromMe("133990119", 191919)).thenReturn(Collections.singleton(new RecordId("133990119", 870979)));
+
+        Set<RecordId> parents = new HashSet<>();
+        parents.add(new RecordId("69208045", 870979));
+        parents.add(new RecordId("133990054", 870979));
+        parents.add(new RecordId("133990119", 870979));
+        when(recordRelationsBean.getRelationsParents(bibliographicRecordId, 870970)).thenReturn(parents);
+
         when(rawRepoDAO.allAgenciesForBibliographicRecordId(eq(bibliographicRecordId))).thenReturn(agenciesFound);
         when(rawRepoDAO.agencyFor(bibliographicRecordId, 191919, false)).thenThrow(new RawRepoExceptionRecordNotFound());
         when(rawRepoDAO.agencyFor(bibliographicRecordId, 191919, true)).thenReturn(191919);
         when(recordSimpleBean.fetchRecord(bibliographicRecordId, 191919)).thenReturn(deletedEnrichmentRecord);
         when(recordSimpleBean.fetchRecord(bibliographicRecordId, 870970)).thenReturn(deletedCommonRecord);
         when(recordSimpleBean.fetchRecord("69208045", 870979)).thenReturn(authorityRecord);
+        when(recordSimpleBean.fetchRecord("133990054", 870979)).thenReturn(authoritySeriesRecord);
+        when(recordSimpleBean.fetchRecord("133990119", 870979)).thenReturn(authorityUniverseRecord);
 
         final Record actualRecord = bean.getRawRepoRecordExpanded(bibliographicRecordId, 191919, true, false, true, false);
 

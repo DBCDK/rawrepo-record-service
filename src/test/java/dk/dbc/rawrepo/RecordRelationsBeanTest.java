@@ -251,7 +251,7 @@ public class RecordRelationsBeanTest {
 
         final String bibliographicRecordId = "53090567";
 
-        MarcRecord marcRecord = loadMarcRecord("getRelationsParents/common-triple-aut.xml");
+        MarcRecord marcRecord = loadMarcRecord("getRelationsParents/common-penta-aut.xml");
 
         Record record = createRecordMock(bibliographicRecordId, 870970, MarcXChangeMimeType.MARCXCHANGE,
                 marcXchangeV1Writer.write(marcRecord, StandardCharsets.UTF_8));
@@ -262,9 +262,11 @@ public class RecordRelationsBeanTest {
 
         Set<RecordId> actual = bean.getRelationsParents(bibliographicRecordId, 870970);
 
-        assertThat(actual.size(), is(4));
+        assertThat(actual.size(), is(6));
 
         Iterator<RecordId> iterator = actual.iterator();
+        assertThat(iterator.next(), is(new RecordId("133990054", 870979)));
+        assertThat(iterator.next(), is(new RecordId("133990119", 870979)));
         assertThat(iterator.next(), is(new RecordId("19050416", 870979)));
         assertThat(iterator.next(), is(new RecordId("19050785", 870979)));
         assertThat(iterator.next(), is(new RecordId("19047903", 870979)));

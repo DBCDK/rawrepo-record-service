@@ -12,4 +12,9 @@
     <datafield ind1="0" ind2="0" tag="004">
         <subfield code="r">d</subfield>
     </datafield>
+    <datafield ind1="0" ind2="0" tag="d08">
+        <subfield code="r">kpn</subfield>
+        <subfield code="a">genoplivet, nyt midlertidigt 014</subfield>
+    </datafield>
+
 </record>
