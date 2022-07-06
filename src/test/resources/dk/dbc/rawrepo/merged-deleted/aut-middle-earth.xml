@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><record xmlns="info:lc/xmlns/marcxchange-v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="info:lc/xmlns/marcxchange-v1 http://www.loc.gov/standards/iso25577/marcxchange-1-1.xsd">
+  <leader>00000     22000000 4500 </leader>
+  <datafield ind1="0" ind2="0" tag="001">
+    <subfield code="a">133990119</subfield>
+    <subfield code="b">870979</subfield>
+        <subfield code="c">20181108192834</subfield>
+        <subfield code="d">20140124</subfield>
+        <subfield code="f">a</subfield>
+        <subfield code="t">FAUST</subfield>
+  </datafield>
+  <datafield ind1="0" ind2="0" tag="004">
+    <subfield code="r">n</subfield>
+    <subfield code="x">e</subfield>
+  </datafield>
+  <datafield ind1="0" ind2="0" tag="008">
+    <subfield code="v">a</subfield>
+  </datafield>
+  <datafield ind1="0" ind2="0" tag="040">
+    <subfield code="b">dan</subfield>
+    <subfield code="e">local</subfield>
+  </datafield>
+  <datafield ind1="0" ind2="0" tag="075">
+    <subfield code="b">u</subfield>
+  </datafield>
+  <datafield ind1="0" ind2="0" tag="134">
+    <subfield code="a">Middle-earth</subfield>
+    <subfield code="8">eng</subfield>
+  </datafield>
+  <datafield ind1="0" ind2="0" tag="434">
+    <subfield code="a">Midgård</subfield>
+    <subfield code="8">dan</subfield>
+  </datafield>
+  <datafield ind1="0" ind2="0" tag="996">
+    <subfield code="a">DBCAUT</subfield>
+  </datafield>
+</record>
+

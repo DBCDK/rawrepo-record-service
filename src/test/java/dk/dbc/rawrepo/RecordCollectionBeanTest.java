@@ -74,6 +74,9 @@ public class RecordCollectionBeanTest {
         when(relationHints.usesCommonAgency(eq(870979))).thenReturn(true);
     }
 
+    /**
+     * Checks that a deleted record at a PH library doesn't have any parent relations - that is field 014/015 relations
+     */
     @Test
     public void testFetchRecordCollectionExpandedExistingPHRecord() throws Exception {
         final RecordCollectionBean bean = new RecordCollectionBeanMock(globalDataSource, recordBean, recordRelationsBean);
@@ -99,6 +102,9 @@ public class RecordCollectionBeanTest {
         assertThat(bean.getRawRepoRecordCollection(bibliographicRecordId, originalAgencyId, true, false, true, false, false, false), is(collection));
     }
 
+    /**
+     * Checks that a deleted record at an FBS library doesn't have any parent relations - that is field 014/015 relations
+     */
     @Test
     public void testFetchRecordCollectionExpandedExistingRecord() throws Exception {
         final RecordCollectionBean bean = initRecordCollectionBeanMock();
@@ -123,6 +129,9 @@ public class RecordCollectionBeanTest {
         assertThat(bean.getRawRepoRecordCollection(bibliographicRecordId, agencyId, true, false, true, false, true, false), is(collection));
     }
 
+    /**
+     * Checks that an active record at an FBS library doesn't have any parent relations - that is field 014/015 relations
+     */
     @Test
     public void testFetchRecordCollectionExistingRecord() throws Exception {
         final RecordCollectionBean bean = initRecordCollectionBeanMock();
@@ -148,6 +157,10 @@ public class RecordCollectionBeanTest {
         assertThat(bean.getRawRepoRecordCollection(bibliographicRecordId, agencyId, true, false, false, false, false, false), is(collection));
     }
 
+    /**
+     * Check the collection of a deleted record is correct - that is, all authority records mentioned is in it
+     * Technically it should be as said, but "nobody expects the mock of mockings"
+     */
     @Test
     public void testFetchRecordCollectionDeletedRecord() throws Exception {
         final RecordCollectionBean bean = initRecordCollectionBeanMock();
@@ -187,6 +200,7 @@ public class RecordCollectionBeanTest {
         when(recordBean.getRawRepoRecordMerged(autBibliographicRecordId, 191919, true, false, false)).thenReturn(authorityRecord);
         when(recordRelationsBean.findParentRelationAgency(bibliographicRecordId, 191919)).thenReturn(870970);
         when(recordRelationsBean.findParentRelationAgency(autBibliographicRecordId, 191919)).thenReturn(870979);
+        // this is kind of rotten and mostly check the mocking
         when(recordRelationsBean.getRelationsParents(bibliographicRecordId, 191919)).thenReturn(Collections.singleton(new RecordId(autBibliographicRecordId, 870979)));
         when(recordRelationsBean.getRelationsParents(bibliographicRecordId, 870970)).thenReturn(Collections.singleton(new RecordId(autBibliographicRecordId, 870979)));
 

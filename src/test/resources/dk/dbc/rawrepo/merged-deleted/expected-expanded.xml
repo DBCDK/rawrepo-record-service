@@ -132,6 +132,20 @@
         <subfield code="o">Hugin Eide</subfield>
         <subfield code="4">trl</subfield>
     </datafield>
+    <datafield ind1="0" ind2="0" tag="845">
+        <subfield code="å">1001</subfield>
+        <subfield code="a">Ringenes herre</subfield>
+        <subfield code="b">x</subfield>
+        <subfield code="v">1</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="0" tag="846">
+        <subfield code="å">1001</subfield>
+        <subfield code="a">Middle-earth</subfield>
+    </datafield>
+    <datafield ind1="0" ind2="0" tag="945">
+        <subfield code="a">Midgård</subfield>
+        <subfield code="z">846/1001</subfield>
+    </datafield>
     <datafield ind1="0" ind2="0" tag="990">
         <subfield code="o">201409</subfield>
         <subfield code="b">l</subfield>
