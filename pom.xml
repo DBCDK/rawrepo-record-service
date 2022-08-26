@@ -6,7 +6,7 @@
     <parent>
         <groupId>dk.dbc</groupId>
         <artifactId>microservice-pom</artifactId>
-        <version>latest-SNAPSHOT</version>
+        <version>java11-SNAPSHOT</version>
     </parent>
 
     <artifactId>rawrepo-record-service</artifactId>
