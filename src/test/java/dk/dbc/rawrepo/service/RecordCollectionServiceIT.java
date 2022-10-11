@@ -18,14 +18,17 @@ import org.junit.jupiter.api.Test;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -78,6 +81,14 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
             saveRecord(rawrepoConnection, "sql/collection/30707605-870976.xml", MIMETYPE_MATVURD, "2020-10-19T09:44:42.000Z", "2020-10-19T09:45:42.000Z");
             saveRelations(rawrepoConnection, "30707605", 191919, "30707605", 870976);
             saveRelations(rawrepoConnection, "30707605", 870976, "27218865", 870970);
+
+            saveRecord(rawrepoConnection, "sql/collection/68733324-870979.xml", MIMETYPE_AUTHORITY);
+            saveRecord(rawrepoConnection, "sql/collection/68733324-191919.xml", MIMETYPE_ENRICHMENT);
+            saveRelations(rawrepoConnection, "68733324", 191919, "68733324", 870979);
+            saveRecord(rawrepoConnection, "sql/collection/04628543-870970.xml", MIMETYPE_MARCXCHANGE);
+            saveRecord(rawrepoConnection, "sql/collection/04628543-191919.xml", MIMETYPE_ENRICHMENT);
+            saveRelations(rawrepoConnection, "04628543", 191919, "04628543", 870970);
+            saveRelations(rawrepoConnection, "04628543", 870970, "68733324", 870979);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
@@ -457,6 +468,85 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
 
         assertThat("collection is missing record", actual.getMissing().size(), is(1));
         assertThat("collection is missing record", actual.getMissing().get(0), is(new RecordIdDTO("not found", 123456)));
+    }
+
+    @Test
+    void getRecordsBulkv2_Merged() throws Exception {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("use-parent-agency", "true");
+
+        final RecordIdCollectionDTO recordIdCollectionDTO = new RecordIdCollectionDTO();
+        final List<RecordIdDTO> recordIdDTOList = new ArrayList<>();
+        recordIdDTOList.add(new RecordIdDTO("04628543", 191919));
+        recordIdCollectionDTO.setRecordIds(recordIdDTOList);
+
+        final PathBuilder path = new PathBuilder("/api/v2/records/bulk");
+        final HttpPost httpPost = new HttpPost(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build())
+                .withData(recordIdCollectionDTO, MediaType.APPLICATION_JSON);
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            httpPost.withQueryParameter(param.getKey(), param.getValue());
+        }
+        final Response response = httpClient.execute(httpPost);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        String expected = "001 00 *a04628543*b870970*c20200121012638*d19860731*fa\n" +
+                "004 00 *rn*ab\n" +
+                "008 00 *tm*uf*a1975*leng*v1\n" +
+                "245 00 *G1-1*gVolumen 1*aTriodium athoum, pars principalis*cCodex Monasterii Va\n" +
+                "    topedii 1488 phototypice depictus*eedendum curaverunt: Enrica Follieri et O\n" +
+                "    liver Strunk\n" +
+                "700 00 *5870979*668733324\n" +
+                "996 00 *aDBC\n" +
+                "$";
+
+        try (InputStream inputStream = response.readEntity(InputStream.class)) {
+            String result = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines().collect(Collectors.joining("\n"));
+
+            assertThat(result, CoreMatchers.is(expected));
+        }
+    }
+
+    @Test
+    void getRecordsBulkv2_Expanded() throws Exception {
+        final HashMap<String, Object> params = new HashMap<>();
+        params.put("use-parent-agency", "true");
+        params.put("expand", "true");
+
+        final RecordIdCollectionDTO recordIdCollectionDTO = new RecordIdCollectionDTO();
+        final List<RecordIdDTO> recordIdDTOList = new ArrayList<>();
+        recordIdDTOList.add(new RecordIdDTO("04628543", 191919));
+        recordIdCollectionDTO.setRecordIds(recordIdDTOList);
+
+        final PathBuilder path = new PathBuilder("/api/v2/records/bulk");
+        final HttpPost httpPost = new HttpPost(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build())
+                .withData(recordIdCollectionDTO, MediaType.APPLICATION_JSON);
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            httpPost.withQueryParameter(param.getKey(), param.getValue());
+        }
+        final Response response = httpClient.execute(httpPost);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        String expected = "001 00 *a04628543*b870970*c20200121012638*d19860731*fa\n" +
+                "004 00 *rn*ab\n" +
+                "008 00 *tm*uf*a1975*leng*v1\n" +
+                "245 00 *G1-1*gVolumen 1*aTriodium athoum, pars principalis*cCodex Monasterii Va\n" +
+                "    topedii 1488 phototypice depictus*eedendum curaverunt: Enrica Follieri et O\n" +
+                "    liver Strunk\n" +
+                "700 00 *aMurakami*hHaruki\n" +
+                "996 00 *aDBC\n" +
+                "$";
+
+        try (InputStream inputStream = response.readEntity(InputStream.class)) {
+            String result = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines().collect(Collectors.joining("\n"));
+
+            assertThat(result, CoreMatchers.is(expected));
+        }
     }
 
     private MarcRecord byteArrayToRecord(byte[] content) throws MarcReaderException {
