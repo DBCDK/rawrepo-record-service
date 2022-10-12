@@ -259,7 +259,9 @@ public class RecordCollectionService {
                                      @DefaultValue("false") @QueryParam("exclude-dbc-fields") boolean excludeDBCFields,
                                      @DefaultValue("false") @QueryParam("use-parent-agency") boolean useParentAgency,
                                      @DefaultValue("LINE") @QueryParam("output-format") String outputFormat,
-                                     @DefaultValue("UTF-8") @QueryParam("output-encoding") String outputEncoding) {
+                                     @DefaultValue("UTF-8") @QueryParam("output-encoding") String outputEncoding,
+                                     @DefaultValue("false") @QueryParam("expand") boolean doExpand,
+                                     @DefaultValue("false") @QueryParam("keep-aut-fields") boolean keepAutFields) {
         try {
             final RecordIdCollectionDTO recordIdCollectionDTO = jsonbContext.unmarshall(request, RecordIdCollectionDTO.class);
 
@@ -270,7 +272,13 @@ public class RecordCollectionService {
                     final Iterator<RecordIdDTO> iterator = recordIdCollectionDTO.getRecordIds().iterator();
 
                     for (int i = 0; i < THREAD_COUNT; i++) {
-                        threadList.add(new BulkMergeThread(iterator, writer, allowDeleted, excludeDBCFields, useParentAgency));
+                        threadList.add(new BulkMergeThread(iterator,
+                                writer,
+                                allowDeleted,
+                                excludeDBCFields,
+                                useParentAgency,
+                                doExpand,
+                                keepAutFields));
                     }
 
                     LOGGER.info("{} MergerThreads has been started", THREAD_COUNT);
@@ -353,21 +361,21 @@ public class RecordCollectionService {
     }
 
     private void fetchRecords(boolean allowDeleted, boolean useParentAgency, RecordService.Mode mode, List<String> excludeAttributes, List<RecordDTO> found, List<RecordIdDTO> missing, RecordIdDTO recordId) throws InternalServerException, MarcReaderException {
-        Record record;
+        Record marcRecord;
         try {
             if (mode == RecordService.Mode.EXPANDED) {
-                record = recordSimpleBean.fetchRecordExpanded(recordId.getBibliographicRecordId(), recordId.getAgencyId(), allowDeleted, useParentAgency);
+                marcRecord = recordSimpleBean.fetchRecordExpanded(recordId.getBibliographicRecordId(), recordId.getAgencyId(), allowDeleted, useParentAgency);
             } else if (mode == RecordService.Mode.MERGED) {
-                record = recordSimpleBean.fetchRecordMerged(recordId.getBibliographicRecordId(), recordId.getAgencyId(), allowDeleted, useParentAgency);
+                marcRecord = recordSimpleBean.fetchRecordMerged(recordId.getBibliographicRecordId(), recordId.getAgencyId(), allowDeleted, useParentAgency);
             } else {
-                record = recordSimpleBean.fetchRecord(recordId.getBibliographicRecordId(), recordId.getAgencyId());
+                marcRecord = recordSimpleBean.fetchRecord(recordId.getBibliographicRecordId(), recordId.getAgencyId());
             }
 
             // fetchRecord will return a new empty record if the requested record is not found in the database.
             // One solution would be to check if the record exists but that requires an extra request to the database
             // In order to save a round trip we just check if the record has any content.
-            if (record.getContent() != null && record.getContent().length > 0) {
-                final RecordDTO recordDTO = RecordDTOMapper.recordToDTO(record, excludeAttributes);
+            if (marcRecord.getContent() != null && marcRecord.getContent().length > 0) {
+                final RecordDTO recordDTO = RecordDTOMapper.recordToDTO(marcRecord, excludeAttributes);
                 found.add(recordDTO);
             } else {
                 missing.add(recordId);
@@ -383,13 +391,23 @@ public class RecordCollectionService {
         private final boolean allowDeleted;
         private final boolean excludeDBCFields;
         private final boolean useParentAgency;
+        private final boolean doExpand;
+        private final boolean keepAutFields;
 
-        public BulkMergeThread(Iterator<RecordIdDTO> iterator, OutputStreamRecordWriter writer, boolean allowDeleted, boolean excludeDBCFields, boolean useParentAgency) {
+        public BulkMergeThread(Iterator<RecordIdDTO> iterator,
+                               OutputStreamRecordWriter writer,
+                               boolean allowDeleted,
+                               boolean excludeDBCFields,
+                               boolean useParentAgency,
+                               boolean doExpand,
+                               boolean keepAutFields) {
             this.iterator = iterator;
             this.writer = writer;
             this.allowDeleted = allowDeleted;
             this.excludeDBCFields = excludeDBCFields;
             this.useParentAgency = useParentAgency;
+            this.doExpand = doExpand;
+            this.keepAutFields = keepAutFields;
         }
 
         @Override
@@ -406,8 +424,12 @@ public class RecordCollectionService {
                 }
 
                 if (idDTO != null) {
-                    MarcRecord marcRecord = marcRecordBean.getMarcRecordMerged(idDTO.getBibliographicRecordId(), idDTO.getAgencyId(), allowDeleted, excludeDBCFields, useParentAgency);
-
+                    MarcRecord marcRecord;
+                    if (doExpand) {
+                        marcRecord = marcRecordBean.getMarcRecordExpanded(idDTO.getBibliographicRecordId(), idDTO.getAgencyId(), allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
+                    } else {
+                        marcRecord = marcRecordBean.getMarcRecordMerged(idDTO.getBibliographicRecordId(), idDTO.getAgencyId(), allowDeleted, excludeDBCFields, useParentAgency);
+                    }
                     writer.write(marcRecord);
                 }
             } while (idDTO != null);
