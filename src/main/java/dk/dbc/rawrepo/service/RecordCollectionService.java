@@ -423,14 +423,13 @@ public class RecordCollectionService {
                     }
                 }
 
-                MarcRecord marcRecord;
                 if (idDTO != null) {
+                    MarcRecord marcRecord;
                     if (doExpand) {
                         marcRecord = marcRecordBean.getMarcRecordExpanded(idDTO.getBibliographicRecordId(), idDTO.getAgencyId(), allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
                     } else {
                         marcRecord = marcRecordBean.getMarcRecordMerged(idDTO.getBibliographicRecordId(), idDTO.getAgencyId(), allowDeleted, excludeDBCFields, useParentAgency);
                     }
-
                     writer.write(marcRecord);
                 }
             } while (idDTO != null);
