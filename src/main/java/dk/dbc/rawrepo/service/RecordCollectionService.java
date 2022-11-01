@@ -247,8 +247,6 @@ public class RecordCollectionService {
         } catch (JSONBException | InternalServerException | MarcReaderException ex) {
             LOGGER.error("Exception during getRecordsBulk", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        // } catch (RecordNotFoundException ex) {
-            // return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/records/bulk");
         }
