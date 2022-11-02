@@ -218,13 +218,18 @@ public class RecordCollectionService {
 
             Record rawrepoRecord;
             for (RecordIdDTO idDTO : recordIdCollectionDTO.getRecordIds()) {
-                if (expand) {
-                    rawrepoRecord = recordBean.getRawRepoRecordExpanded(idDTO.getBibliographicRecordId(), idDTO.getAgencyId(), allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
-                } else {
-                    rawrepoRecord = recordBean.getRawRepoRecordMerged(idDTO.getBibliographicRecordId(), idDTO.getAgencyId(), allowDeleted, excludeDBCFields, useParentAgency);
+                try {
+                    if (expand) {
+                        rawrepoRecord = recordBean.getRawRepoRecordExpanded(idDTO.getBibliographicRecordId(), idDTO.getAgencyId(), allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
+                    } else {
+                        rawrepoRecord = recordBean.getRawRepoRecordMerged(idDTO.getBibliographicRecordId(), idDTO.getAgencyId(), allowDeleted, excludeDBCFields, useParentAgency);
+                    }
+                } catch (RecordNotFoundException ex) {
+                    LOGGER.info("Didn't find {}:{}", idDTO.getBibliographicRecordId(), idDTO.getAgencyId());
+                    rawrepoRecord = null;
                 }
 
-                // Ignore records that doesn't exist
+                // Ignore records that don't exist
                 if (rawrepoRecord == null) {
                     continue;
                 }
@@ -242,8 +247,6 @@ public class RecordCollectionService {
         } catch (JSONBException | InternalServerException | MarcReaderException ex) {
             LOGGER.error("Exception during getRecordsBulk", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        } catch (RecordNotFoundException ex) {
-            return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/records/bulk");
         }
