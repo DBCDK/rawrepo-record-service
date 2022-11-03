@@ -1,4 +1,4 @@
-FROM docker.dbc.dk/payara5-micro:latest
+FROM docker-dbc.artifacts.dbccloud.dk/payara5-micro:latest
 
 LABEL RAWREPO_URL="Full connection string for the rawrepo database. Format is 'username:pass@dbserver/dbname'. (Required)"
 LABEL HOLDINGS_URL="Full connection string for the holdings items database. Format is 'username:pass@dbserver/dbname'. (Required)"

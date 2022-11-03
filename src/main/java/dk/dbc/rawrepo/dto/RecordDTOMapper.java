@@ -150,7 +150,7 @@ public class RecordDTOMapper {
 
                 List<SubfieldDTO> subfieldDTOList = new ArrayList<>();
 
-                for (SubField subField : dataField.getSubfields()) {
+                for (SubField subField : dataField.getSubFields()) {
                     SubfieldDTO subfieldDTO = new SubfieldDTO();
                     subfieldDTO.setName("" + subField.getCode());
                     subfieldDTO.setValue(subField.getData());

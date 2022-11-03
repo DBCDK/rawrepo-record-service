@@ -34,7 +34,7 @@
         <dependency>
             <groupId>dk.dbc</groupId>
             <artifactId>dbc-commons-marc</artifactId>
-            <version>1.7-SNAPSHOT</version>
+            <version>1.9-SNAPSHOT</version>
         </dependency>
 
         <!-- While httpclient is only used for testing in this project other dependencies need it -->

@@ -167,7 +167,7 @@ public class MergerThreadFBS implements Callable<Boolean> {
                         Optional<DataField> field001 = record.getField(DataField.class, hasTag("001"));
                         if (field001.isPresent()) {
                             DataField dataField = field001.get();
-                            for (SubField subField : dataField.getSubfields()) {
+                            for (SubField subField : dataField.getSubFields()) {
                                 if ('b' == subField.getCode()) {
                                     subField.setData(Integer.toString(agencyId));
                                 }

@@ -123,7 +123,7 @@ public class RecordRelationsBean {
                             String valueA = null;
                             String valueX = null;
 
-                            for (SubField subField : dataField.getSubfields()) {
+                            for (SubField subField : dataField.getSubFields()) {
                                 if ('a' == subField.getCode()) {
                                     valueA = subField.getData();
                                 } else if ('x' == subField.getCode()) {
@@ -145,7 +145,7 @@ public class RecordRelationsBean {
                             String valueA = null;
                             String value5 = null;
 
-                            for (SubField subField : dataField.getSubfields()) {
+                            for (SubField subField : dataField.getSubFields()) {
                                 if ('a' == subField.getCode()) {
                                     valueA = subField.getData();
                                 } else if ('5' == subField.getCode()) {
@@ -169,7 +169,7 @@ public class RecordRelationsBean {
                             String value5 = null;
                             String value6 = null;
 
-                            for (SubField subField : dataField.getSubfields()) {
+                            for (SubField subField : dataField.getSubFields()) {
                                 if ('5' == subField.getCode()) {
                                     value5 = subField.getData();
                                 } else if ('6' == subField.getCode()) {

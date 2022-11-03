@@ -144,11 +144,14 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, BASE_DIR + "volume-fbs-active.xml", MIMETYPE_ENRICHMENT);
         saveRelations(rawrepoConnection, BIBLIOGRAPHIC_RECORD_ID_VOLUME, FBS_AGENCY, BIBLIOGRAPHIC_RECORD_ID_VOLUME, COMMON_AGENCY);
 
-        final Response response = callRecordService();
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService()) {
 
-        assertThat("Response code", response.getStatus(), is(200));
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
+        System.out.println(actual.toString());
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
         assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-fbs-active-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
