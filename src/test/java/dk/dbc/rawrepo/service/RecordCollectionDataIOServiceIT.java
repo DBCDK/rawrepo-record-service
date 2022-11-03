@@ -78,11 +78,13 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, BASE_DIR + "volume-fbs-deleted.xml", MIMETYPE_ENRICHMENT);
         // No relations as the record is deleted
 
-        final Response response = callRecordService();
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService()) {
 
-        assertThat("Response code", response.getStatus(), is(200));
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
         assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-fbs-deleted-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
@@ -98,11 +100,13 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, BASE_DIR + "volume-fbs-active.xml", MIMETYPE_ENRICHMENT);
         saveRelations(rawrepoConnection, BIBLIOGRAPHIC_RECORD_ID_VOLUME, FBS_AGENCY, BIBLIOGRAPHIC_RECORD_ID_VOLUME, COMMON_AGENCY);
 
-        final Response response = callRecordService();
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService()) {
 
-        assertThat("Response code", response.getStatus(), is(200));
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
         assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-fbs-active-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
@@ -121,11 +125,13 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, BASE_DIR + "volume-fbs-active.xml", MIMETYPE_ENRICHMENT);
         saveRelations(rawrepoConnection, BIBLIOGRAPHIC_RECORD_ID_VOLUME, FBS_AGENCY, BIBLIOGRAPHIC_RECORD_ID_VOLUME, COMMON_AGENCY);
 
-        final Response response = callRecordService();
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService()) {
 
-        assertThat("Response code", response.getStatus(), is(200));
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
         assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-fbs-active-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
@@ -170,11 +176,13 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, BASE_DIR + "volume-fbs-deleted.xml", MIMETYPE_ENRICHMENT);
         //saveRelations(rawrepoConnection, BIBLIOGRAPHIC_RECORD_ID_VOLUME, FBS_AGENCY, BIBLIOGRAPHIC_RECORD_ID_VOLUME, COMMON_AGENCY);
 
-        final Response response = callRecordService();
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService()) {
 
-        assertThat("Response code", response.getStatus(), is(200));
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
         assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-common-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
@@ -195,11 +203,13 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, BASE_DIR + "head-common-enrichment.xml", MIMETYPE_ENRICHMENT);
         saveRelations(rawrepoConnection, BIBLIOGRAPHIC_RECORD_ID_HEAD, COMMON_ENRICHMENT, BIBLIOGRAPHIC_RECORD_ID_HEAD, COMMON_AGENCY);
 
-        final Response response = callRecordService(BIBLIOGRAPHIC_RECORD_ID_VOLUME, COMMON_AGENCY);
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService(BIBLIOGRAPHIC_RECORD_ID_VOLUME, COMMON_AGENCY)) {
 
-        assertThat("Response code", response.getStatus(), is(200));
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
         assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-common-deleted.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
@@ -218,11 +228,13 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, BASE_DIR + "volume-fbs-deleted.xml", MIMETYPE_ENRICHMENT);
         // No relations as the record is deleted
 
-        final Response response = callRecordService();
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService()) {
 
-        assertThat("Response code", response.getStatus(), is(200));
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
         assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-fbs-deleted-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
@@ -256,11 +268,13 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
             httpGet.withQueryParameter(param.getKey(), param.getValue());
         }
 
-        final Response response = httpClient.execute(httpGet);
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService()) {
 
-        assertThat("Response code", response.getStatus(), is(200));
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
         assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-common-deleted.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
@@ -276,11 +290,13 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, BASE_DIR + "head-fbs-active.xml", MIMETYPE_ENRICHMENT);
         saveRelations(rawrepoConnection, BIBLIOGRAPHIC_RECORD_ID_HEAD, FBS_AGENCY, BIBLIOGRAPHIC_RECORD_ID_HEAD, COMMON_AGENCY);
 
-        final Response response = callRecordService();
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService()) {
 
-        assertThat("Response code", response.getStatus(), is(200));
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
         assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-common-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
@@ -296,11 +312,13 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, BASE_DIR + "head-fbs-deleted.xml", MIMETYPE_ENRICHMENT);
         // No relations as the record is deleted
 
-        final Response response = callRecordService();
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService()) {
 
-        assertThat("Response code", response.getStatus(), is(200));
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_VOLUME), is(true));
         assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "volume-common-merged.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_HEAD), is(true));
@@ -315,10 +333,12 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, BASE_DIR + "local-volume-deleted.xml", MIMETYPE_MARCXCHANGE);
         saveRecord(rawrepoConnection, BASE_DIR + "local-head-deleted.xml", MIMETYPE_MARCXCHANGE);
 
-        final Response response = callRecordService(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME, LOCAL_AGENCY);
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME, LOCAL_AGENCY)) {
 
-        assertThat("Response code", response.getStatus(), is(200));
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            assertThat("Response code", response.getStatus(), is(200));
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME), is(true));
         assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "local-volume-deleted.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_LOCAL_HEAD), is(true));
@@ -333,10 +353,12 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, BASE_DIR + "local-volume-deleted.xml", MIMETYPE_MARCXCHANGE);
         saveRecord(rawrepoConnection, BASE_DIR + "local-head-active.xml", MIMETYPE_MARCXCHANGE);
 
-        final Response response = callRecordService(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME, LOCAL_AGENCY);
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME, LOCAL_AGENCY)) {
 
-        assertThat("Response code", response.getStatus(), is(200));
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            assertThat("Response code", response.getStatus(), is(200));
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME), is(true));
         assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "local-volume-deleted.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_LOCAL_HEAD), is(true));
@@ -352,10 +374,12 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, BASE_DIR + "local-head-active.xml", MIMETYPE_MARCXCHANGE);
         saveRelations(rawrepoConnection, BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME, LOCAL_AGENCY, BIBLIOGRAPHIC_RECORD_ID_LOCAL_HEAD, LOCAL_AGENCY);
 
-        final Response response = callRecordService(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME, LOCAL_AGENCY);
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME, LOCAL_AGENCY)) {
 
-        assertThat("Response code", response.getStatus(), is(200));
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            assertThat("Response code", response.getStatus(), is(200));
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection contains volume", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME), is(true));
         assertThat("collection content volume", getMarcRecordFromString(actual.get(BIBLIOGRAPHIC_RECORD_ID_LOCAL_VOLUME).getContent()), is(getMarcRecordFromFile(BASE_DIR + "local-volume-active.xml")));
         assertThat("collection contains head", actual.containsKey(BIBLIOGRAPHIC_RECORD_ID_LOCAL_HEAD), is(true));
@@ -376,10 +400,12 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, BASE_DIR + "ffu-head-active.xml", MIMETYPE_MARCXCHANGE);
         saveRelations(rawrepoConnection, bibliographicRecordIdVolume, agencyId, bibliographicRecordIdHead, agencyId);
 
-        final Response response = callRecordService(bibliographicRecordIdVolume, agencyId);
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService(bibliographicRecordIdVolume, agencyId)) {
 
-        assertThat("Response code", response.getStatus(), is(200));
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            assertThat("Response code", response.getStatus(), is(200));
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection size", actual.size(), is(2));
         assertThat("collection contains volume", actual.containsKey(bibliographicRecordIdVolume), is(true));
         assertThat("collection content volume", getMarcRecordFromString(actual.get(bibliographicRecordIdVolume).getContent()), is(getMarcRecordFromFile(BASE_DIR + "ffu-volume-active.xml")));
@@ -398,10 +424,12 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, BASE_DIR + "ffu-volume-deleted.xml", MIMETYPE_MARCXCHANGE);
         saveRecord(rawrepoConnection, BASE_DIR + "ffu-head-active.xml", MIMETYPE_MARCXCHANGE);
 
-        final Response response = callRecordService(bibliographicRecordIdVolume, agencyId);
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService(bibliographicRecordIdVolume, agencyId)) {
 
-        assertThat("Response code", response.getStatus(), is(200));
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            assertThat("Response code", response.getStatus(), is(200));
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection size", actual.size(), is(2));
         assertThat("collection contains volume", actual.containsKey(bibliographicRecordIdVolume), is(true));
         assertThat("collection content volume", getMarcRecordFromString(actual.get(bibliographicRecordIdVolume).getContent()), is(getMarcRecordFromFile(BASE_DIR + "ffu-volume-deleted.xml")));
@@ -421,10 +449,12 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, BASE_DIR + "ffu-volume-deleted.xml", MIMETYPE_MARCXCHANGE);
         saveRecord(rawrepoConnection, BASE_DIR + "ffu-head-deleted.xml", MIMETYPE_MARCXCHANGE);
 
-        final Response response = callRecordService(bibliographicRecordIdVolume, agencyId);
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService(bibliographicRecordIdVolume, agencyId)) {
 
-        assertThat("Response code", response.getStatus(), is(200));
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            assertThat("Response code", response.getStatus(), is(200));
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection size", actual.size(), is(2));
         assertThat("collection contains volume", actual.containsKey(bibliographicRecordIdVolume), is(true));
         assertThat("collection content volume", getMarcRecordFromString(actual.get(bibliographicRecordIdVolume).getContent()), is(getMarcRecordFromFile(BASE_DIR + "ffu-volume-deleted.xml")));
@@ -443,10 +473,12 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         reset(rawrepoConnection);
         saveRecord(rawrepoConnection, BASE_DIR + "ffu-single-active.xml", MIMETYPE_MARCXCHANGE);
 
-        final Response response = callRecordService(bibliographicRecordId, agencyId);
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService(bibliographicRecordId, agencyId)) {
 
-        assertThat("Response code", response.getStatus(), is(200));
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            assertThat("Response code", response.getStatus(), is(200));
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection size", actual.size(), is(1));
         assertThat("collection contains record", actual.containsKey(bibliographicRecordId), is(true));
         assertThat("collection content record", getMarcRecordFromString(actual.get(bibliographicRecordId).getContent()), is(getMarcRecordFromFile(BASE_DIR + "ffu-single-active.xml")));
@@ -465,10 +497,12 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         reset(rawrepoConnection);
         saveRecord(rawrepoConnection, BASE_DIR + "ffu-single-deleted.xml", MIMETYPE_MARCXCHANGE);
 
-        final Response response = callRecordService(bibliographicRecordId, agencyId);
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService(bibliographicRecordId, agencyId)) {
 
-        assertThat("Response code", response.getStatus(), is(200));
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            assertThat("Response code", response.getStatus(), is(200));
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("collection size", actual.size(), is(1));
         assertThat("collection contains record", actual.containsKey(bibliographicRecordId), is(true));
         assertThat("collection content record", getMarcRecordFromString(actual.get(bibliographicRecordId).getContent()), is(getMarcRecordFromFile(BASE_DIR + "ffu-single-deleted.xml")));
@@ -523,10 +557,12 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveMarcXChange(rawrepoConnection, path, controlVolume);
         saveRelations(rawrepoConnection, controlVolume, COMMON_AGENCY, controlHead, COMMON_AGENCY);
 
-        final Response response = callRecordService(volume, COMMON_ENRICHMENT, true, false);
-        assertThat("Response code", response.getStatus(), is(200));
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService(volume, COMMON_ENRICHMENT, true, false)) {
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("actual size", actual.size(), is(4));
 
         assertThat("collection contains head", actual.containsKey(head), is(true));
@@ -570,10 +606,12 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveMarcXChange(rawrepoConnection, path, control);
         saveRelations(rawrepoConnection, control, COMMON_AGENCY, authority, AUTHORITY_AGENCY);
 
-        final Response response = callRecordService(single, COMMON_ENRICHMENT, true, false);
-        assertThat("Response code", response.getStatus(), is(200));
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService(single, COMMON_ENRICHMENT, true, false)) {
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("actual size", actual.size(), is(2));
 
         assertThat("collection contains single", actual.containsKey(single), is(true));
@@ -609,10 +647,12 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveMarcXChange(rawrepoConnection, path, control);
         saveRelations(rawrepoConnection, control, COMMON_AGENCY, authority, AUTHORITY_AGENCY);
 
-        final Response response = callRecordService(single, COMMON_ENRICHMENT, true, true);
-        assertThat("Response code", response.getStatus(), is(200));
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService(single, COMMON_ENRICHMENT, true, true)) {
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("actual size", actual.size(), is(2));
 
         assertThat("collection contains single", actual.containsKey(single), is(true));
@@ -649,10 +689,12 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRecord(rawrepoConnection, String.format("%s/%s-%s-deleted.xml", path, control, COMMON_ENRICHMENT), MIMETYPE_ENRICHMENT);
         saveRecord(rawrepoConnection, String.format("%s/%s-%s-deleted.xml", path, control, COMMON_AGENCY), MIMETYPE_MARCXCHANGE);
 
-        final Response response = callRecordService(single, COMMON_ENRICHMENT, true, false);
-        assertThat("Response code", response.getStatus(), is(200));
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService(single, COMMON_ENRICHMENT, true, false)) {
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("actual size", actual.size(), is(1));
 
         assertThat("collection contains single", actual.containsKey(single), is(true));
@@ -680,10 +722,12 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveMarcXChange(rawrepoConnection, path, single);
         saveRelations(rawrepoConnection, single, COMMON_AGENCY, authority, AUTHORITY_AGENCY);
 
-        final Response response = callRecordService(single, COMMON_ENRICHMENT, true, false);
-        assertThat("Response code", response.getStatus(), is(200));
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService(single, COMMON_ENRICHMENT, true, false)) {
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("actual size", actual.size(), is(1));
 
         assertThat("collection contains single", actual.containsKey(single), is(true));
@@ -745,10 +789,12 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveRelations(rawrepoConnection, onStrangerTides, COMMON_AGENCY, authorityList);
         saveRelations(rawrepoConnection, salazarsRevenge, COMMON_AGENCY, authorityList);
 
-        final Response response = callRecordService(onStrangerTides, COMMON_ENRICHMENT, true, false);
-        assertThat("Response code", response.getStatus(), is(200));
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService(onStrangerTides, COMMON_ENRICHMENT, true, false)) {
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("actual size", actual.size(), is(5));
 
         assertThat("collection contains theCurseOfTheBlackPearl", actual.containsKey(theCurseOfTheBlackPearl), is(true));
@@ -768,10 +814,12 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
                 is(getMarcRecordFromFile(String.format("%s/%s-expanded.xml", path, salazarsRevenge))));
 
         // For fun lets make the same call again but with handle-520n = false
-        final Response responseWithout520n = callRecordService(onStrangerTides, COMMON_ENRICHMENT, false, false);
-        assertThat("Response code Without520n", responseWithout520n.getStatus(), is(200));
+        final Map<String, RecordDTO> actualWithout520n;
+        try (Response responseWithout520n = callRecordService(onStrangerTides, COMMON_ENRICHMENT, false, false)) {
+            assertThat("Response code Without520n", responseWithout520n.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actualWithout520n = responseWithout520n.readEntity(RecordDTOCollection.class).toMap();
+            actualWithout520n = responseWithout520n.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("actual size Without520n", actualWithout520n.size(), is(1));
         assertThat("collection contains onStrangerTides Without520n", actual.containsKey(onStrangerTides), is(true));
         assertThat("collection content onStrangerTides Without520n", getMarcRecordFromString(actual.get(onStrangerTides).getContent()),
@@ -823,10 +871,12 @@ class RecordCollectionDataIOServiceIT extends AbstractRecordServiceContainerTest
         saveMarcXChange(rawrepoConnection, path, control4);
         saveRelations(rawrepoConnection, control4, COMMON_AGENCY, authority1, AUTHORITY_AGENCY);
 
-        final Response response = callRecordService(volume, COMMON_ENRICHMENT, true, false);
-        assertThat("Response code", response.getStatus(), is(200));
+        final Map<String, RecordDTO> actual;
+        try (Response response = callRecordService(volume, COMMON_ENRICHMENT, true, false)) {
+            assertThat("Response code", response.getStatus(), is(200));
 
-        final Map<String, RecordDTO> actual = response.readEntity(RecordDTOCollection.class).toMap();
+            actual = response.readEntity(RecordDTOCollection.class).toMap();
+        }
         assertThat("actual size", actual.size(), is(6));
 
         assertThat("collection contains head", actual.containsKey(head), is(true));
