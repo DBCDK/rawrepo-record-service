@@ -36,7 +36,7 @@ import java.nio.charset.UnsupportedCharsetException;
  * 	at dk.dbc.rawrepo.RecordRelationsBean.parentIsActive(RecordRelationsBean.java:213)
  * 	</pre>
  *
- * 	That problem should be fixed and this class removed. The namespace is the same here as in mconv, so no other code changes should be necessary.
+ * 	That problem should be fixed and this class removed. The namespace is the same here as in mconv, so no other code changes should be necessary. See issue <a href="https://dbcjira.atlassian.net/browse/MS-4134">MS-4134</a>
  */
 // TODO Remove class and instead import from dk.dbc.mconv jar
 public class DanMarc2LineFormatConcatWriter extends DanMarc2LineFormatWriter {

@@ -65,7 +65,7 @@ class AbstractRecordServiceContainerTest {
 
         Network network = Network.newNetwork();
 
-        rawrepoDbContainer = new DBCPostgreSQLContainer("docker-metascrum.artifacts.dbccloud.dk/rawrepo-postgres-1.15-snapshot:master-5164")
+        rawrepoDbContainer = new DBCPostgreSQLContainer("docker-metascrum.artifacts.dbccloud.dk/rawrepo-postgres-1.16-snapshot:master-5178")
                 .withDatabaseName("rawrepo")
                 .withUsername("rawrepo")
                 .withPassword("rawrepo");
