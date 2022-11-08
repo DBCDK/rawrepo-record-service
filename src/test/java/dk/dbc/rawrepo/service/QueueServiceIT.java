@@ -88,7 +88,7 @@ class QueueServiceIT extends AbstractRecordServiceContainerTest {
         assertThat("queue rule 33 worker", queueRuleDTO.getWorker(), is("holdings-096"));
         assertThat("queue rule 33 changed", queueRuleDTO.getChanged(), is('A'));
         assertThat("queue rule 33 leaf", queueRuleDTO.getLeaf(), is('Y'));
-        assertThat("queue rule 33 description", queueRuleDTO.getDescription(), is("Den rørte post, hvis det er en Hoved/Sektionsport"));
+        assertThat("queue rule 33 description", queueRuleDTO.getDescription(), is("Alle Bind/Enkeltstående poster som er afhængige af den rørte post incl den rørte post"));
     }
 
     @Test
