@@ -27,21 +27,38 @@
     <dependencies>
         <dependency>
             <groupId>dk.dbc</groupId>
+            <artifactId>mconv-lib</artifactId>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>dk.dbc</groupId>
             <artifactId>rawrepo-access</artifactId>
             <version>1.16-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>dk.dbc</groupId>
+                    <artifactId>vipcore-connector</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>dk.dbc</groupId>
             <artifactId>dbc-commons-marc</artifactId>
-            <version>1.7-SNAPSHOT</version>
+            <version>1.9-SNAPSHOT</version>
         </dependency>
 
         <!-- While httpclient is only used for testing in this project other dependencies need it -->
         <dependency>
             <groupId>dk.dbc</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>0.2</version>
+            <artifactId>dbc-commons-httpclient</artifactId>
+            <version>1.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>dk.dbc</groupId>
+            <artifactId>vipcore-connector</artifactId>
+            <version>1.4-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -103,6 +120,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junit5.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
@@ -157,11 +180,13 @@
             <groupId>jakarta.xml.ws</groupId>
             <artifactId>jakarta.xml.ws-api</artifactId>
             <version>2.3.2</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>jaxws-rt</artifactId>
             <version>2.3.2</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

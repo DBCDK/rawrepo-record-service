@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><marcx:record xmlns:marcx="info:lc/xmlns/marcxchange-v1" format="danMARC2" type="Bibliographic">
+<?xml version="1.0" encoding="UTF-8"?><marcx:record xmlns:marcx="info:lc/xmlns/marcxchange-v1">
     <marcx:leader>00000c    2200000   4500</marcx:leader>
     <marcx:datafield tag="001" ind1="0" ind2="0">
         <marcx:subfield code="a">05395720</marcx:subfield>

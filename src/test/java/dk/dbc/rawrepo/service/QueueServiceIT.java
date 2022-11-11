@@ -66,7 +66,7 @@ class QueueServiceIT extends AbstractRecordServiceContainerTest {
 
         final QueueRuleCollectionDTO queueRuleCollectionDTO = response.readEntity(QueueRuleCollectionDTO.class);
         assertThat("collection as rules", queueRuleCollectionDTO.getQueueRules(), notNullValue());
-        assertThat("collection as size", queueRuleCollectionDTO.getQueueRules().size(), is(36));
+        assertThat("collection as size", queueRuleCollectionDTO.getQueueRules().size(), is(38));
 
         // Since there are 33 unique combinations and the collection is sorted we will only assert a few of the elements
         QueueRuleDTO queueRuleDTO = queueRuleCollectionDTO.getQueueRules().get(0);
@@ -78,17 +78,17 @@ class QueueServiceIT extends AbstractRecordServiceContainerTest {
 
         queueRuleDTO = queueRuleCollectionDTO.getQueueRules().get(10);
         assertThat("queue rule 10 provider", queueRuleDTO.getProvider(), is("dataio-update"));
-        assertThat("queue rule 10 worker", queueRuleDTO.getWorker(), is("oai-set-matcher"));
+        assertThat("queue rule 10 worker", queueRuleDTO.getWorker(), is("broend-sync"));
         assertThat("queue rule 10 changed", queueRuleDTO.getChanged(), is('A'));
         assertThat("queue rule 10 leaf", queueRuleDTO.getLeaf(), is('Y'));
         assertThat("queue rule 10 description", queueRuleDTO.getDescription(), is("Alle Bind/Enkeltstående poster som er afhængige af den rørte post incl den rørte post"));
 
         queueRuleDTO = queueRuleCollectionDTO.getQueueRules().get(33);
-        assertThat("queue rule 33 provider", queueRuleDTO.getProvider(), is("solr-sync-bulk"));
-        assertThat("queue rule 33 worker", queueRuleDTO.getWorker(), is("solr-sync-bulk"));
-        assertThat("queue rule 33 changed", queueRuleDTO.getChanged(), is('Y'));
-        assertThat("queue rule 33 leaf", queueRuleDTO.getLeaf(), is('N'));
-        assertThat("queue rule 33 description", queueRuleDTO.getDescription(), is("Den rørte post, hvis det er en Hoved/Sektionsport"));
+        assertThat("queue rule 33 provider", queueRuleDTO.getProvider(), is("public-rr-corepo-update"));
+        assertThat("queue rule 33 worker", queueRuleDTO.getWorker(), is("holdings-096"));
+        assertThat("queue rule 33 changed", queueRuleDTO.getChanged(), is('A'));
+        assertThat("queue rule 33 leaf", queueRuleDTO.getLeaf(), is('Y'));
+        assertThat("queue rule 33 description", queueRuleDTO.getDescription(), is("Alle Bind/Enkeltstående poster som er afhængige af den rørte post incl den rørte post"));
     }
 
     @Test
@@ -131,6 +131,7 @@ class QueueServiceIT extends AbstractRecordServiceContainerTest {
                 "holdings-096",
                 "ims-bulk-sync",
                 "ims-sync",
+                "kafka-sync",
                 "oai-set-matcher",
                 "socl-sync",
                 "solr-sync-basis",

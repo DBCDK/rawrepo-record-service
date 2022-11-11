@@ -1,0 +1,43 @@
+001 00 *a62451157*b191919*c20220505111649*d20220404*fa
+004 00 *rn*ae
+008 00 *tm*uf*a2022*bdk*dy*ldan*nb*x06*w1*v0
+009 00 *aa*gxe
+021 00 *e9788740078107
+032 00 *xACC202214*aDBF202220*xBKM202220
+100 00 *aKristensen*hMichelle*4aut
+245 00 *aSund hverdag*ctab dig uden kur - eller hold vægten*cden store MK grund
+    bog
+250 00 *a1. e-bogsudgave*b÷
+260 00 *bPolitiken*g[sælges på internettet]*c2022
+300 00 *bIll. i farver
+504 00 *&1*aKogebog med inspiration til dig, der enten vil slanke dig eller spi
+    se sundt baseret på "MK principperne". Anbefales alle med interesse for sun
+    d kost
+512 00 *aDownloades i EPUB-format
+530 00 *&1*aIndhold: Sådan kan mine kiksede slankekure hjælpe dig ; MK principp
+    erne til vægttab og sundhed ; MK principperne til dig med særlige behov ; M
+    ål dine fremskridt ; Gør det nemt for dig selv ; Vind over udfordringerne ;
+     Morgenmad ; Frokost ; Snack ; Aftensmad ; Dessert
+652 00 *m64.14
+666 00 *fernæring
+666 00 *fkostplaner
+666 00 *fslankeretter
+666 00 *fslankekost
+666 00 *fvægttab
+666 00 *okostvejledninger
+666 00 *oopskrifter
+666 00 *okogebøger
+900 00 *aNørgꜳrd Kristensen*hMichelle*xse også under det senere navn*wKristense
+    n, Michelle*z100
+990 00 *bv*bl*unt
+996 00 *aDBC
+d08 00 *fdra*aForventet udgivelsesdato 05-04-2022*oevte*knk
+d70 00 *bPublizon
+f07 00 *a62448903*nautoLU
+f21 00 *ahttp://dmat.dbc.dk/eVALU/get.php?isbn=9788740078107*lPublizon*fhttps:/
+    /images.pubhub.dk/01/492f01d1-5938-4d1a-85ac-e0e6285e0c08.png*ahttp://sampl
+    es.pubhub.dk/9788740078107.epub*n9788740078107
+s12 00 *tTeamBAC202217
+z98 00 *aMinus korrekturprint
+z99 00 *aevte
+$
