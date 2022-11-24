@@ -1,5 +1,9 @@
 package dk.dbc.rawrepo.service;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import dk.dbc.commons.testcontainers.postgres.DBCPostgreSQLContainer;
 import dk.dbc.httpclient.HttpClient;
 import dk.dbc.marc.binding.MarcRecord;
@@ -14,8 +18,10 @@ import dk.dbc.rawrepo.RecordId;
 import dk.dbc.rawrepo.RelationHintsVipCore;
 import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnector;
 import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnectorFactory;
+import org.junit.jupiter.api.AfterAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
@@ -25,7 +31,11 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -37,6 +47,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
 class AbstractRecordServiceContainerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRecordServiceContainerTest.class);
@@ -54,6 +71,7 @@ class AbstractRecordServiceContainerTest {
 
     private static final VipCoreLibraryRulesConnector vipCoreLibraryRulesConnector;
     private static final RelationHintsVipCore relationHints;
+    protected static WireMockServer vipCoreWireMockServer;
 
     static final String recordServiceBaseUrl;
     static final HttpClient httpClient;
@@ -78,19 +96,20 @@ class AbstractRecordServiceContainerTest {
                 .withPassword("holdings");
         holdingsItemsDbContainer.start();
         holdingsItemsDbContainer.exposeHostPort();
-
+        vipCoreWireMockServer = makeVipCoreWireMock();
         recordServiceContainer = new GenericContainer("docker-metascrum.artifacts.dbccloud.dk/rawrepo-record-service:devel")
                 .withNetwork(network)
                 .withLogConsumer(new Slf4jLogConsumer(LOGGER))
                 .withEnv("INSTANCE", "it")
                 .withEnv("LOG_FORMAT", "text")
                 .withEnv("VIPCORE_CACHE_AGE", "1")
-                .withEnv("VIPCORE_ENDPOINT", "http://vipcore.iscrum-vip-extern-test.svc.cloud.dbc.dk")
+                .withEnv("VIPCORE_ENDPOINT", "http://host.testcontainers.internal:" + vipCoreWireMockServer.port())
                 .withEnv("RAWREPO_URL", rawrepoDbContainer.getPayaraDockerJdbcUrl())
                 .withEnv("HOLDINGS_URL", holdingsItemsDbContainer.getPayaraDockerJdbcUrl())
                 .withEnv("DUMP_THREAD_COUNT", "8")
                 .withEnv("DUMP_SLIZE_SIZE", "1000")
                 .withEnv("JAVA_MAX_HEAP_SIZE", "2G")
+                .withEnv("REMOTE_DEBUGGING_HOST", "172.17.28.63:5005")
                 .withExposedPorts(8080)
                 .waitingFor(Wait.forHttp("/api/status"))
                 .withStartupTimeout(Duration.ofMinutes(5));
@@ -98,6 +117,50 @@ class AbstractRecordServiceContainerTest {
         recordServiceBaseUrl = "http://" + recordServiceContainer.getContainerIpAddress() +
                 ":" + recordServiceContainer.getMappedPort(8080);
         httpClient = HttpClient.create(HttpClient.newClient());
+    }
+
+    private static WireMockServer makeVipCoreWireMock() {
+        WireMockServer wireMockServer = new WireMockServer(options().dynamicPort());
+        wireMockServer.start();
+        configureFor("localhost", wireMockServer.port());
+        Testcontainers.exposeHostPorts(wireMockServer.port());
+        URL rules = AbstractRecordServiceContainerTest.class.getClassLoader().getResource("vipcore-mock");
+        try {
+            @SuppressWarnings("ConstantConditions") Path path = Path.of(rules.toURI());
+            try (Stream<Path> paths = Files.walk(path)) {
+                paths.forEach(p -> addStub(wireMockServer, p));
+            }
+
+        } catch (URISyntaxException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        return wireMockServer;
+    }
+
+    private static void addStub(WireMockServer wireMockServer, Path path) {
+        Pattern pattern = Pattern.compile("libraryrules-(?<id>\\d+).json$");
+        Matcher matcher = pattern.matcher(path.toString());
+        if(matcher.find()) {
+            String id = matcher.group("id");
+            try {
+                String body = Files.readString(path);
+                wireMockServer.stubFor(WireMock.post("/1.0/api/libraryrules").withRequestBody(equalToJson("{\"agencyId\":\"" + id + "\"}")).willReturn(
+                        ResponseDefinitionBuilder.responseDefinition()
+                                .withStatus(200)
+                                .withHeader("content-type", "application/json")
+                                .withBody(body)));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @AfterAll
+    static void checkWireMockServer() {
+        List<LoggedRequest> unmatchedRequests = vipCoreWireMockServer.findAllUnmatchedRequests();
+        if(!unmatchedRequests.isEmpty()) {
+            LOGGER.error("There are unmatched vip core requests\n" + unmatchedRequests);
+        }
     }
 
     private static RawRepoDAO createDAO(Connection conn) throws RawRepoException {
