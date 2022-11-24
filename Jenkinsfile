@@ -51,8 +51,10 @@ pipeline {
         }
 
         stage("Verify") {
-            script {
-                Maven.verify(this)
+            steps {
+                script {
+                    Maven.verify(this)
+                }
             }
         }
 
