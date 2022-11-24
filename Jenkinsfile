@@ -1,5 +1,8 @@
 #!groovy
 
+@Library('metascrum')
+import dk.dbc.metascrum.jenkins.Maven
+// Defined in https://github.com/DBCDK/metascrum-pipeline-library/blob/master/src/dk/dbc/metascrum/jenkins/Maven.groovy
 def workerNode = "devel10"
 
 void notifyOfBuildStatus(final String buildStatus) {
@@ -37,7 +40,6 @@ pipeline {
         DOCKER_IMAGE_NAME = "docker-metascrum.artifacts.dbccloud.dk/rawrepo-record-service"
         DOCKER_IMAGE_VERSION = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
         DOCKER_IMAGE_DIT_VERSION = "DIT-${env.BUILD_NUMBER}"
-        MAVEN_OPTS="-Dmaven.repo.local=\$WORKSPACE/.repo"
     }
 
     stages {
@@ -49,9 +51,8 @@ pipeline {
         }
 
         stage("Verify") {
-            steps {
-                sh "mvn verify pmd:pmd"
-                junit "**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml"
+            script {
+                Maven.verify(this)
             }
         }
 
