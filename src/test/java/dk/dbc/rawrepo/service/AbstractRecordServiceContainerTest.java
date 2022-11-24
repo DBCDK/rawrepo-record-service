@@ -65,13 +65,13 @@ class AbstractRecordServiceContainerTest {
     static final String MIMETYPE_MARCXCHANGE = "text/marcxchange";
     static final String MIMETYPE_MATVURD = "text/matvurd+marcxchange";
 
-    private static final GenericContainer recordServiceContainer;
+    private static final GenericContainer<?> recordServiceContainer;
     private static final DBCPostgreSQLContainer rawrepoDbContainer;
-    private static final DBCPostgreSQLContainer holdingsItemsDbContainer;
 
     private static final VipCoreLibraryRulesConnector vipCoreLibraryRulesConnector;
     private static final RelationHintsVipCore relationHints;
-    protected static WireMockServer vipCoreWireMockServer;
+    private static final WireMockServer vipCoreWireMockServer;
+    private static final WireMockServer holdingsItemsWireMockServer;
 
     static final String recordServiceBaseUrl;
     static final HttpClient httpClient;
@@ -89,15 +89,9 @@ class AbstractRecordServiceContainerTest {
                 .withPassword("rawrepo");
         rawrepoDbContainer.start();
         rawrepoDbContainer.exposeHostPort();
-
-        holdingsItemsDbContainer = new DBCPostgreSQLContainer("docker-os.dbc.dk/holdings-items-postgres-1.1.4:latest")
-                .withDatabaseName("holdings")
-                .withUsername("holdings")
-                .withPassword("holdings");
-        holdingsItemsDbContainer.start();
-        holdingsItemsDbContainer.exposeHostPort();
-        vipCoreWireMockServer = makeVipCoreWireMock();
-        recordServiceContainer = new GenericContainer("docker-metascrum.artifacts.dbccloud.dk/rawrepo-record-service:devel")
+        vipCoreWireMockServer = makeVipCoreWireMockServer();
+        holdingsItemsWireMockServer = makeHoldingsItemsWireMock();
+        recordServiceContainer = new GenericContainer<>("docker-metascrum.artifacts.dbccloud.dk/rawrepo-record-service:devel")
                 .withNetwork(network)
                 .withLogConsumer(new Slf4jLogConsumer(LOGGER))
                 .withEnv("INSTANCE", "it")
@@ -105,11 +99,10 @@ class AbstractRecordServiceContainerTest {
                 .withEnv("VIPCORE_CACHE_AGE", "1")
                 .withEnv("VIPCORE_ENDPOINT", "http://host.testcontainers.internal:" + vipCoreWireMockServer.port())
                 .withEnv("RAWREPO_URL", rawrepoDbContainer.getPayaraDockerJdbcUrl())
-                .withEnv("HOLDINGS_URL", holdingsItemsDbContainer.getPayaraDockerJdbcUrl())
+                .withEnv("HOLDINGS_URL", "http://host.testcontainers.internal:" + holdingsItemsWireMockServer.port() + "/api")
                 .withEnv("DUMP_THREAD_COUNT", "8")
                 .withEnv("DUMP_SLIZE_SIZE", "1000")
                 .withEnv("JAVA_MAX_HEAP_SIZE", "2G")
-                .withEnv("REMOTE_DEBUGGING_HOST", "172.17.28.63:5005")
                 .withExposedPorts(8080)
                 .waitingFor(Wait.forHttp("/api/status"))
                 .withStartupTimeout(Duration.ofMinutes(5));
@@ -119,16 +112,16 @@ class AbstractRecordServiceContainerTest {
         httpClient = HttpClient.create(HttpClient.newClient());
     }
 
-    private static WireMockServer makeVipCoreWireMock() {
+    private static WireMockServer makeHoldingsItemsWireMock() {
         WireMockServer wireMockServer = new WireMockServer(options().dynamicPort());
         wireMockServer.start();
         configureFor("localhost", wireMockServer.port());
         Testcontainers.exposeHostPorts(wireMockServer.port());
-        URL rules = AbstractRecordServiceContainerTest.class.getClassLoader().getResource("vipcore-mock");
+        URL rules = AbstractRecordServiceContainerTest.class.getClassLoader().getResource("holdingsitems");
         try {
             @SuppressWarnings("ConstantConditions") Path path = Path.of(rules.toURI());
             try (Stream<Path> paths = Files.walk(path)) {
-                paths.forEach(p -> addStub(wireMockServer, p));
+                paths.forEach(p -> addHoldingsStub(wireMockServer, p));
             }
 
         } catch (URISyntaxException | IOException e) {
@@ -137,7 +130,30 @@ class AbstractRecordServiceContainerTest {
         return wireMockServer;
     }
 
-    private static void addStub(WireMockServer wireMockServer, Path path) {
+    private static void addHoldingsStub(WireMockServer wireMockServer, Path p) {
+
+    }
+
+
+    private static WireMockServer makeVipCoreWireMockServer() {
+        WireMockServer wireMockServer = new WireMockServer(options().dynamicPort());
+        wireMockServer.start();
+        configureFor("localhost", wireMockServer.port());
+        Testcontainers.exposeHostPorts(wireMockServer.port());
+        URL rules = AbstractRecordServiceContainerTest.class.getClassLoader().getResource("vipcore-mock");
+        try {
+            @SuppressWarnings("ConstantConditions") Path path = Path.of(rules.toURI());
+            try (Stream<Path> paths = Files.walk(path)) {
+                paths.forEach(p -> addVipStub(wireMockServer, p));
+            }
+
+        } catch (URISyntaxException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        return wireMockServer;
+    }
+
+    private static void addVipStub(WireMockServer wireMockServer, Path path) {
         Pattern pattern = Pattern.compile("libraryrules-(?<id>\\d+).json$");
         Matcher matcher = pattern.matcher(path.toString());
         if(matcher.find()) {
@@ -304,19 +320,6 @@ class AbstractRecordServiceContainerTest {
             Class.forName("org.postgresql.Driver");
             final String dbUrl = String.format("jdbc:postgresql://localhost:%s/rawrepo", rawrepoDbContainer.getMappedPort(5432));
             final Connection connection = DriverManager.getConnection(dbUrl, "rawrepo", "rawrepo");
-            connection.setAutoCommit(true);
-
-            return connection;
-        } catch (ClassNotFoundException | SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    static Connection connectToHoldingsItemsDb() {
-        try {
-            Class.forName("org.postgresql.Driver");
-            final String dbUrl = String.format("jdbc:postgresql://localhost:%s/holdings", holdingsItemsDbContainer.getMappedPort(5432));
-            final Connection connection = DriverManager.getConnection(dbUrl, "holdings", "holdings");
             connection.setAutoCommit(true);
 
             return connection;

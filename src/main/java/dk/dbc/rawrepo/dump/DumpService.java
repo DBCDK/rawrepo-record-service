@@ -1,10 +1,10 @@
 package dk.dbc.rawrepo.dump;
 
+import dk.dbc.holdingitems.content.HoldingsItemsConnector;
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.RecordRelationsBean;
-import dk.dbc.rawrepo.dao.HoldingsItemsBean;
 import dk.dbc.rawrepo.dao.RawRepoBean;
 import dk.dbc.rawrepo.dto.ParamsValidationDTO;
 import dk.dbc.rawrepo.dto.ParamsValidationItemDTO;
@@ -41,6 +41,8 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Stateless
 @Path("api")
@@ -68,8 +70,8 @@ public class DumpService {
     @EJB
     private RecordRelationsBean recordRelationsBean;
 
-    @EJB
-    private HoldingsItemsBean holdingsItemsBean;
+    @Inject
+    private HoldingsItemsConnector holdingsItemsConnector;
 
     @POST
     @Path("v1/dump/dryrun")
@@ -331,21 +333,19 @@ public class DumpService {
     }
 
     private Map<String, String> getHoldings(int agencyId, AgencyType agencyType, AgencyParams params, boolean exactMatch) throws SQLException, RawRepoException {
-        Map<String, String> holdings = null;
-
         if (AgencyType.FBS == agencyType && params.getRecordType().contains(RecordType.HOLDINGS.toString())) {
-            holdings = holdingsItemsBean.getRecordIdsWithHolding(agencyId);
+            Set<String> holdings = holdingsItemsConnector.getHoldings(agencyId);
 
             if (exactMatch) {
                 // There can be holdings on things not present in rawrepo. So to get a more exact list we need to check
                 // which ids actually exists
-                Set<String> rawrepoRecordsIdsWithHoldings = rawRepoBean.getRawrepoRecordsIdsWithHoldings(holdings.keySet(), agencyId);
+                Set<String> rawrepoRecordsIdsWithHoldings = rawRepoBean.getRawrepoRecordsIdsWithHoldings(holdings, agencyId);
 
-                holdings.keySet().retainAll(rawrepoRecordsIdsWithHoldings);
+                holdings.retainAll(rawrepoRecordsIdsWithHoldings);
+                return holdings.stream().collect(Collectors.toMap(Function.identity(), h -> "holding"));
             }
         }
-
-        return holdings;
+        return null;
     }
 
 }
