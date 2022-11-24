@@ -71,7 +71,6 @@ class AbstractRecordServiceContainerTest {
     private static final VipCoreLibraryRulesConnector vipCoreLibraryRulesConnector;
     private static final RelationHintsVipCore relationHints;
     private static final WireMockServer vipCoreWireMockServer;
-    private static final WireMockServer holdingsItemsWireMockServer;
 
     static final String recordServiceBaseUrl;
     static final HttpClient httpClient;
@@ -90,7 +89,6 @@ class AbstractRecordServiceContainerTest {
         rawrepoDbContainer.start();
         rawrepoDbContainer.exposeHostPort();
         vipCoreWireMockServer = makeVipCoreWireMockServer();
-        holdingsItemsWireMockServer = makeHoldingsItemsWireMock();
         recordServiceContainer = new GenericContainer<>("docker-metascrum.artifacts.dbccloud.dk/rawrepo-record-service:devel")
                 .withNetwork(network)
                 .withLogConsumer(new Slf4jLogConsumer(LOGGER))
@@ -99,7 +97,7 @@ class AbstractRecordServiceContainerTest {
                 .withEnv("VIPCORE_CACHE_AGE", "1")
                 .withEnv("VIPCORE_ENDPOINT", "http://host.testcontainers.internal:" + vipCoreWireMockServer.port())
                 .withEnv("RAWREPO_URL", rawrepoDbContainer.getPayaraDockerJdbcUrl())
-                .withEnv("HOLDINGS_URL", "http://host.testcontainers.internal:" + holdingsItemsWireMockServer.port() + "/api")
+                .withEnv("HOLDINGS_URL", "http://host.testcontainers.internal:666/api")
                 .withEnv("DUMP_THREAD_COUNT", "8")
                 .withEnv("DUMP_SLIZE_SIZE", "1000")
                 .withEnv("JAVA_MAX_HEAP_SIZE", "2G")
@@ -111,29 +109,6 @@ class AbstractRecordServiceContainerTest {
                 ":" + recordServiceContainer.getMappedPort(8080);
         httpClient = HttpClient.create(HttpClient.newClient());
     }
-
-    private static WireMockServer makeHoldingsItemsWireMock() {
-        WireMockServer wireMockServer = new WireMockServer(options().dynamicPort());
-        wireMockServer.start();
-        configureFor("localhost", wireMockServer.port());
-        Testcontainers.exposeHostPorts(wireMockServer.port());
-        URL rules = AbstractRecordServiceContainerTest.class.getClassLoader().getResource("holdingsitems");
-        try {
-            @SuppressWarnings("ConstantConditions") Path path = Path.of(rules.toURI());
-            try (Stream<Path> paths = Files.walk(path)) {
-                paths.forEach(p -> addHoldingsStub(wireMockServer, p));
-            }
-
-        } catch (URISyntaxException | IOException e) {
-            throw new RuntimeException(e);
-        }
-        return wireMockServer;
-    }
-
-    private static void addHoldingsStub(WireMockServer wireMockServer, Path p) {
-
-    }
-
 
     private static WireMockServer makeVipCoreWireMockServer() {
         WireMockServer wireMockServer = new WireMockServer(options().dynamicPort());
