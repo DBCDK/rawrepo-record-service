@@ -37,6 +37,7 @@ pipeline {
         DOCKER_IMAGE_NAME = "docker-metascrum.artifacts.dbccloud.dk/rawrepo-record-service"
         DOCKER_IMAGE_VERSION = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
         DOCKER_IMAGE_DIT_VERSION = "DIT-${env.BUILD_NUMBER}"
+        MAVEN_OPTS="-Dmaven.repo.local=\$WORKSPACE/.repo"
     }
 
     stages {
