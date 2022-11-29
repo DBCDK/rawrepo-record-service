@@ -47,12 +47,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
 class AbstractRecordServiceContainerTest {
@@ -71,6 +73,7 @@ class AbstractRecordServiceContainerTest {
     private static final VipCoreLibraryRulesConnector vipCoreLibraryRulesConnector;
     private static final RelationHintsVipCore relationHints;
     private static final WireMockServer vipCoreWireMockServer;
+    private static final WireMockServer holdingsWireMockServer;
 
     static final String recordServiceBaseUrl;
     static final HttpClient httpClient;
@@ -89,6 +92,8 @@ class AbstractRecordServiceContainerTest {
         rawrepoDbContainer.start();
         rawrepoDbContainer.exposeHostPort();
         vipCoreWireMockServer = makeVipCoreWireMockServer();
+        holdingsWireMockServer = makeHoldingsWireMockServer();
+
         recordServiceContainer = new GenericContainer<>("docker-metascrum.artifacts.dbccloud.dk/rawrepo-record-service:devel")
                 .withNetwork(network)
                 .withLogConsumer(new Slf4jLogConsumer(LOGGER))
@@ -97,7 +102,7 @@ class AbstractRecordServiceContainerTest {
                 .withEnv("VIPCORE_CACHE_AGE", "1")
                 .withEnv("VIPCORE_ENDPOINT", "http://host.testcontainers.internal:" + vipCoreWireMockServer.port())
                 .withEnv("RAWREPO_URL", rawrepoDbContainer.getPayaraDockerJdbcUrl())
-                .withEnv("HOLDINGS_URL", "http://host.testcontainers.internal:666/api")
+                .withEnv("HOLDING_ITEMS_CONTENT_SERVICE_URL", "http://host.testcontainers.internal:" + holdingsWireMockServer.port() + "/api")
                 .withEnv("DUMP_THREAD_COUNT", "8")
                 .withEnv("DUMP_SLIZE_SIZE", "1000")
                 .withEnv("JAVA_MAX_HEAP_SIZE", "2G")
@@ -108,6 +113,24 @@ class AbstractRecordServiceContainerTest {
         recordServiceBaseUrl = "http://" + recordServiceContainer.getContainerIpAddress() +
                 ":" + recordServiceContainer.getMappedPort(8080);
         httpClient = HttpClient.create(HttpClient.newClient());
+    }
+
+    private static WireMockServer makeHoldingsWireMockServer() {
+        WireMockServer wireMockServer = new WireMockServer(options().dynamicPort());
+        wireMockServer.start();
+        configureFor("localhost", wireMockServer.port());
+        Testcontainers.exposeHostPorts(wireMockServer.port());
+        addEmptyStub(wireMockServer);
+        return wireMockServer;
+    }
+
+    private static void addEmptyStub(WireMockServer wireMockServer) {
+        String emptyResponse = "{\"agencies\":[],\"trackingId\":\"" + UUID.randomUUID() + "\"}";
+        wireMockServer.stubFor(WireMock.get(urlPathMatching( "/api/holdings-by-agency-id/.*")).willReturn(
+                ResponseDefinitionBuilder.responseDefinition()
+                        .withStatus(200)
+                        .withHeader("content-type", "text/plain")
+                        .withBody("12345678\n23456789\n34567890")).atPriority(Integer.MAX_VALUE));
     }
 
     private static WireMockServer makeVipCoreWireMockServer() {

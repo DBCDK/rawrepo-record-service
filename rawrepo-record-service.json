@@ -6,9 +6,6 @@
   "jdbc": {
     "jdbc/rawrepo": {
       "url": "${RAWREPO_URL}"
-    },
-    "jdbc/holdings": {
-      "url": "${HOLDINGS_URL}"
     }
   }
 }

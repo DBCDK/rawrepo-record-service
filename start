@@ -9,7 +9,7 @@ docker run --rm --name rawrepo-record-service -d -p ${record_service_port}:8080 
     -e VIPCORE_CACHE_AGE="1" \
     -e VIPCORE_ENDPOINT="http://vipcore.iscrum-vip-extern-test.svc.cloud.dbc.dk" \
     -e RAWREPO_URL=${RAWREPO_URL} \
-    -e HOLDINGS_URL=${HOLDINGS_URL} \
+    -e HOLDING_ITEMS_CONTENT_SERVICE_URL=${HOLDINGS_URL} \
     -e DUMP_THREAD_COUNT="8" \
     -e DUMP_SLICE_SIZE="1000" \
     -e JAVA_MAX_HEAP_SIZE=2G \
