@@ -27,6 +27,11 @@
     <dependencies>
         <dependency>
             <groupId>dk.dbc</groupId>
+            <artifactId>holdings-items-content-connector</artifactId>
+            <version>1.4-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>dk.dbc</groupId>
             <artifactId>mconv-lib</artifactId>
             <version>1.4</version>
         </dependency>
@@ -71,6 +76,12 @@
             <groupId>dk.dbc</groupId>
             <artifactId>serviceutils</artifactId>
             <version>0.1-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>dk.dbc</groupId>
+                    <artifactId>httpclient</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -187,6 +198,12 @@
             <artifactId>jaxws-rt</artifactId>
             <version>2.3.2</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock</artifactId>
+            <version>2.27.2</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

@@ -3,11 +3,8 @@ package dk.dbc.rawrepo.service;
 import dk.dbc.httpclient.HttpPost;
 import dk.dbc.httpclient.PathBuilder;
 import dk.dbc.rawrepo.dump.AgencyParams;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -20,7 +17,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
  class DumpServiceIT extends AbstractRecordServiceContainerTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DumpServiceIT.class);
 
     @BeforeAll
     static void initDB() {

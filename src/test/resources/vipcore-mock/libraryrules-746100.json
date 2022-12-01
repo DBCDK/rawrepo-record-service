@@ -1,0 +1,110 @@
+{
+  "libraryRules": [
+    {
+      "agencyId": "746100",
+      "agencyType": "Folkebibliotek",
+      "libraryRule": [
+        {
+          "name": "create_enrichments",
+          "bool": true
+        },
+        {
+          "name": "use_enrichments",
+          "bool": true
+        },
+        {
+          "name": "auth_root",
+          "bool": false
+        },
+        {
+          "name": "auth_common_subjects",
+          "bool": true
+        },
+        {
+          "name": "auth_common_notes",
+          "bool": true
+        },
+        {
+          "name": "auth_dbc_records",
+          "bool": false
+        },
+        {
+          "name": "auth_public_lib_common_record",
+          "bool": true
+        },
+        {
+          "name": "auth_ret_record",
+          "bool": true
+        },
+        {
+          "name": "auth_agency_common_record",
+          "bool": true
+        },
+        {
+          "name": "auth_export_holdings",
+          "bool": true
+        },
+        {
+          "name": "use_localdata_stream",
+          "bool": true
+        },
+        {
+          "name": "use_holdings_item",
+          "bool": true
+        },
+        {
+          "name": "part_of_bibliotek_dk",
+          "bool": false
+        },
+        {
+          "name": "auth_create_common_record",
+          "bool": true
+        },
+        {
+          "name": "ims_library",
+          "bool": false
+        },
+        {
+          "name": "worldcat_synchronize",
+          "bool": false
+        },
+        {
+          "name": "worldcat_resource_sharing",
+          "bool": false
+        },
+        {
+          "name": "cataloging_template_set",
+          "string": "fbs"
+        },
+        {
+          "name": "part_of_danbib",
+          "bool": false
+        },
+        {
+          "name": "auth_add_dk5_to_phd",
+          "bool": true
+        },
+        {
+          "name": "auth_metacompass",
+          "bool": false
+        },
+        {
+          "name": "view_metacompass",
+          "bool": false
+        },
+        {
+          "name": "use_central_faust",
+          "bool": true
+        },
+        {
+          "name": "part_of_requestorder",
+          "bool": true
+        },
+        {
+          "name": "regional_obligations",
+          "bool": true
+        }
+      ]
+    }
+  ]
+}
