@@ -1,5 +1,7 @@
 package dk.dbc.rawrepo;
 
+import dk.dbc.common.records.MarcRecordExpandException;
+import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.marcxmerge.MarcXMergerException;
 import dk.dbc.rawrepo.exception.InternalServerException;
@@ -9,6 +11,7 @@ import dk.dbc.rawrepo.pool.CustomMarcXMergerPool;
 import dk.dbc.rawrepo.pool.DefaultMarcXMergerPool;
 import dk.dbc.rawrepo.pool.ObjectPool;
 import dk.dbc.util.Timed;
+import dk.dbc.vipcore.exception.VipCoreException;
 import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnector;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -18,6 +21,7 @@ import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.ws.rs.core.Response;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -127,7 +131,7 @@ public class RecordSimpleBean {
         }
     }
 
-    public Record fetchRecordMerged(String bibliographicRecordId, int agencyId, boolean allowAll, boolean useParentAgency) throws InternalServerException, RecordNotFoundException {
+    public Record fetchRecordMerged(String bibliographicRecordId, int agencyId, boolean allowAll, boolean useParentAgency) throws InternalServerException, RecordNotFoundException, VipCoreException {
         Record result;
         try (Connection conn = dataSource.getConnection()) {
             try {
@@ -151,7 +155,7 @@ public class RecordSimpleBean {
         }
     }
 
-    public Record fetchRecordExpanded(String bibliographicRecordId, int agencyId, boolean allowAll, boolean useParentAgency) throws InternalServerException, RecordNotFoundException {
+    public Record fetchRecordExpanded(String bibliographicRecordId, int agencyId, boolean allowAll, boolean useParentAgency) throws InternalServerException, RecordNotFoundException, VipCoreException {
         Record result;
         try (Connection conn = dataSource.getConnection()) {
             try {
@@ -164,7 +168,8 @@ public class RecordSimpleBean {
                 return result;
             } catch (RawRepoExceptionRecordNotFound ex) {
                 throw new RecordNotFoundException(String.format("The Record %s:%s does not exist", bibliographicRecordId, agencyId));
-            } catch (RawRepoException | MarcXMergerException ex) {
+            } catch (RawRepoException | MarcXMergerException |
+                     MarcReaderException | MarcRecordExpandException ex) {
                 conn.rollback();
                 LOGGER.error(ex.getMessage(), ex);
                 throw new InternalServerException(ex.getMessage(), ex);

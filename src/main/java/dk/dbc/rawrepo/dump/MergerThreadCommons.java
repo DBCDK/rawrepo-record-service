@@ -1,9 +1,10 @@
 package dk.dbc.rawrepo.dump;
 
+import dk.dbc.common.records.MarcRecordExpandException;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.marc.reader.MarcReaderException;
 import dk.dbc.marc.writer.MarcWriterException;
-import dk.dbc.marcrecord.ExpandCommonMarcRecord;
+import dk.dbc.common.records.ExpandCommonMarcRecord;
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.RecordId;
 import dk.dbc.rawrepo.dao.RawRepoBean;
@@ -34,7 +35,7 @@ public class MergerThreadCommons {
         }
     }
 
-    static byte[] getBytes(Map<String, byte[]> autRecords, byte[] result, RecordItem item, Mode mode, RawRepoBean bean, int agencyId) throws RawRepoException {
+    static byte[] getBytes(Map<String, byte[]> autRecords, byte[] result, RecordItem item, Mode mode, RawRepoBean bean, int agencyId) throws RawRepoException, MarcReaderException, MarcRecordExpandException {
         if (Mode.EXPANDED == mode) {
             final Set<RecordId> parents = bean.getRelationsParents(new RecordId(item.getBibliographicRecordId(), agencyId));
             result = getBytes(autRecords, result, bean, parents);
@@ -42,7 +43,7 @@ public class MergerThreadCommons {
         return result;
     }
 
-    static byte[] getBytes(Map<String, byte[]> autRecords, byte[] result, RawRepoBean bean, Set<RecordId> parents) throws RawRepoException {
+    static byte[] getBytes(Map<String, byte[]> autRecords, byte[] result, RawRepoBean bean, Set<RecordId> parents) throws RawRepoException, MarcReaderException, MarcRecordExpandException {
         boolean hasAutParents = false;
         for (RecordId recordId : parents) {
             if (870979 == recordId.getAgencyId()) {

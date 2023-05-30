@@ -1,8 +1,9 @@
 package dk.dbc.rawrepo;
 
+import dk.dbc.common.records.ExpandCommonMarcRecord;
+import dk.dbc.common.records.MarcRecordExpandException;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.reader.MarcReaderException;
-import dk.dbc.marcrecord.ExpandCommonMarcRecord;
 import dk.dbc.marcxmerge.MarcXMerger;
 import dk.dbc.marcxmerge.MarcXMergerException;
 import dk.dbc.marcxmerge.MarcXMimeTypeMerger;
@@ -15,6 +16,7 @@ import dk.dbc.rawrepo.pool.ObjectPool;
 import dk.dbc.rawrepo.service.RecordObjectMapper;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
+import dk.dbc.vipcore.exception.VipCoreException;
 import dk.dbc.vipcore.libraryrules.VipCoreLibraryRulesConnector;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -239,12 +241,12 @@ public class RecordBean {
 
             try {
                 return dao.agencyFor(bibliographicRecordId, originalAgencyId, allowDeleted);
-            } catch (RawRepoExceptionRecordNotFound e1) {
+            } catch (RawRepoExceptionRecordNotFound | VipCoreException e1) {
                 // If agencyFor was call with allowDeleted = false then try again with allowDeleted = true
                 if (!allowDeleted) {
                     try {
                         return dao.agencyFor(bibliographicRecordId, originalAgencyId, true);
-                    } catch (RawRepoExceptionRecordNotFound e2) {
+                    } catch (RawRepoExceptionRecordNotFound | VipCoreException e2) {
                         throw new RecordNotFoundException(e2.getMessage());
                     }
                 } else {
@@ -261,7 +263,7 @@ public class RecordBean {
     /**
      * This function returns a merged deleted record.
      * <p>
-     * Deleted records don't have relations so we have to get the parent and child record and then merge them together
+     * Deleted records don't have relations, so we have to get the parent and child record and then merge them together
      * unlike just fetching the merged record.
      * <p>
      * Note: this function is only intended for 191919 records but might work with other agencies
@@ -270,7 +272,7 @@ public class RecordBean {
      * @param agencyId              Agency of the child/enrichment record
      * @param merger                Merge object
      * @return Record object with merged values from the input record and its parent record
-     * @throws InternalServerException When unexpected exception is throw
+     * @throws InternalServerException When unexpected exception is thrown
      * @throws RawRepoException        When exception is throw from AccessDTO
      * @throws RecordNotFoundException When the record is not found
      */
@@ -329,14 +331,15 @@ public class RecordBean {
 
                 return record;
             }
-        } catch (SQLException | MarcXMergerException ex) {
+        } catch (SQLException | MarcXMergerException |
+                 MarcReaderException | MarcRecordExpandException | VipCoreException ex) {
             LOGGER.error(ex.getMessage(), ex);
             throw new RawRepoException(ex.getMessage(), ex);
         }
     }
 
     void expandRecord(Record record, boolean keepAutField) throws
-            RawRepoException, RecordNotFoundException, InternalServerException {
+            RawRepoException, RecordNotFoundException, InternalServerException, VipCoreException {
         final RecordId recordId = record.getId();
         final String bibliographicRecordId = recordId.getBibliographicRecordId();
         final int agencyId = recordId.getAgencyId();
@@ -367,18 +370,18 @@ public class RecordBean {
 
                 if (expandableRecordId != null) {
                     final Set<RecordId> autParents = recordRelationsBean.getRelationsParents(expandableRecordId.bibliographicRecordId, expandableRecordId.agencyId);
-                    final Map<String, Record> autRecords = new HashMap<>();
+                    final Map<String, byte[]> autRecords = new HashMap<>();
 
                     for (RecordId parentId : autParents) {
                         if ("870979".equals(Integer.toString(parentId.getAgencyId()))) {
-                            autRecords.put(parentId.getBibliographicRecordId(), recordSimpleBean.fetchRecord(parentId.getBibliographicRecordId(), parentId.getAgencyId()));
+                            autRecords.put(parentId.getBibliographicRecordId(), recordSimpleBean.fetchRecord(parentId.getBibliographicRecordId(), parentId.getAgencyId()).getContent());
                         }
                     }
 
-                    ExpandCommonMarcRecord.expandRecord(record, autRecords, keepAutField);
+                    record.setContent(ExpandCommonMarcRecord.expandRecord(record.getContent(), autRecords, keepAutField));
                 }
             }
-        } catch (SQLException ex) {
+        } catch (SQLException | MarcReaderException | MarcRecordExpandException ex) {
             LOGGER.error(ex.getMessage(), ex);
             throw new RawRepoException(ex.getMessage(), ex);
         }
