@@ -21,7 +21,6 @@ import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.sql.DataSource;
-import javax.ws.rs.core.Response;
 import java.sql.Connection;
 import java.sql.SQLException;
 
