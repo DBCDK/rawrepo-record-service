@@ -4,7 +4,7 @@ import dk.dbc.marc.binding.DataField;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.binding.SubField;
 import dk.dbc.marc.reader.MarcReaderException;
-import dk.dbc.marcrecord.ExpandCommonMarcRecord;
+import dk.dbc.common.records.ExpandCommonMarcRecord;
 import dk.dbc.rawrepo.dao.RawRepoBean;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
@@ -75,7 +75,7 @@ public class RecordRelationsBean {
         }
     }
 
-    public int findParentRelationAgency(String bibliographicRecordId, int originalAgencyId) throws RecordNotFoundException, RawRepoException {
+    public int findParentRelationAgency(String bibliographicRecordId, int originalAgencyId) throws RecordNotFoundException, RawRepoException, VipCoreException {
         if (relationHints.usesCommonAgency(originalAgencyId)) {
             final List<Integer> list = relationHints.get(originalAgencyId);
             if (!list.isEmpty()) {
@@ -207,7 +207,7 @@ public class RecordRelationsBean {
      */
     @SuppressWarnings("PMD")
     public boolean parentIsActive(String bibliographicRecordId,
-                                  int agencyId) throws RecordNotFoundException, InternalServerException, RawRepoException {
+                                  int agencyId) throws RecordNotFoundException, InternalServerException, RawRepoException, VipCoreException {
         // There are no relations on enrichments other than to the common records. So in order to find the parent section
         // or head record we have to look at the common volume's parents
         final int mostCommonAgency = findParentRelationAgency(bibliographicRecordId, agencyId);
@@ -278,7 +278,7 @@ public class RecordRelationsBean {
     }
 
     public Set<RecordId> getRelationsSiblingsFromMe(String bibliographicRecordId, int agencyId) throws
-            InternalServerException, RawRepoException, RecordNotFoundException {
+            InternalServerException, RawRepoException, RecordNotFoundException, VipCoreException {
         try (Connection conn = dataSource.getConnection()) {
             if (recordSimpleBean.recordIsActive(bibliographicRecordId, agencyId)) {
                 try {

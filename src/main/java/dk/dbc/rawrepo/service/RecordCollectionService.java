@@ -29,6 +29,7 @@ import dk.dbc.rawrepo.output.OutputStreamRecordWriter;
 import dk.dbc.rawrepo.output.OutputStreamWriterUtil;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
+import dk.dbc.vipcore.exception.VipCoreException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -114,6 +115,9 @@ public class RecordCollectionService {
             return Response.serverError().build();
         } catch (RecordNotFoundException ex) {
             return Response.status(Response.Status.NO_CONTENT).build();
+        } catch (VipCoreException e) {
+            LOGGER.error("VipCore problem for agency {} : {}", agencyId, e.getMessage());
+            return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/record/{agencyid}/{bibliographicrecordid}");
         }
@@ -156,6 +160,9 @@ public class RecordCollectionService {
             return Response.serverError().build();
         } catch (RecordNotFoundException ex) {
             return Response.status(Response.Status.NO_CONTENT).build();
+        } catch (VipCoreException e) {
+            LOGGER.error("VipCore problem for agency {} : {}", agencyId, e.getMessage());
+            return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/records/{}/{}/content?allow-deleted={}&exclude-dbc-fields={}&use-parent-agency={}&expand={}&keep-aut-fields={}",
                     agencyId, bibliographicRecordId, allowDeleted, excludeDBCFields, useParentAgency, expand, keepAutFields);
@@ -181,6 +188,9 @@ public class RecordCollectionService {
             return Response.serverError().build();
         } catch (RecordNotFoundException ex) {
             LOGGER.error("Caught RecordNotFoundException: {}", ex.getMessage(), ex);
+            return Response.status(Response.Status.NO_CONTENT).build();
+        } catch (VipCoreException e) {
+            LOGGER.error("VipCore problem for agency {} : {}", agencyId, e.getMessage());
             return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/records/{}/{}/dataio?expand={}&handle-control-records={}", agencyId, bibliographicRecordId, expand, handleControlRecords);
@@ -334,6 +344,8 @@ public class RecordCollectionService {
         } catch (JSONBException | MarcReaderException | InternalServerException ex) {
             LOGGER.error("Exception during fetchRecordList", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } catch (VipCoreException e) {
+            return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/records/fetch");
         }
@@ -363,7 +375,7 @@ public class RecordCollectionService {
         }
     }
 
-    private void fetchRecords(boolean allowDeleted, boolean useParentAgency, RecordService.Mode mode, List<String> excludeAttributes, List<RecordDTO> found, List<RecordIdDTO> missing, RecordIdDTO recordId) throws InternalServerException, MarcReaderException {
+    private void fetchRecords(boolean allowDeleted, boolean useParentAgency, RecordService.Mode mode, List<String> excludeAttributes, List<RecordDTO> found, List<RecordIdDTO> missing, RecordIdDTO recordId) throws InternalServerException, MarcReaderException, VipCoreException {
         Record marcRecord;
         try {
             if (mode == RecordService.Mode.EXPANDED) {

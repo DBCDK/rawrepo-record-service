@@ -7,6 +7,7 @@ import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.rawrepo.service.RecordObjectMapper;
 import dk.dbc.util.Timed;
+import dk.dbc.vipcore.exception.VipCoreException;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -68,7 +69,7 @@ public class MarcRecordBean {
                                                           boolean useParentAgency,
                                                           boolean expand,
                                                           boolean keepAutFields,
-                                                          boolean excludeAutRecords) throws InternalServerException, RecordNotFoundException, MarcXMergerException, MarcReaderException {
+                                                          boolean excludeAutRecords) throws InternalServerException, RecordNotFoundException, MarcXMergerException, MarcReaderException, VipCoreException {
         final Map<String, Record> collection = recordCollectionBean.getRawRepoRecordCollection(bibliographicRecordId,
                 agencyId,
                 allowDeleted,
@@ -86,7 +87,7 @@ public class MarcRecordBean {
                                                              int agencyId,
                                                              boolean useParentAgency,
                                                              boolean expand,
-                                                             boolean handleControlRecords) throws InternalServerException, RecordNotFoundException {
+                                                             boolean handleControlRecords) throws InternalServerException, RecordNotFoundException, VipCoreException {
         return recordCollectionBean.getDataIORecordCollection(bibliographicRecordId,
                 agencyId,
                 useParentAgency,

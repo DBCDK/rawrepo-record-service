@@ -336,6 +336,7 @@ public class RecordBeanTest {
         byte[] actualMarcRecordContent = marcXchangeV1Writer.write(actualMarcRecord, StandardCharsets.UTF_8);
 
         assertThat(new String(actualMarcRecordContent), is(new String(expectedExpandedRecord.getContent())));
+        // TODO delete its this ass that is bad
     }
 
 }

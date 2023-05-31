@@ -27,6 +27,7 @@ import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.util.StopwatchInterceptor;
 import dk.dbc.util.Timed;
+import dk.dbc.vipcore.exception.VipCoreException;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -156,7 +157,7 @@ public class RecordService {
             res = jsonbContext.marshall(recordDTO);
 
             return Response.ok(res, MediaType.APPLICATION_JSON).build();
-        } catch (RecordNotFoundException ex) {
+        } catch (RecordNotFoundException | VipCoreException ex) {
             return Response.status(Response.Status.NO_CONTENT).build();
         } catch (JSONBException | InternalServerException | MarcReaderException ex) {
             LOGGER.error("Exception during fetchRecord", ex);
@@ -340,7 +341,7 @@ public class RecordService {
         } catch (JSONBException | InternalServerException | RawRepoException ex) {
             LOGGER.error("Exception during getRelationsSiblingsFromMe", ex);
             return Response.serverError().build();
-        } catch (RecordNotFoundException ex) {
+        } catch (RecordNotFoundException | VipCoreException ex) {
             return Response.status(Response.Status.NO_CONTENT).build();
         } finally {
             LOGGER.info("v1/record/{}/{}/siblings-from", agencyId, bibliographicRecordId);

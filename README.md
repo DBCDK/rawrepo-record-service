@@ -9,7 +9,7 @@ This service offers the following endpoints:
 ### Record data
     GET /api/v1/record/{agencyid}/{bibliographicrecordid}
 
-This endpoint returns a JSON document with all data from the correspoding record row. Content is present in both JSON 
+This endpoint returns a JSON document with all data from the corresponding record row. Content is present in both JSON 
 format (contentJSON field) and as byte encoded MarcXchange XML.
 $
 Parameters:
@@ -89,9 +89,9 @@ Returns a list of record ids of all records which this record has relations to.
 ### Record history
     GET v1/record/{agencyid}/{bibliographicrecordid}/history
     
-Returns a list of list meta data including modified date of all previous versions of the record.    
+Returns a list of list metadata including modified date of all previous versions of the record.    
 
-### Historic record
+### Historical record
     GET v1/record/{agencyid}/{bibliographicrecordid}/{date}
     
 Returns the raw record as it looked on {date}. Date must a 'modified' date from /history
@@ -128,7 +128,7 @@ Parameters:
 ### Records bulk load
     POST /api/v1/records/bulk
 
-This endpoint returns a JSON document with a collection of all records from the input. Input is a in the form of:
+This endpoint returns a JSON document with a collection of all records from the input. Input is in the form of:
 
     {
         "recordIds": [
@@ -138,7 +138,7 @@ This endpoint returns a JSON document with a collection of all records from the 
         ]
     }
 
-Currently there is no hard upper limit as for how many records can be loaded but the recommended limit is 200.
+Currently, there is no hard upper limit as for how many records can be loaded but the recommended limit is 200.
 
 Parameters:
     
@@ -193,7 +193,7 @@ If the letter fields (xYY where x is a letter and YY are numbers) should not be 
     Default: 'false'
 
 ### Expand
-Used by the record content endpoints to define if the content should be expanded in addition to merged.
+Used by the record content endpoints to define if the content should be expanded in addition to be merged.
 
     Param name: 'expand'
     Valid values: 'true', 'false'

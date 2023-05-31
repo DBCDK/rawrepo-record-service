@@ -8,6 +8,7 @@ import dk.dbc.marcxmerge.MarcXMergerException;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.util.Timed;
+import dk.dbc.vipcore.exception.VipCoreException;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -61,7 +62,7 @@ public class RecordCollectionBean {
                                                           boolean useParentAgency,
                                                           boolean expand,
                                                           boolean keepAutFields,
-                                                          boolean excludeAutRecords) throws InternalServerException, RecordNotFoundException {
+                                                          boolean excludeAutRecords) throws InternalServerException, RecordNotFoundException, VipCoreException {
         final Map<String, Record> collection = new HashMap<>();
         final Map<String, Record> result = new HashMap<>();
         try (Connection conn = dataSource.getConnection()) {
@@ -109,7 +110,7 @@ public class RecordCollectionBean {
                                                          int originalAgencyId,
                                                          boolean useParentAgency,
                                                          boolean expand,
-                                                         boolean handleControlRecords) throws InternalServerException, RecordNotFoundException {
+                                                         boolean handleControlRecords) throws InternalServerException, RecordNotFoundException, VipCoreException {
         final Map<String, Record> collection = new HashMap<>();
         final Map<String, Record> result = new HashMap<>();
         try (Connection conn = dataSource.getConnection()) {
@@ -151,7 +152,7 @@ public class RecordCollectionBean {
                                        boolean allowDeleted,
                                        boolean excludeDBCFields,
                                        boolean useParentAgency,
-                                       boolean excludeAutRecords) throws RawRepoException, InternalServerException, RecordNotFoundException {
+                                       boolean excludeAutRecords) throws RawRepoException, InternalServerException, RecordNotFoundException, VipCoreException {
         if (!collection.containsKey(bibliographicRecordId)) {
             final Record record = recordBean.getRawRepoRecordMerged(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency);
             collection.put(bibliographicRecordId, record);
@@ -176,7 +177,7 @@ public class RecordCollectionBean {
                                                boolean excludeDBCFields,
                                                boolean useParentAgency,
                                                boolean keepAutFields,
-                                               boolean excludeAutRecords) throws RawRepoException, InternalServerException, RecordNotFoundException {
+                                               boolean excludeAutRecords) throws RawRepoException, InternalServerException, RecordNotFoundException, VipCoreException {
         if (!collection.containsKey(bibliographicRecordId)) {
             final Record record = recordBean.getRawRepoRecordExpanded(bibliographicRecordId, agencyId, allowDeleted, excludeDBCFields, useParentAgency, keepAutFields);
             collection.put(bibliographicRecordId, record);
@@ -202,12 +203,12 @@ public class RecordCollectionBean {
                                              boolean expand,
                                              boolean isRoot,
                                              boolean allowDeletedParent,
-                                             boolean handleControlRecords) throws RecordNotFoundException, InternalServerException, RawRepoException, MarcReaderException {
+                                             boolean handleControlRecords) throws RecordNotFoundException, InternalServerException, RawRepoException, MarcReaderException, VipCoreException {
         if (!collection.containsKey(bibliographicRecordId)) {
             boolean newAllowDeletedParent = allowDeletedParent;
             Record record;
             if (isRoot) {
-                // In most cases we want the deleted volume enrichment. However in the situation where there is an active
+                // In most cases we want the deleted volume enrichment. However, in the situation where there is an active
                 // section or head enrichment for the FBS agency and a deleted volume record the collection should instead
                 // include the active common volume and the active head/section enrichment
                 if (recordRelationsBean.parentIsActive(bibliographicRecordId, agencyId)) {

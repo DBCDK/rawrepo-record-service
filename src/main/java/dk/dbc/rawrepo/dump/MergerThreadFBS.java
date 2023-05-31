@@ -1,5 +1,6 @@
 package dk.dbc.rawrepo.dump;
 
+import dk.dbc.common.records.MarcRecordExpandException;
 import dk.dbc.jsonb.JSONBException;
 import dk.dbc.marc.binding.DataField;
 import dk.dbc.marc.binding.MarcRecord;
@@ -17,6 +18,7 @@ import dk.dbc.rawrepo.dao.RawRepoBean;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
 import dk.dbc.rawrepo.pool.DefaultMarcXMergerPool;
+import dk.dbc.vipcore.exception.VipCoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -59,7 +61,7 @@ public class MergerThreadFBS implements Callable<Boolean> {
     }
 
     @Override
-    public Boolean call() throws RawRepoException, MarcWriterException, JSONBException, IOException, MarcReaderException, MarcXMergerException, RecordNotFoundException, InternalServerException, SAXException {
+    public Boolean call() throws RawRepoException, MarcWriterException, JSONBException, IOException, MarcReaderException, MarcXMergerException, RecordNotFoundException, InternalServerException, SAXException, MarcRecordExpandException, VipCoreException {
         final Map<String, byte[]> autRecords = new HashMap<>();
 
         if (recordSet.size() > 0) {
@@ -75,16 +77,16 @@ public class MergerThreadFBS implements Callable<Boolean> {
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
 
-            List<String> bibliograhicRecordIdsWithHolding = recordSet.entrySet()
+            List<String> bibliographicRecordIdsWithHolding = recordSet.entrySet()
                     .stream()
                     .filter(entry -> "holdings".equals(entry.getValue()))
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
 
-            LOGGER.info("Found the following records for agency {}: {} marcXchange records, {} enrichments and {} holdings", agencyId, marcXchangeBibliographicRecordIds.size(), enrichmentBibliographicRecordIds.size(), bibliograhicRecordIdsWithHolding.size());
+            LOGGER.info("Found the following records for agency {}: {} marcXchange records, {} enrichments and {} holdings", agencyId, marcXchangeBibliographicRecordIds.size(), enrichmentBibliographicRecordIds.size(), bibliographicRecordIdsWithHolding.size());
 
             // Handle local records
-            // Only DBC records can have authority link so we don't need to handle that here
+            // Only DBC records can have authority link, so we don't need to handle that here
             // Local records is equal to "raw" record
             byte[] local;
             byte[] result;
@@ -105,7 +107,7 @@ public class MergerThreadFBS implements Callable<Boolean> {
                 }
             }
 
-            // Handle enrichments
+            // Handle enrichments.
             // Enrichments can have DBC parents which have authority links so expanded records have to be handled
             // Enrichments can be returned as raw records
             if (!enrichmentBibliographicRecordIds.isEmpty()) {
@@ -154,8 +156,8 @@ public class MergerThreadFBS implements Callable<Boolean> {
             }
 
             // Handle holdings
-            if (!bibliograhicRecordIdsWithHolding.isEmpty()) {
-                List<RecordItem> recordItemList = rawRepoBean.getDecodedContent(bibliograhicRecordIdsWithHolding, null, 870970);
+            if (!bibliographicRecordIdsWithHolding.isEmpty()) {
+                List<RecordItem> recordItemList = rawRepoBean.getDecodedContent(bibliographicRecordIdsWithHolding, null, 870970);
                 for (RecordItem item : recordItemList) {
                     if (item != null) {
                         local = item.getLocal();
