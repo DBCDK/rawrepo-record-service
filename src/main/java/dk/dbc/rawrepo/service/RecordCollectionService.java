@@ -375,6 +375,30 @@ public class RecordCollectionService {
         }
     }
 
+    @POST
+    @Path("v1/records/siblingsToMe")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    @Timed
+    public Response getRelationsSiblings(RecordIdCollectionDTO recordIdCollectionDTO) {
+        final String res;
+        try {
+            final Set<RecordId> recordIds = recordIdCollectionDTOToObject(recordIdCollectionDTO);
+            final Map<RecordId, Set<RecordId>> relationsChildren = recordRelationsBean.getRelationsSiblingsToMe(recordIds);
+
+            final RecordRelationChildrenCollectionDTO dto = RecordDTOMapper.recordRelationChildrenCollectionToDTO(relationsChildren);
+
+            res = jsonbContext.marshall(dto);
+
+            return Response.ok(res, MediaType.APPLICATION_JSON).build();
+        } catch (JSONBException | InternalServerException e) {
+            LOGGER.error("Exception during getRelationsChildren", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            LOGGER.info("v1/records/children");
+        }
+    }
+
     private void fetchRecords(boolean allowDeleted, boolean useParentAgency, RecordService.Mode mode, List<String> excludeAttributes, List<RecordDTO> found, List<RecordIdDTO> missing, RecordIdDTO recordId) throws InternalServerException, MarcReaderException, VipCoreException {
         Record marcRecord;
         try {
