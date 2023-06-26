@@ -1,5 +1,5 @@
 package dk.dbc.rawrepo;
 
 public enum RelationsType {
-    CHILDREN, SIBLINGS_TO_ME;
+    CHILDREN, PARENTS, SIBLINGS_TO_ME, SIBLINGS_FROM_ME;
 }

@@ -379,8 +379,10 @@ public class RawRepoBean {
 
         if (mode == RelationsType.CHILDREN) {
             query += "AND bibliographicrecordid != refer_bibliographicrecordid";
-        } else {
+        } else if (mode == RelationsType.SIBLINGS_TO_ME) {
             query += "AND bibliographicrecordid = refer_bibliographicrecordid";
+        } else {
+            throw new UnsupportedOperationException(String.format("Relation type %s is not yet supported", mode));
         }
 
         int pos = 0;
