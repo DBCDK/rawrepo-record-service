@@ -2,6 +2,7 @@ package dk.dbc.rawrepo.dao;
 
 import dk.dbc.rawrepo.RawRepoException;
 import dk.dbc.rawrepo.RecordId;
+import dk.dbc.rawrepo.RelationsType;
 import dk.dbc.rawrepo.dump.RecordItem;
 import dk.dbc.rawrepo.dump.RecordStatus;
 import dk.dbc.util.StopwatchInterceptor;
@@ -360,7 +361,7 @@ public class RawRepoBean {
         }
     }
 
-    public Map<RecordId, Set<RecordId>> getRelationsChildren(Set<RecordId> recordIds) throws RawRepoException {
+    public Map<RecordId, Set<RecordId>> getRelations(Set<RecordId> recordIds, RelationsType mode) throws RawRepoException {
         final Map<RecordId, Set<RecordId>> result = new HashMap<>();
 
         if (recordIds.isEmpty()) {
@@ -372,10 +373,17 @@ public class RawRepoBean {
             placeHolders.add("(?, ?)");
         }
 
-        final String query = "SELECT bibliographicrecordid, agencyid, refer_bibliographicrecordid, refer_agencyid " +
+        String query = "SELECT bibliographicrecordid, agencyid, refer_bibliographicrecordid, refer_agencyid " +
                 "FROM relations " +
-                "WHERE (refer_bibliographicrecordid, refer_agencyid) IN (" + String.join(",", placeHolders) + ")" +
-                "AND bibliographicrecordid != refer_bibliographicrecordid";
+                "WHERE (refer_bibliographicrecordid, refer_agencyid) IN (" + String.join(",", placeHolders) + ") ";
+
+        if (mode == RelationsType.CHILDREN) {
+            query += "AND bibliographicrecordid != refer_bibliographicrecordid";
+        } else if (mode == RelationsType.SIBLINGS_TO_ME) {
+            query += "AND bibliographicrecordid = refer_bibliographicrecordid";
+        } else {
+            throw new UnsupportedOperationException(String.format("Relation type %s is not yet supported", mode));
+        }
 
         int pos = 0;
 

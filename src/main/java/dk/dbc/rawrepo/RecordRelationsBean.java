@@ -1,10 +1,10 @@
 package dk.dbc.rawrepo;
 
+import dk.dbc.common.records.ExpandCommonMarcRecord;
 import dk.dbc.marc.binding.DataField;
 import dk.dbc.marc.binding.MarcRecord;
 import dk.dbc.marc.binding.SubField;
 import dk.dbc.marc.reader.MarcReaderException;
-import dk.dbc.common.records.ExpandCommonMarcRecord;
 import dk.dbc.rawrepo.dao.RawRepoBean;
 import dk.dbc.rawrepo.exception.InternalServerException;
 import dk.dbc.rawrepo.exception.RecordNotFoundException;
@@ -198,8 +198,8 @@ public class RecordRelationsBean {
      * In short this function is used to determine if a deleted volume for an agency should be included in the DataIO
      * collection or not
      *
-     * @param bibliographicRecordId    ID of the record to find the records for
-     * @param agencyId                 The original agency
+     * @param bibliographicRecordId ID of the record to find the records for
+     * @param agencyId              The original agency
      * @return True if there is an active parent for the given agency, otherwise false
      * @throws RecordNotFoundException If the record isn't found
      * @throws InternalServerException If there is an unhandled exception
@@ -251,6 +251,14 @@ public class RecordRelationsBean {
     }
 
     public Map<RecordId, Set<RecordId>> getRelationsChildren(Set<RecordId> recordIds) throws InternalServerException {
+        return getRelations(recordIds, RelationsType.CHILDREN);
+    }
+
+    public Map<RecordId, Set<RecordId>> getRelationsSiblingsToMe(Set<RecordId> recordIds) throws InternalServerException {
+        return getRelations(recordIds, RelationsType.SIBLINGS_TO_ME);
+    }
+
+    private Map<RecordId, Set<RecordId>> getRelations(Set<RecordId> recordIds, RelationsType mode) throws InternalServerException {
         final Map<RecordId, Set<RecordId>> result = new HashMap<>();
         try {
             // There is a limit on how many values there can be in a query which means we have to slice up the input
@@ -266,7 +274,7 @@ public class RecordRelationsBean {
 
                 index += sliceSize;
 
-                final Map<RecordId, Set<RecordId>> slice = rawRepoBean.getRelationsChildren(sliceSet);
+                final Map<RecordId, Set<RecordId>> slice = rawRepoBean.getRelations(sliceSet, mode);
 
                 result.putAll(slice);
             }

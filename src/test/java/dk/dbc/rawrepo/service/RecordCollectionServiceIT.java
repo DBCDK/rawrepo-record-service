@@ -11,7 +11,8 @@ import dk.dbc.rawrepo.dto.RecordCollectionDTOv2;
 import dk.dbc.rawrepo.dto.RecordDTO;
 import dk.dbc.rawrepo.dto.RecordIdCollectionDTO;
 import dk.dbc.rawrepo.dto.RecordIdDTO;
-import org.hamcrest.CoreMatchers;
+import dk.dbc.rawrepo.dto.RecordRelationChildrenCollectionDTO;
+import dk.dbc.rawrepo.dto.RecordRelationChildrenDTO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -138,7 +139,7 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
         assertThat("Response code", response.getStatus(), is(204));
 
         String entity = response.readEntity(String.class);
-        assertThat("content", entity, CoreMatchers.is(""));
+        assertThat("content", entity, is(""));
     }
 
     @Test
@@ -505,7 +506,7 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
             String result = new BufferedReader(new InputStreamReader(inputStream))
                     .lines().collect(Collectors.joining("\n"));
 
-            assertThat(result, CoreMatchers.is(expected));
+            assertThat(result, is(expected));
         }
     }
 
@@ -545,8 +546,68 @@ class RecordCollectionServiceIT extends AbstractRecordServiceContainerTest {
             String result = new BufferedReader(new InputStreamReader(inputStream))
                     .lines().collect(Collectors.joining("\n"));
 
-            assertThat(result, CoreMatchers.is(expected));
+            assertThat(result, is(expected));
         }
+    }
+
+    @Test
+    void testRelationsChildren() {
+        final RecordIdCollectionDTO recordIdCollectionDTO = new RecordIdCollectionDTO();
+        final List<RecordIdDTO> recordIdDTOList = new ArrayList<>();
+        recordIdDTOList.add(new RecordIdDTO("50129691", 870970));
+        recordIdCollectionDTO.setRecordIds(recordIdDTOList);
+
+        final RecordRelationChildrenCollectionDTO expected = new RecordRelationChildrenCollectionDTO();
+        final List<RecordRelationChildrenDTO> expectedChildrenList = new ArrayList<>();
+        final RecordRelationChildrenDTO firstEntry = new RecordRelationChildrenDTO();
+        firstEntry.setRecordIdDTO(new RecordIdDTO("50129691", 870970));
+        firstEntry.setChildren(new ArrayList<>());
+        firstEntry.getChildren().add(new RecordIdDTO("05395720", 870970));
+
+        expectedChildrenList.add(firstEntry);
+        expected.setRecordRelationChildrenList(expectedChildrenList);
+
+        final PathBuilder path = new PathBuilder("/api/v1/records/children");
+        final HttpPost httpPost = new HttpPost(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build())
+                .withData(recordIdCollectionDTO, MediaType.APPLICATION_JSON);
+
+        final Response response = httpClient.execute(httpPost);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        final RecordRelationChildrenCollectionDTO actual = response.readEntity(RecordRelationChildrenCollectionDTO.class);
+        assertThat(actual, is(expected));
+    }
+
+    @Test
+    void testRelationsSiblingsToMe() {
+        final RecordIdCollectionDTO recordIdCollectionDTO = new RecordIdCollectionDTO();
+        final List<RecordIdDTO> recordIdDTOList = new ArrayList<>();
+        recordIdDTOList.add(new RecordIdDTO("50129691", 870970));
+        recordIdCollectionDTO.setRecordIds(recordIdDTOList);
+
+        final RecordRelationChildrenCollectionDTO expected = new RecordRelationChildrenCollectionDTO();
+        final List<RecordRelationChildrenDTO> expectedChildrenList = new ArrayList<>();
+        final RecordRelationChildrenDTO firstEntry = new RecordRelationChildrenDTO();
+        firstEntry.setRecordIdDTO(new RecordIdDTO("50129691", 870970));
+        firstEntry.setChildren(new ArrayList<>());
+        firstEntry.getChildren().add(new RecordIdDTO("50129691", 191919));
+
+        expectedChildrenList.add(firstEntry);
+        expected.setRecordRelationChildrenList(expectedChildrenList);
+
+        final PathBuilder path = new PathBuilder("/api/v1/records/siblingsToMe");
+        final HttpPost httpPost = new HttpPost(httpClient)
+                .withBaseUrl(recordServiceBaseUrl)
+                .withPathElements(path.build())
+                .withData(recordIdCollectionDTO, MediaType.APPLICATION_JSON);
+
+        final Response response = httpClient.execute(httpPost);
+        assertThat("Response code", response.getStatus(), is(200));
+
+        final RecordRelationChildrenCollectionDTO actual = response.readEntity(RecordRelationChildrenCollectionDTO.class);
+        assertThat(actual, is(expected));
     }
 
     private MarcRecord byteArrayToRecord(byte[] content) throws MarcReaderException {
